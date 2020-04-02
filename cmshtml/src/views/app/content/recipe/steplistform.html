@@ -1,0 +1,49 @@
+
+<div class="layui-form" lay-filter="cms-recipe-step-form" id="cms-recipe-step-form"style="padding: 20px 30px 0 0;">
+  <div class="layui-form-item">
+    <label class="layui-form-label">步骤图片</label>
+    <div class="layui-input-inline">
+      <script type="text/html" template>
+        <input type="text" id="stepimg" name="stepimg" value="{{ d.params.stepimg || '' }}" style="width:600px" lay-verify="required" placeholder="点击上传图片" autocomplete="off" class="layui-input">
+      </script>
+    </div>
+  </div>
+  <div class="layui-form-item">
+    <label class="layui-form-label"></label>
+    <div class="layui-input-inline">
+      <script type="text/html" template>
+        <button class="layui-btn" id="uploadfilerecipestep">上传图片</button>
+      </script>
+    </div>
+  </div>
+  <div class="layui-form-item">
+    <label class="layui-form-label">步骤说明</label>
+    <div class="layui-input-inline">
+      <script type="text/html" template>
+        <textarea name="description" lay-verify="required" placeholder="请输入" autocomplete="off" class="layui-textarea" style="width:600px">{{ d.params.description || '' }}</textarea>
+      </script>
+    </div>
+  </div>
+  <div class="layui-form-item">
+    <label class="layui-form-label">排序</label>
+    <div class="layui-input-inline">
+      <script type="text/html" template>
+        <input type="text" name="sort" value="{{ d.params.sort || 0 }}" lay-verify="required" placeholder="请输入排序号" autocomplete="off" class="layui-input">
+      </script>
+    </div>
+  </div>
+
+  <script type="text/html" template>
+    <input type="hidden" name="id" value="{{ d.params.id || '0' }}">
+  </script>
+
+  <div class="layui-form-item">
+    <label class="layui-form-label"></label>
+    <div class="layui-input-inline">
+      <input type="button" lay-submit lay-filter="cms-recipe-step-form-submit" value="确认" class="layui-btn">
+    </div>
+  </div>
+</div>
+<script>
+  layui.use('content/recipe/recipe_step_form', layui.factory('content/recipe/recipe_step_form'));
+</script>

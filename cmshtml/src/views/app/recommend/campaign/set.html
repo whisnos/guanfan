@@ -1,0 +1,81 @@
+<div class="layui-form" lay-filter="cms-content-campaign-status-set-form" id="cms-content-campaign-status-set-form" style="padding: 20px 30px 0 0;">
+    <script type="text/html" template lay-done="layui.data.done( d.params);">
+        <input type="hidden" id="id" name="id" value="{{ d.params.id }}">
+    </script>
+    <div class="layui-form-item">
+        <label class="layui-form-label">启用</label>
+        <div class="layui-btn-group">
+            <script type="text/html" template>
+                <input type="radio" name="status" value="1" title="上架" checked>
+                <input type="radio" name="status" value="0" title="下架">
+            </script>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">开始时间</label>
+        <div class="layui-input-inline">
+            <script type="text/html" template>
+                <input type="text" id="starttime" name="starttime" value="{{ d.params.starttime }}" lay-verify="required" placeholder="请输入收藏量" autocomplete="off" class="layui-input">
+            </script>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">结束时间</label>
+        <div class="layui-input-inline">
+            <script type="text/html" template>
+                <input type="text" id="endtime"  name="endtime" value="{{ d.params.endtime }}" lay-verify="required" placeholder="请输入收藏量" autocomplete="off" class="layui-input">
+            </script>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">访问量</label>
+        <div class="layui-input-inline">
+            <script type="text/html" template>
+                <input type="text" name="visitcount" value="{{ d.params.visitcount || '0' }}" lay-verify="required|number" placeholder="请输入数字" autocomplete="off" class="layui-input">
+            </script>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">排序</label>
+        <div class="layui-input-inline">
+            <script type="text/html" template>
+                <input type="text" name="sort" value="{{ d.params.sort || '' }}" lay-verify="required|number" placeholder="请输入" autocomplete="off" class="layui-input">
+            </script>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label"></label>
+        <div class="layui-input-inline">
+            <input type="button" lay-submit lay-filter="cms-content-campaign-status-set-form-submit" value="确认" class="layui-btn">
+        </div>
+    </div>
+
+</div>
+
+<script>
+    layui.data.done = function(d){
+        // console.log(d);
+        layui.use(['form','jquery','laydate'], function(){
+            var $ = layui.$
+            ,form = layui.form
+            ,laydate = layui.laydate;
+  
+            $('[name=status]').each(function(i,item){
+                if($(item).val()==d.status){
+                    $(item).prop('checked',true);
+                }
+            });
+            form.render(null, 'cms-content-campaign-status-set-form'); //渲染该模板下的动态表单
+                        //执行一个laydate实例
+            laydate.render({
+                elem: '#starttime' //指定元素
+                ,type: 'datetime'
+            });
+            laydate.render({
+                elem: '#endtime' //指定元素
+                ,type: 'datetime'
+            });
+        });
+    };
+    // layui.use('content/campaign/campaign_list', layui.factory('content/campaign/campaign_list'));
+</script>

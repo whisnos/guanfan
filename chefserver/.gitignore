@@ -1,0 +1,7 @@
+##ignore this file##
+log/
+__pycache__/
+*.log
+*.pyc
+*.dll
+*.exe

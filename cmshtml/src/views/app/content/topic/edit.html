@@ -1,0 +1,108 @@
+<div class="layui-form" lay-filter="cms-topic-edit-form" id="cms-topic-edit-form" style="padding: 20px 30px 0 0;">
+    <script type="text/html" template>
+      <input type="hidden" name="id" value="{{ d.params.id || '' }}">
+    </script>
+    <div class="layui-form-item">
+      <label class="layui-form-label">标题</label>
+      <div class="layui-input-inline">
+        <script type="text/html" template>
+          <input type="text" name="title" value="{{ d.params.title || '' }}" lay-verify="required" placeholder="请输入标题" autocomplete="off" class="layui-input">
+        </script>
+      </div>
+    </div>
+    <div class="layui-form-item">
+      <label class="layui-form-label">用户ID</label>
+      <div class="layui-input-inline">
+        <script type="text/html" template>
+          <input type="text" name="userid" value="{{ d.params.userid || '' }}" lay-verify="required|number" placeholder="请输入用户id" autocomplete="off" class="layui-input">
+        </script>
+      </div>
+    </div>
+    <script type="text/html" template>
+      
+      <div class="layui-form-item">
+        <label class="layui-form-label">封面图</label>
+        <div class="layui-input-inline">
+            {{# if(d.params.propertyIsEnumerable('id')){ }}
+            <img id="img_faceimg" src="{{ layui.setter.basehost + d.params.faceimg }}" class="cms-list-img" style="width:200px;height:auto;">
+            {{# }else{ }}
+            <img id="img_faceimg" src="" class="cms-list-img" style="width:200px;height:auto;">
+            {{#  } }}
+        </div>
+      </div>
+    </script>
+    <div class="layui-form-item">
+      <label class="layui-form-label">封面地址</label>
+      <div class="layui-input-inline">
+        <script type="text/html" template>
+          <input type="text" id="faceimg" name="faceimg" value="{{ d.params.faceimg || '' }}" style="width:400px" lay-verify="required" placeholder="点击上传图片" autocomplete="off" class="layui-input">
+        </script>
+      </div>
+    </div>
+    <div class="layui-form-item">
+      <label class="layui-form-label"></label>
+      <div class="layui-input-inline">
+        <script type="text/html" template>
+          <button class="layui-btn" id="uploadfileface">上传图片</button>
+        </script>
+      </div>
+    </div>
+  <script type="text/html" template>
+  
+    <div class="layui-form-item">
+      <label class="layui-form-label">主图</label>
+      <div class="layui-input-inline">
+            {{# if(d.params.propertyIsEnumerable('id')){ }}
+            <img id="img_maininfourl" src="{{ layui.setter.basehost + d.params.maininfourl }}" class="cms-list-img" style="width:200px;height:auto;">
+            {{# }else{ }}
+            <img id="img_maininfourl" src="" class="cms-list-img" style="width:200px;height:auto;">
+            {{#  } }}
+      </div>
+    </div>
+  </script>
+    <div class="layui-form-item">
+        <label class="layui-form-label">主图地址</label>
+        <div class="layui-input-inline">
+            <script type="text/html" template>
+              <input type="text" id="maininfourl" name="maininfourl" value="{{ d.params.maininfourl || '' }}" style="width:400px" lay-verify="required" placeholder="点击上传图片" autocomplete="off" class="layui-input">
+            </script>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label"></label>
+        <div class="layui-input-inline">
+            <script type="text/html" template>
+              <button class="layui-btn" id="uploadfilemain">上传图片</button>
+            </script>
+        </div>
+    </div>
+    <div class="layui-form-item">
+      <label class="layui-form-label">简介</label>
+      <div class="layui-input-inline">
+        <script type="text/html" template>
+          <textarea name="introduction" lay-verify="required|introduction" placeholder="请输入" autocomplete="off" class="layui-textarea" style="width:400px">{{ d.params.introduction || '' }}</textarea>
+        </script>
+      </div>
+    </div>
+    <div class="layui-form-item">
+      <label class="layui-form-label"></label>
+      <div class="layui-input-inline">
+        <input type="button" lay-submit lay-filter="cms-topic-edit-form-submit" value="确认" class="layui-btn">
+      </div>
+    </div>
+  </div>
+  <script>
+    layui.use(['form'], function () {
+      var $ = layui.$
+        , form = layui.form;
+      form.verify({
+        introduction: function (value) {
+          if (value.length > 300) {
+            return '简介少于300字符';
+          }
+        }
+      })
+    });
+
+    layui.use('content/topic/topic_edit', layui.factory('content/topic/topic_edit'));
+  </script>

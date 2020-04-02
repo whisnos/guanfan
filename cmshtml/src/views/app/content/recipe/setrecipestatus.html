@@ -1,0 +1,128 @@
+<div class="layui-card-body">
+    <div class="layui-tab">
+        <ul class="layui-tab-title">
+            <li class="layui-this">设置状态</li>
+            <li class="">设置数量</li>
+        </ul>
+        <div class="layui-tab-content">
+            <div class="layui-tab-item layui-show">
+                <div class="layui-form" lay-filter="cms-recipe-set-status-edit-form" id="cms-recipe-set-status-edit-form"
+                    style="padding: 20px 30px 0 0;">
+                    <script type="text/html" template lay-done="layui.data.done( d.params);"></script>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">是否精选</label>
+                        <div class="layui-btn-group">
+                            <script type="text/html" template>
+                                <!-- <input type="text" name="isFeatured" value="{{ d.params.isFeatured || '' }}" lay-verify="required" placeholder="请输入标题" autocomplete="off" class="layui-input"> -->
+                                <input type="radio" name="isFeatured" value="1" title="是">
+                                <input type="radio" name="isFeatured" value="0" title="否" checked>
+                            </script>
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">是否启用</label>
+                        <div class="layui-btn-group">
+                            <script type="text/html" template>
+                                <input type="radio" name="isEnable" value="1" title="上架">
+                                <input type="radio" name="isEnable" value="0" title="下架" checked>
+                            </script>
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">状态</label>
+                        <div class="layui-btn-group">
+                            <script type="text/html" template>
+                                <input type="radio" name="status" value="1" title="已审核">
+                                <input type="radio" name="status" value="0" title="未审核" checked>
+                                <input type="radio" name="status" value="2" title="草稿">
+                                <input type="radio" name="status" value="-1" title="删除">
+                            </script>
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">是否独家</label>
+                        <div class="layui-btn-group">
+                            <script type="text/html" template>
+                                <input type="radio" name="isExclusive" value="1" title="是">
+                                <input type="radio" name="isExclusive" value="0" title="否" checked>
+                            </script>
+                        </div>
+                    </div>
+                    <script type="text/html" template>
+                    <input type="hidden" name="id" value="{{ d.params.id || '0' }}">
+                    </script>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label"></label>
+                        <div class="layui-btn-group">
+                            <input type="button" lay-submit lay-filter="cms-recipe-set-status-edit-form-submit" value="确认修改"
+                                class="layui-btn">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="layui-tab-item">
+                <div class="layui-form" lay-filter="cms-recipe-set-num-edit-form" id="cms-recipe-set-num-edit-form"
+                    style="padding: 20px 30px 0 0;">
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">收藏量</label>
+                        <div class="layui-input-inline">
+                            <script type="text/html" template>
+                                <input type="text" name="collectionCount" value="{{ d.params.collectionCount || '0' }}" lay-verify="required|number" placeholder="请输入收藏量" autocomplete="off" class="layui-input">
+                            </script>
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">访问量</label>
+                        <div class="layui-input-inline">
+                            <script type="text/html" template>
+                                <input type="text" name="visitCount" value="{{ d.params.visitCount || '0' }}" lay-verify="required|number" placeholder="请输入访问量" autocomplete="off" class="layui-input">
+                            </script>
+                        </div>
+                    </div>
+                    <script type="text/html" template>
+                        <input type="hidden" name="id" value="{{ d.params.id || '0' }}">
+                    </script>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label"></label>
+                        <div class="layui-input-inline">
+                            <input type="button" lay-submit lay-filter="cms-recipe-set-num-edit-form-submit" value="确认修改"
+                                class="layui-btn">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    layui.data.done = function(d){
+        // console.log(d);
+        layui.use(['form','jquery'], function(){
+        var $ = layui.$
+            ,form = layui.form;
+
+            $('[name=isFeatured]').each(function(i,item){
+                if($(item).val()==d.isFeatured){
+                    $(item).prop('checked',true);
+                }
+            });
+            $('[name=isEnable]').each(function(i,item){
+                if($(item).val()==d.isEnable){
+                    $(item).prop('checked',true);
+                }
+            });
+            $('[name=status]').each(function(i,item){
+                if($(item).val()==d.status){
+                    $(item).prop('checked',true);
+                }
+            });
+            $('[name=isExclusive]').each(function(i,item){
+                if($(item).val()==d.isExclusive){
+                    $(item).prop('checked',true);
+                }
+            });
+            form.render(null, 'cms-recipe-set-status-edit-form'); //渲染该模板下的动态表单
+        });
+    };
+    // layui.use('content/recipe/recipe_list', layui.factory('content/recipe/recipe_list'));
+</script>

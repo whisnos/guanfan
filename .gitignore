@@ -1,0 +1,18 @@
+##ignore this file##
+.idea/
+bin/
+lib/
+lib64
+log/
+__pycache__/
+*.log
+*.pyc
+*.dll
+*.exe
+*.out
+*.cfg
+*.json
+config.py
+__main__.py
+
+

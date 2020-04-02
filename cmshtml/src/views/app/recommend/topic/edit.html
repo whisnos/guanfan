@@ -1,0 +1,74 @@
+<div class="layui-form" lay-filter="cms-recommend-recomtopic-edit-form" id="cms-recommend-recomtopic-edit-form"
+    style="padding: 20px 30px 0 0;">
+    <div class="layui-form-item">
+        <label class="layui-form-label">主题id</label>
+        <div class="layui-input-inline">
+            <script type="text/html" template>
+                <input type="text" name="topicid" value="{{ d.params.topicId || '' }}" lay-verify="required|number" placeholder="请输入ID" autocomplete="off" class="layui-input">
+            </script>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">推荐理由</label>
+        <div class="layui-input-inline">
+            <script type="text/html" template>
+              <input type="text" name="reason" value="{{ d.params.reason || '' }}" lay-verify="required|inputlength" placeholder="请输入推荐理由" autocomplete="off" class="layui-input">
+            </script>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">排序号</label>
+        <div class="layui-input-inline">
+            <script type="text/html" template>
+                <input type="text" name="sort" value="{{ d.params.sort || '0' }}" lay-verify="required|number|sortnum" placeholder="请输入序号" autocomplete="off" class="layui-input">
+            </script>
+        </div>
+    </div>
+    <script type="text/html" template lay-done="layui.data.done(d.params);">
+        <input type="hidden" name="id" value="{{ d.params.id || '' }}">
+    </script>
+    <div class="layui-form-item">
+        <label class="layui-form-label">推荐</label>
+        <div class="layui-input-inline">
+            <select id="selstatus" name="status" lay-verify="">
+                <option value="">请选择标签</option>
+                <option value="1">是</option>
+                <option value="0">否</option>
+            </select>
+        </div>
+    </div>
+ 
+    <div class="layui-form-item">
+        <label class="layui-form-label"></label>
+        <div class="layui-input-inline">
+            <input type="button" lay-submit lay-filter="cms-recommend-recomtopic-edit-form-submit" value="确认"
+                class="layui-btn">
+        </div>
+    </div>
+</script>
+</div>
+<script>
+    layui.data.done = function(d){
+        layui.use(['form','jquery'], function(){
+        var $ = layui.$
+            ,form = layui.form;
+            $("#selstatus").val($("#hstatus").val());
+            form.verify(
+                {
+                sortnum: function (value) {
+                    if (value.length > 4) {
+                        return '数字小于5位数';
+                    }
+                },
+                inputlength: function (value) {
+                    if (value.length > 100) {
+                        return '输入长度小于100';
+                    }
+                }
+            });
+            $("#selstatus").val(d.status);
+            form.render(null, 'cms-recommend-recomtopic-edit-form'); //渲染该模板下的动态表单
+        });
+    };
+    // layui.use('recommend/topic/list', layui.factory('recommend/topic/list'));
+</script>

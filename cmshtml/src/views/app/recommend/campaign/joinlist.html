@@ -1,0 +1,55 @@
+<title>参与作品列表</title>
+<div class="layui-card layadmin-header">
+    <div class="layui-breadcrumb" lay-filter="breadcrumb">
+      <a><cite>参与作品列表</cite></a>
+        <script type="text/html" template>
+            <input type="hidden" id="campaignid" name="campaignid" value="{{ d.params.id || '' }}">
+        </script>
+    </div>
+</div>
+<div class="layui-fluid">
+    <div class="layui-card">
+        <div class="layui-form layui-card-header layuiadmin-card-header-auto" lay-filter="cms-recommend-campaign-join-search">
+            <div class="layui-inline">
+                <label class="layui-form-label">用户ID</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="userid" placeholder="请输入用户ID" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-inline">
+                <button class="layui-btn layuiadmin-btn-list" lay-submit lay-filter="cms-recommend-campaign-join-search-submit">
+                    <i class="layui-icon layui-icon-search layuiadmin-button-btn"></i>查询
+                </button>
+            </div>
+        </div>
+        <div class="layui-card-body">
+            <script type="text/html" template lay-done="layui.data.handler_recomend_campaign_join_table(d.params)">
+                <table id="LAY-cms-recommend-campaign-join-list" lay-filter="LAY-cms-recommend-campaign-join-list"></table>
+            </script>
+
+            <script type="text/html" id="campaign_join_type_uri_Tpl">
+                {{# if(d.jointype===1){ }}
+                    <a style="color:blue;" href="#/app/content/dongtai/list/id={{ d.joinid }}">{{ d.joinid }}</a>
+                {{# }else if(d.jointype===2){ }}
+                    <a style="color:blue;" href="#/app/content/recipe/list/id={{ d.joinid }}">{{ d.joinid }}</a>
+                {{# } else { }}
+                    <div>{{ d.joinid }}</div>
+                {{# }}}
+            </script>
+
+            <script type="text/html" id="campaign_join_img_ViewTpl">
+                <button class="layui-btn layui-btn-xs" style="background-color:#1e9fff" lay-event="joinitembig">查看大图</button>
+            </script>
+            <script type="text/html" id="toolbar-campaign-join-list">
+                <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="campaign_join_del"><i class="layui-icon layui-icon-delete"></i>删除</a>
+            </script>
+        </div>
+    </div>
+</div>
+<script>
+    layui.use(['admin', 'form'], function(){
+        var form = layui.form;
+        form.render(null, 'cms-campaign-content-search-form');
+    });
+    layui.use('recommend/campaign/contentlist', layui.factory('recommend/campaign/contentlist'));
+</script>

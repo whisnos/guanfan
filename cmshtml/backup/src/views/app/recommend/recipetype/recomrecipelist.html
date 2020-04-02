@@ -1,0 +1,57 @@
+<title>精品分类推荐食谱</title>
+<div class="layui-card layadmin-header">
+  <div class="layui-breadcrumb" lay-filter="breadcrumb">
+    <a><cite>精品分类推荐食谱</cite></a>
+    <script type="text/html" template>
+        <input type="hidden" id="hidden_recipetype_id" name="id" value="{{ d.params.id || '' }}">
+    </script>
+  </div>
+</div>
+<div class="layui-fluid">
+    <div class="layui-card">
+        <div class="layui-card-body">
+
+        <div style="padding-bottom: 10px;">        
+            <button class="layui-btn layuiadmin-btn-list" data-type="recommend_recipe_batchdel">删除</button>
+            <button class="layui-btn layuiadmin-btn-list" data-type="recommend_recipe_add">添加</button>
+        </div>
+
+        <script type="text/html" template lay-done="layui.data.handler_recomend_recipe_list_table(d.params)">
+            <table id="LAY-cms-recommend-recipe-list" lay-filter="LAY-cms-recommend-recipe-list"></table>
+        </script>
+
+        <script type="text/html" id="recommend_recipe_isenable_Tpl">
+            {{#  if(d.isEnable===1){ }}
+                <!-- <div class="layui-table-cell">是</div> -->
+                <div class="layui-btn layui-btn-xs">上架</div>
+            {{#  } else { }} 
+                <!-- <div class="layui-table-cell">否</div> -->
+                <div class="layui-btn layui-btn-primary layui-btn-xs" style="color:#cebdbd">下架</div>
+            {{#  } }}
+        </script>
+
+        <script type="text/html" id="recommend_recipetype_recipe_id_Tpl">
+            <a style="color:blue;" href="#/app/content/recipe/list/id={{ d.recipeid }}">{{ d.recipeid }}</a>
+        </script>
+
+        <script type="text/html" id="recommend_recipe_status_Tpl">
+            {{#  if(d.recipestatus===0){ }}
+                <button class="layui-btn layui-btn-xs" style="background-color:#787cce">待审核</button>
+            {{#  } else if(d.recipestatus===1) { }}
+                <button class="layui-btn layui-btn-xs">已审核</button>
+            {{#  } else if(d.recipestatus===2) { }}
+                <button class="layui-btn layui-btn-primary layui-btn-xs">草稿</button>
+            {{#  } else{ }}
+                <button class="layui-btn layui-btn-primary layui-btn-xs" style="color:#cebdbd">已删除</button>
+            {{#  } }}
+        </script>
+        <script type="text/html" id="table-recommend-recipe-list">
+            <a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="recommend_recipe_edit"><i class="layui-icon layui-icon-edit"></i>编辑</a>
+            <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="recommend_recipe_del"><i class="layui-icon layui-icon-delete"></i>删除</a>
+        </script>
+        </div>
+    </div>
+</div>
+<script>
+layui.use('recommend/recipetype/recommendrecipelist', layui.factory('recommend/recipetype/recommendrecipelist'));
+</script>

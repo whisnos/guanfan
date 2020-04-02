@@ -1,0 +1,73 @@
+<div class="layui-form" lay-filter="cms-content-topic-status-set-form" id="cms-content-topic-status-set-form" style="padding: 20px 30px 0 0;">
+    <div class="layui-form-item">
+        <label class="layui-form-label">启用</label>
+        <div class="layui-input-inline">
+            <select id="selisenable" name="isenable" lay-verify="">
+                <option value="">请选择标签</option>
+                <option value="1">是</option>
+                <option value="0">否</option>
+            </select>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">状态</label>
+        <div class="layui-input-inline">
+            <select id="selstatus" name="status" lay-verify="">
+                <option value="">请选择标签</option>
+                <option value="1">已审核</option>
+                <option value="0">待审核</option>
+                <option value="-1">已删除</option>
+            </select>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">加入推荐</label>
+        <div class="layui-input-inline">
+            <select id="selisrecommend" name="isrecommend" lay-verify="">
+                <option value="">请选择标签</option>
+                <option value="1">是</option>
+                <option value="0">否</option>
+            </select>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">访问量</label>
+        <div class="layui-input-inline">
+            <script type="text/html" template>
+                <input type="text" name="visitcount" value="{{ d.params.visitcount || '0' }}" lay-verify="required|number" placeholder="请输入数字" autocomplete="off" class="layui-input">
+            </script>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">收藏量</label>
+        <div class="layui-input-inline">
+            <script type="text/html" template>
+                <input type="text" name="collectioncount" value="{{ d.params.collectioncount || '0' }}" lay-verify="required|number" placeholder="请输入数字" autocomplete="off" class="layui-input">
+            </script>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label"></label>
+        <div class="layui-input-inline">
+            <input type="button" lay-submit lay-filter="cms-content-topic-status-set-form-submit" value="确认" class="layui-btn">
+        </div>
+    </div>
+    <script type="text/html" template lay-done="layui.data.done( d.params);">
+        <input type="hidden" id="id" name="id" value="{{ d.params.id }}">
+    </script>
+</div>
+
+<script>
+    layui.data.done = function(d){
+        // console.log(d);
+        layui.use(['form','jquery'], function(){
+        var $ = layui.$
+            ,form = layui.form;
+            $("#selisenable").val(d.isenable); 
+            $("#selstatus").val(d.status); 
+            $("#selisrecommend").val(d.isrecommend); 
+            form.render(null, 'cms-content-topic-status-set-form'); //渲染该模板下的动态表单
+        });
+    };
+    // layui.use('content/topic/topic_list', layui.factory('content/topic/topic_list'));
+</script>

@@ -1,0 +1,15 @@
+
+<div class="layui-form" lay-filter="cms-content-dongtai-img-list" id="cms-content-dongtai-img-list" style="padding: 20px 30px 0 0;">
+    <div class="layui-form-item">
+        <script type="text/html" template>
+            <input type="hidden" name="id" value="{{ d.params.id || '' }}">
+        </script>
+    </div>
+    <div class="layui-form-item">
+        <script type="text/html" template>
+        {{#  layui.each(d.params.momentsimgurl.split('|'), function(index, item){ }}
+            <img src="{{ layui.setter.basehost + item + '?x-oss-process=style/detail-img'}}" style="width:200px;height:auto;padding:2px;">
+        {{#  }); }}
+        </script>
+    </div>
+</div>
