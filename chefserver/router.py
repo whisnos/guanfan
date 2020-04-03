@@ -1,4 +1,4 @@
-from chefserver.webhandler.user import LoginHandler,SendSmsHandler,RestPasswordHandler
+﻿from chefserver.webhandler.user import LoginHandler,SendSmsHandler,RestPasswordHandler
 from chefserver.webhandler.user import ModifyPhonedHandler,LogoutHandler,PersonInfoHandler
 from chefserver.webhandler.user import ModifyInfoHandler, SubmitAdvancedHandler,RegisterHandler
 from chefserver.webhandler.upload import UploadPhotoHandler
@@ -154,3 +154,4 @@ def make_app():
         # autoreload = True,
         # serve_traceback= True
     )
+# yong
