@@ -122,7 +122,7 @@ createTime as pushtime,
 isvideo,
 likecount
 from moments_info
-where id in ({})
+where id in ({}) and `isvideo` =1
 ) as mmi
 inner join user as us
 on us.id = mmi.userid and us.`status` = 0
