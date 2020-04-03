@@ -52,6 +52,12 @@ class IndexClassInfoAllHandler(BaseHandler):
         return self.send_message(success, code, message, result)
 
 
+class IndexChannelInfoAllHandler(BaseHandler):
+    ''' 首页海报 '''
+    async def post(self):
+        success, code, message, result = await channel_list()
+        return self.send_message(success, code, message, result)
+
 async def get_all_classinfo():
     ''' 获取所有分类 '''
     classinfo_sql = '''
@@ -235,6 +241,18 @@ async def banner_list(chl):
     else:
         return True, 0, 'success', result
 
+async def channel_list():
+    ''' 获取频道列表 '''
+    banner_list_sql = '''
+    SELECT id, title, faceImg, mainInfoUrl, sort, likeCount, status
+    from channel_info
+    where `status`=0 order by sort desc;
+    '''
+    result = await dbins.select(banner_list_sql, ())
+    if result is None:
+        return False, 3003, '获取频道列表异常,请重试', None
+    else:
+        return True, 0, 'success', result
 
 if __name__ == '__main__':
     async def test_banner_list():

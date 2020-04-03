@@ -99,6 +99,7 @@ async def get_recommend_dtrandomlist(myid, dtlist):
     dt_nums = len(dt_id_list)
     re_nums = dt_nums * 2 if dt_nums * 2 >= 30 else dt_nums + 15
     rand_res_list = await CacheRecommedDongtai().get_random(re_nums)
+    print('rand_res_list',rand_res_list)
     end_res_set = set(rand_res_list) - set(dt_id_list)
     if len(end_res_set) == 0:
         return False, 1002, '推荐数据为空', []
@@ -122,7 +123,7 @@ createTime as pushtime,
 isvideo,
 likecount
 from moments_info
-where id in ({})
+where id in ({}) and `isvideo` =1
 ) as mmi
 inner join user as us
 on us.id = mmi.userid and us.`status` = 0
