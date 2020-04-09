@@ -1,4 +1,5 @@
-﻿from chefserver.webhandler.user import LoginHandler,SendSmsHandler,RestPasswordHandler
+﻿from chefserver.webhandler.food_channel import ChannelListHandler
+from chefserver.webhandler.user import LoginHandler,SendSmsHandler,RestPasswordHandler
 from chefserver.webhandler.user import ModifyPhonedHandler,LogoutHandler,PersonInfoHandler
 from chefserver.webhandler.user import ModifyInfoHandler, SubmitAdvancedHandler,RegisterHandler
 from chefserver.webhandler.upload import UploadPhotoHandler
@@ -144,6 +145,7 @@ def make_app():
         (r"/campaign/dtlist", CampaignMomentListAllHandler),     # 活动最新最热动态
         (r"/campaign/openprize", CampaignOpenPrizeHandler),      # 活动开奖
         (r"/campaign/sponsor", CampaignSponsorDetailHandler),    # 活动获取赞助商信息
+        (r"/channel/detail", ChannelListHandler),                # 美食频道详情
         (r"/auth/verify", AuthVerifyHandler),                    # 第三方账号验证
         (r"/auth/bind", AuthBindHandler),                        # 第三方登录绑定验证
         (r"/uploadvideo", VideoUploadAuthKeyHandler),            # 获取视频上传凭证

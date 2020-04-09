@@ -244,7 +244,7 @@ async def banner_list(chl):
 async def channel_list():
     ''' 获取频道列表 '''
     banner_list_sql = '''
-    SELECT id, title, faceImg, mainInfoUrl, sort, likeCount, status
+    SELECT id, title, faceImg, mainInfoUrl, sort, visitCount, status
     from channel_info
     where `status`=0 order by sort desc;
     '''
@@ -252,7 +252,21 @@ async def channel_list():
     if result is None:
         return False, 3003, '获取频道列表异常,请重试', None
     else:
+        result = await count_channel_num(result)
         return True, 0, 'success', result
+
+async def count_channel_num(result):
+    ''' 获取频道热度'''
+    cout_moments_num_sql = '''
+    SELECT COUNT(*) as count 
+    FROM channel_moment_relation
+    WHERE channelId = ?
+    '''
+    for p in result:
+        channel_id = p.get('id')
+        count_num = await dbins.select(cout_moments_num_sql, (channel_id,))
+        p['hotCount'] = count_num[0]['count']+p['visitCount']
+    return result
 
 if __name__ == '__main__':
     async def test_banner_list():
