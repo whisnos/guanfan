@@ -1,0 +1,42 @@
+<title>推荐主题列表</title>
+
+<div class="layui-card layadmin-header">
+    <div class="layui-breadcrumb" lay-filter="breadcrumb">
+        <a lay-href="app/recommend/topic/list">推荐</a>
+        <a><cite>推荐主题列表</cite></a>
+        <a><cite>列表</cite></a>
+    </div>
+</div>
+<div class="layui-fluid">
+    <div class="layui-card">
+        <div class="layui-card-body">
+            <div style="padding-bottom: 10px;">
+                <button class="layui-btn layuiadmin-btn-list" data-type="recipe_type_add">添加推荐主题</button>
+            </div>
+            <table id="LAY-cms-recommend-recomtopic-list" lay-filter="LAY-cms-recommend-recomtopic-list"></table>
+
+            <script type="text/html" id="recommend_topic_id_Tpl">
+                <a style="color:blue;" href="#/app/content/topic/list/id={{ d.topicId }}">{{ d.topicId }}</a>
+            </script>
+
+            <script type="text/html" id="recomtopic_status_Tpl">
+                {{#  if(d.status===1){ }}
+                    <button class="layui-btn layui-btn-xs">推荐</button>
+                {{#  }else if(d.status===0){ }}
+                    <button class="layui-btn layui-btn-warm layui-btn-xs">未推荐</button>
+                {{#  }else if(d.status===-1){ }}
+                    <button class="layui-btn layui-btn-primary layui-btn-xs" style="color:#cebdbd">已删除</button>
+                {{#  }else{ }}
+                    <div class="layui-table-cell">未知:{{d.status}}</div>
+                {{#  } }}
+            </script>
+            <script type="text/html" id="toolbar-recipe-type-content-list">
+            <a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="recipe_type_edit"><i class="layui-icon layui-icon-edit"></i>编辑</a>
+            <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="recipe_type_del"><i class="layui-icon layui-icon-delete"></i>删除</a>
+            </script>
+        </div>
+    </div>
+</div>
+<script>
+    layui.use('recommend/topic/list', layui.factory('recommend/topic/list'));
+</script>

@@ -1,0 +1,61 @@
+<title>活动内容</title>
+<div class="layui-card layadmin-header">
+    <div class="layui-breadcrumb" lay-filter="breadcrumb">
+      <a><cite>活动内容</cite></a>
+        <script type="text/html" template>
+            <input type="hidden" id="campaignid" name="campaignid" value="{{ d.params.id || '' }}">
+        </script>
+    </div>
+</div>
+<div class="layui-fluid">
+    <div class="layui-card">
+        <div class="layui-card-body">
+            <div style="padding-bottom: 10px;">
+                <button class="layui-btn layuiadmin-btn-list" id="btnaddcontent" data-type="campaign_add">添加活动图</button>
+            </div>
+            <div class="layui-form" lay-filter="cms-campaign-content-search-form" id="cms-campaign-content-search-form">
+                <div class="layui-form-item">
+                    <!-- <label class="layui-form-label" style="width: 80px;">内容分类:</label> -->
+                    <div class="layui-input-group">
+                        <input type="radio" name="camcontent" value="1" title="活动内容" lay-filter="chosecontent" checked>
+                        <input type="radio" name="camcontent" value="2" title="活动开奖" lay-filter="chosecontent" >
+                    </div>
+                </div>
+            </div>
+            <script type="text/html" template lay-done="layui.data.handler_recomend_campaign_content_table(d.params)">
+                <table id="LAY-cms-recommend-campaign-content-list" lay-filter="LAY-cms-recommend-campaign-content-list"></table>
+            </script>
+            <script type="text/html" id="campaign_content_img_ViewTpl">
+                <button class="layui-btn layui-btn-xs" style="background-color:#1e9fff" lay-event="contentimgbig">查看大图</button>
+            </script>
+            <script type="text/html" id="campaign_content_type_Tpl">
+                {{#  if(d.navtype===1){ }}
+                    <div>动态</div>
+                {{#  }else if(d.navtype===2){ }}
+                    <div>菜谱</div>
+                {{#  }else if(d.navtype===3){ }}
+                    <div>主题</div>
+                {{#  }else if(d.navtype===4){ }}
+                    <div>用户</div>
+                {{#  }else if(d.navtype===5){ }}
+                    <div>活动</div>
+                {{#  }else if(d.navtype===0){ }}
+                    <div>无</div>
+                {{#  } else { }}
+                  <div>其它</div>
+                {{#  }}}
+            </script>
+            <script type="text/html" id="toolbar-campaign-content-list">
+                <a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="campaign_content_edit"><i class="layui-icon layui-icon-edit"></i>编辑</a>
+                <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="campaign_content_del"><i class="layui-icon layui-icon-delete"></i>删除</a>
+            </script>
+        </div>
+    </div>
+</div>
+<script>
+    layui.use(['admin', 'form'], function(){
+        var form = layui.form;
+        form.render(null, 'cms-campaign-content-search-form');
+    });
+    layui.use('recommend/campaign/contentlist', layui.factory('recommend/campaign/contentlist'));
+</script>

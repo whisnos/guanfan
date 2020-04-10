@@ -1,0 +1,52 @@
+<div class="layui-form" lay-filter="cms-topic-relation-recipe-edit-form" id="cms-topic-relation-recipe-edit-form" style="padding: 20px 30px 0 0;">
+  <script type="text/html" template>
+    <input type="hidden" name="relation_topice_id" value="{{ d.params.topicid || '' }}">
+    <input type="hidden" name="relation_id" value="{{ d.params.id || '' }}">
+  </script>
+  <div class="layui-form-item">
+    <label class="layui-form-label">食谱id</label>
+    <div class="layui-input-inline">
+      <script type="text/html" template>
+      <input type="text" name="recipeid" value="{{ d.params.recipeid || '' }}" lay-verify="required|number" placeholder="请输入食谱ID" autocomplete="off" class="layui-input">
+      </script>
+    </div>
+  </div>
+  <div class="layui-form-item">
+    <label class="layui-form-label">推荐理由</label>
+    <div class="layui-input-inline">
+      <script type="text/html" template>
+        <input type="text" name="reason" lay-verify="reason" value="{{ d.params.reason || '' }}" placeholder="请输入推荐理由" autocomplete="off" class="layui-input">
+        </script>
+    </div>
+  </div>
+  <div class="layui-form-item">
+    <label class="layui-form-label">排序</label>
+    <div class="layui-input-inline">
+      <script type="text/html" template>
+        <input type="text" name="sort" value="{{ d.params.sort || '0' }}" lay-verify="required|number" placeholder="请输入排序号" autocomplete="off" class="layui-input">
+        </script>
+    </div>
+  </div>
+  <div class="layui-form-item">
+    <label class="layui-form-label"></label>
+    <div class="layui-input-inline">
+      <input type="button" lay-submit lay-filter="cms-topic-relation-recipe-edit-form-submit" value="确认" class="layui-btn">
+    </div>
+  </div>
+</div>
+<script>
+   /* 自定义验证规则 */
+  layui.use(['form'],function(){
+    form = layui.form;
+    form.verify({
+      reason: function(value){
+        if(value.length > 100){
+          return '推荐理由内容小于100';
+        }
+      }
+    });
+  });
+  layui.use('content/topic/recipelist', layui.factory('content/topic/recipelist'));
+
+
+</script>

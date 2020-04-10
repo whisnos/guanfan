@@ -1,0 +1,212 @@
+
+
+  <title>海报轮播</title>
+  <div class="layui-card layadmin-header">
+    <div class="layui-breadcrumb" lay-filter="breadcrumb">
+      <a lay-href="">推荐</a>
+      <a><cite>内容</cite></a>
+      <a><cite>海报轮播</cite></a>
+    </div>
+  </div>
+
+  <div class="layui-fluid">
+    <div class="layui-card">
+      <div class="layui-card-body">
+        <div class="layui-form" lay-filter="cms-recommend-banner-search">
+          <div class="layui-form-item">
+            <div class="layui-input-group">
+              <label class="layui-form-label">频道选择:</label>
+              <input type="radio" name="channel" value="0" title="APP" lay-filter="chosechannel" checked>
+              <input type="radio" name="channel" value="1" title="PC" lay-filter="chosechannel" >
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="layui-card-body">
+        <div style="padding-bottom: 10px;">
+          <button class="layui-btn layuiadmin-btn-list" data-type="batchdel">删除</button>
+          <button class="layui-btn layuiadmin-btn-list" data-type="add">添加</button>
+        </div>
+        <table id="LAY-app-content-list" lay-filter="LAY-app-content-list"></table> 
+
+        <script type="text/html" id="banner_type_Tpl">
+          {{#  if(d.type===1){ }}
+              <div class="layui-table-cell">链接</div>
+          {{#  } else { }} 
+              <div class="layui-table-cell">食谱</div>
+          {{#  } }}
+        </script>
+
+        <script type="text/html" id="banner_channel_Tpl">
+          {{#  if(d.channel===0){ }}
+              <div class="layui-table-cell">APP</div>
+          {{#  } else { }} 
+              <div class="layui-table-cell">PC</div>
+          {{#  } }}
+        </script>
+
+        <script type="text/html" id="buttonTpl">
+          {{#  if(d.status){ }}
+            <button class="layui-btn layui-btn-xs">启用</button>
+          {{#  } else { }}
+            <button class="layui-btn layui-btn-primary layui-btn-xs">禁用</button>
+          {{#  } }}
+        </script>
+        <script type="text/html" id="hbimgViewTpl">
+          <img src="{{ layui.setter.basehost + d.bannerimg }}" class="cms-list-img" lay-event="checkbig">
+          <!-- <button class="layui-btn layui-btn-primary" data-type="test5">hello</button> -->
+        </script>
+
+        <script type="text/html" id="table-content-list">
+          <a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="edit"><i class="layui-icon layui-icon-edit"></i>编辑</a>
+          <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del"><i class="layui-icon layui-icon-delete"></i>删除</a>
+        </script>
+      </div>
+    </div>
+  </div>
+  
+  <script>
+  layui.use('contlist', layui.factory('contlist')).use(['admin', 'contlist', 'table', 'layer', 'form'], function(){
+    var $ = layui.$
+    ,admin = layui.admin
+    ,view = layui.view
+    ,table = layui.table
+    ,layer = layui.layer
+    ,form = layui.form;
+    
+
+    form.render(null, 'cms-recommend-banner-search');
+
+    var active = {
+      batchdel: function(){
+        var checkStatus = table.checkStatus('LAY-app-content-list')
+        ,checkData = checkStatus.data; //得到选中的数据
+
+        console.log(checkData)
+        if(checkData.length === 0){
+          return layer.msg('请选择数据');
+        }
+      
+        layer.confirm('确定删除吗？', function(index) {
+          $.each(checkData, function (index, item) {
+            let data = {};
+            data['id'] = item.id;
+            banner_del(data,index);
+          });
+          
+          //执行 Ajax 后重载
+          /*
+          admin.req({
+            url: 'xxx'
+            //,……
+          });
+          */
+          // table.reload('LAY-app-content-list');
+          // layer.msg('已删除');
+        });
+      }
+      
+      //添加
+      ,add: function(othis){
+        admin.popup({
+          title: '添加海报'
+          ,area: ['550px', '650px']
+          ,id: 'LAY-popup-content-add'
+          ,success: function(layero, index){
+            view(this.id).render('app/recommend/banner/listform').done(function(){
+              form.render(null, 'layuiadmin-app-form-list');
+              
+              //监听提交
+              form.on('submit(layuiadmin-app-form-submit)', function(data){
+                var field = data.field; //获取提交的字段
+                // console.log(field);
+                //提交 Ajax 成功后，关闭当前弹层并重载表格
+                //$.ajax({});
+                banner_add(field,index);
+                // layui.table.reload('LAY-app-content-list'); //重载表格
+                // layer.close(index); //执行关闭 
+              });
+
+              // 监听开关
+              form.on('switch(status)', function(data){
+                console.log(data.elem); //得到checkbox原始DOM对象
+                console.log(data.elem.checked); //开关是否开启，true或者false
+                console.log(data.value); //开关value值，也可以通过data.elem.value得到
+                console.log(data.othis); //得到美化后的DOM对象
+              });
+            });
+          }
+        });
+      }
+
+    }; 
+
+    function banner_add(data,index){
+      //添加海报
+      admin.req({
+        type: 'post',
+        url: '/api/banner/add', //海报编辑
+        data:data,
+        success: function (result) {
+            if (result.success) {
+                form.render();
+            } else {
+                layer.msg(result.msg)
+            }
+        },
+        complete:function (result) {
+          layer.close(index); //执行关闭
+          layui.table.reload('LAY-app-content-list'); //重载表格
+        },
+        error: function (error) {
+        }
+      });
+    }
+
+    function banner_del(data,index){
+      //del
+      admin.req({
+        type: 'post',
+        url: '/api/banner/del', //海报编辑
+        data: data,
+        success: function (result) {
+            if (result.success) {
+                form.render();
+            } else {
+                layer.msg(result.msg)
+            }
+        },
+        complete:function (result) {
+          layer.close(index); //执行关闭
+          layui.table.reload('LAY-app-content-list'); //重载表格
+        },
+        error: function (error) {
+        }
+      });
+    }
+    $('.layui-btn.layuiadmin-btn-list').on('click', function(){
+      var type = $(this).data('type');
+      active[type] ? active[type].call(this) : '';
+      
+    });
+    $(document).on('click','#uploadfile', function(){
+      admin.popup({
+          title: '上传图片'
+          ,area: ['550px', '550px']
+          ,id: 'LAY-popup-content-oss-fileupload'
+          ,success: function(layero, index){
+            view(this.id).render('app/common/ossupload', {'operate':4}).done(function(){
+              form.render(null, 'layuiadmin-app-oss-fileupload');
+                //文件上传,监听关闭
+                form.on('submit(layuiadmin-app-oss-fileupload)', function(data){
+                  var field = data.field; //获取提交的字段
+                  document.getElementById('bannerimg').value = field.cmsupfiles.slice(0,-1); // 更新海报图片文件地址
+                  layer.close(index); //执行关闭 
+              });
+            });
+          }
+        });
+    });
+  });
+  </script>
