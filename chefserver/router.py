@@ -23,7 +23,7 @@ from chefserver.webhandler.action import MessageNumHandler, DelRecipeHandler, De
 from chefserver.webhandler.action import JubaoHandler, HeartBeatHandler
 from chefserver.webhandler.action import TimeStampHandler
 
-from chefserver.webhandler.search import SearchHandler, SearchMemberHandler, keywordHandler
+from chefserver.webhandler.search import SearchHandler, SearchMemberHandler, keywordHandler, SearchMomentHandler
 
 from chefserver.webhandler.dongtaiplaza import DtPlazaHandler, DtPlazafocusHandler, DtPlazaRecommendHandler
 
@@ -119,6 +119,7 @@ def make_app():
         (r"/dongtai/follownews", DtPlazafocusHandler),           # 动态广场_关注的最新动态
         (r"/dongtai/recommends", DtPlazaRecommendHandler),       # 动态广场_随机推荐动态
         (r"/search/recipe", SearchHandler),                      # 搜索菜谱
+        (r"/search/moment", SearchMomentHandler),                      # 搜索动态
         (r"/search/member", SearchMemberHandler),                # 搜索会员
         (r"/search/hotword", keywordHandler),                    # 返回热搜词
         (r"/index/banner", IndexBannerHandler),                  # 首页海报

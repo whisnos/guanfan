@@ -429,6 +429,115 @@ order by total desc limit 1
         return ''
 
 
+class SearchMomentHandler(BaseHandler):
+    ''' 搜索动态 '''
+
+    async def post(self):
+        myid = 0  # 0 未关注 1 已关注 2 互相关注
+        user_session = await self.get_login()
+        if user_session is False:
+            # 未登录
+            myid = 0
+        else:
+            myid = user_session.get('id', 0)
+
+        keyword = self.verify_arg_legal(self.get_body_argument('key'), '动态名', True, s_len=True, olen=80,
+                                        is_not_null=True)
+        sort = self.verify_arg_legal(self.get_body_argument('sort'), '排序类型', False, is_num=True, uchecklist=True,
+                                     user_check_list=['1', '2', '3'])
+        page = self.verify_arg_legal(self.get_body_argument('page'), '页数', False, is_num=True)
+
+        await add_hotkeyword(keyword)
+        await add_key_history(myid, keyword)
+        result = await search_keyword_moment(keyword, int(sort), int(page))
+        delrepeatlist = []
+        temp_list = []
+        for i in result:
+            sid = i.get('id')
+            if sid not in temp_list:
+                temp_list.append(sid)
+                delrepeatlist.append(i)
+        return self.send_message(True, 0, 'success', delrepeatlist)
+
+async def search_keyword_moment(keyword, sort_type, pagenum, epage=10):
+    ''' 搜索动态, sort_type 1 综合最佳(收藏数+浏览数) 2 最多点赞 3 最新发布：发布时间按最新到最旧 '''
+    page = 0 if pagenum-1 <= 0 else pagenum-1
+    page = page*epage
+
+    if sort_type == 1:
+            # 综合最佳
+        search_keywrod_language_mode = '''
+select
+us.userName as nickname,
+us.headImg as faceImg,
+search.*
+from
+(
+SELECT id, userId, momentsDescription, momentsImgUrl as mmimg, 
+likeCount as collections,
+(likeCount + visitcount) as total,
+createtime
+from moments_info
+where MATCH (momentsDescription) AGAINST (? in boolean mode) and `status`=0
+order by total desc,id desc limit ?, ?
+) as search
+inner join user as us
+on us.id = search.userId and us.`status`=0
+order by total desc
+        '''
+    if sort_type == 2:
+            # 最多点赞
+        search_keywrod_language_mode = '''
+    select
+us.userName as nickname,
+us.headImg as faceImg,
+search.*
+from
+(
+SELECT id, userId, momentsDescription, momentsImgUrl as mmimg, 
+likeCount as collections,
+(likeCount + visitcount) as total,
+createtime
+from moments_info
+where MATCH (momentsDescription) AGAINST (? in boolean mode) and `status`=0
+order by collections desc,id desc limit ?, ?
+) as search
+inner join user as us
+on us.id = search.userid and us.`status`=0
+order by collections desc
+        '''
+    if sort_type == 3:
+            # 最新发布
+        search_keywrod_language_mode = '''
+select
+us.userName as nickname,
+us.headImg as faceImg,
+search.*
+from
+(
+SELECT id, userId, momentsDescription, momentsImgUrl as mmimg, 
+likeCount as collections,
+(likeCount + visitcount) as total,
+createtime
+from moments_info
+where MATCH (momentsDescription) AGAINST (? in boolean mode) and `status`=0
+order by createtime desc,id desc limit ?, ?
+) as search
+inner join user as us
+on us.id = search.userid and us.`status`=0
+order by createtime desc
+    '''
+    languate_result = await dbins.select(search_keywrod_language_mode, ('*'+keyword+'*', page, epage))
+    if languate_result is None:
+        log.error('自然搜索执行错误:{} {} {}'.format(keyword, page, epage))
+        return []
+
+    for p in languate_result:
+        ct = p.get('createtime')
+        p['createtime'] = ct.strftime('%Y-%m-%d %H:%M:%S')
+
+    return languate_result
+
 if __name__ == '__main__':
     async def test_get_hotkeyword():
         res = await get_hotkeyword(1)
