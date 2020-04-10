@@ -18,11 +18,11 @@ class SearchHandler(BaseHandler):
         else:
             myid = user_session.get('id',0)
 
-        keyword = self.verify_arg_legal(self.get_body_argument('key'), '食谱名', True, s_len=True, olen=80)
+        keyword = self.verify_arg_legal(self.get_body_argument('key'), '食谱名', True, s_len=True, olen=80, is_not_null=True)
         sort = self.verify_arg_legal(self.get_body_argument('sort'), '排序类型', False, is_num=True, uchecklist=True, user_check_list=['1','2','3'])
         page = self.verify_arg_legal(self.get_body_argument('page'), '页数', False, is_num=True)
-        if len(keyword)<2:
-            return self.send_message(False, 1002, '搜索的关键词过短', None)
+        # if len(keyword)<2:
+        #     return self.send_message(False, 1002, '搜索的关键词过短', None)
             
         await add_hotkeyword(keyword)
         await add_key_history(myid, keyword)
@@ -90,7 +90,7 @@ async def search_keyword_recipe(keyword, sort_type, pagenum, epage=10):
     (collectioncount + visitcount) as total,
     createtime
     from recipe_info
-    where MATCH (title, tagKey) AGAINST (? IN NATURAL LANGUAGE MODE) and `status` in (0,1) and isEnable=1
+    where MATCH (title, tagKey) AGAINST (? IN BOOLEAN MODE) and `status` in (0,1) and isEnable=1
     order by total desc,id desc limit ?, ?
     ) as search
     inner join user as us
@@ -110,7 +110,7 @@ async def search_keyword_recipe(keyword, sort_type, pagenum, epage=10):
     collectioncount as collections,
     createtime
     from recipe_info
-    where MATCH (title, tagKey) AGAINST (? IN NATURAL LANGUAGE MODE) and `status` in (0,1) and isEnable=1
+    where MATCH (title, tagKey) AGAINST (? IN BOOLEAN MODE) and `status` in (0,1) and isEnable=1
     order by collections desc,id desc limit ?, ?
     ) as search
     inner join user as us
@@ -130,14 +130,14 @@ async def search_keyword_recipe(keyword, sort_type, pagenum, epage=10):
     collectioncount as collections,
     createtime
     from recipe_info
-    where MATCH (title, tagKey) AGAINST (? IN NATURAL LANGUAGE MODE) and `status` in (0,1) and isEnable=1
+    where MATCH (title, tagKey) AGAINST (? IN BOOLEAN MODE) and `status` in (0,1) and isEnable=1
     order by createtime desc,id desc limit ?, ?
     ) as search
     inner join user as us
     on us.id = search.userid and us.`status`=0
     order by createtime desc
     '''
-    languate_result = await dbins.select(search_keywrod_language_mode, (keyword, page, epage))
+    languate_result = await dbins.select(search_keywrod_language_mode, ('*'+keyword+'*', page, epage))
     if languate_result is None:
         log.error('自然搜索执行错误:{} {} {}'.format(keyword, page, epage))
         return []
