@@ -1,4 +1,5 @@
-﻿from chefserver.webhandler.user import LoginHandler,SendSmsHandler,RestPasswordHandler
+﻿from chefserver.webhandler.food_channel import ChannelListHandler
+from chefserver.webhandler.user import LoginHandler,SendSmsHandler,RestPasswordHandler
 from chefserver.webhandler.user import ModifyPhonedHandler,LogoutHandler,PersonInfoHandler
 from chefserver.webhandler.user import ModifyInfoHandler, SubmitAdvancedHandler,RegisterHandler
 from chefserver.webhandler.upload import UploadPhotoHandler
@@ -22,7 +23,7 @@ from chefserver.webhandler.action import MessageNumHandler, DelRecipeHandler, De
 from chefserver.webhandler.action import JubaoHandler, HeartBeatHandler
 from chefserver.webhandler.action import TimeStampHandler
 
-from chefserver.webhandler.search import SearchHandler, SearchMemberHandler, keywordHandler
+from chefserver.webhandler.search import SearchHandler, SearchMemberHandler, keywordHandler, SearchMomentHandler
 
 from chefserver.webhandler.dongtaiplaza import DtPlazaHandler, DtPlazafocusHandler, DtPlazaRecommendHandler
 
@@ -118,6 +119,7 @@ def make_app():
         (r"/dongtai/follownews", DtPlazafocusHandler),           # 动态广场_关注的最新动态
         (r"/dongtai/recommends", DtPlazaRecommendHandler),       # 动态广场_随机推荐动态
         (r"/search/recipe", SearchHandler),                      # 搜索菜谱
+        (r"/search/moment", SearchMomentHandler),                      # 搜索动态
         (r"/search/member", SearchMemberHandler),                # 搜索会员
         (r"/search/hotword", keywordHandler),                    # 返回热搜词
         (r"/index/banner", IndexBannerHandler),                  # 首页海报
@@ -144,6 +146,7 @@ def make_app():
         (r"/campaign/dtlist", CampaignMomentListAllHandler),     # 活动最新最热动态
         (r"/campaign/openprize", CampaignOpenPrizeHandler),      # 活动开奖
         (r"/campaign/sponsor", CampaignSponsorDetailHandler),    # 活动获取赞助商信息
+        (r"/channel/detail", ChannelListHandler),                # 美食频道详情
         (r"/auth/verify", AuthVerifyHandler),                    # 第三方账号验证
         (r"/auth/bind", AuthBindHandler),                        # 第三方登录绑定验证
         (r"/uploadvideo", VideoUploadAuthKeyHandler),            # 获取视频上传凭证
