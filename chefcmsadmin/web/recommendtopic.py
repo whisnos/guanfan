@@ -242,10 +242,9 @@ async def recommendtopic_list(arg_dict):
     FROM
     (SELECT * FROM recommend_topic {}) as retopic
     LEFT JOIN topic_info as tic ON retopic.topicid = tic.id and retopic.status!=-1
-    ORDER BY retopic.status DESC,retopic.sort DESC
+    ORDER BY retopic.id DESC
     LIMIT ?,?
     '''.format(where_str)
-    # ORDER BY status desc,sort desc
     wvalue_list.append(page)
     wvalue_list.append(epage)
     blist = await dbins.select(recommendtopic_list_sql, wvalue_list)
@@ -269,7 +268,10 @@ if __name__ == '__main__':
         print(res)
 
     async def test_recommendtopic_list():
-        res = await recommendtopic_list(1,10)
+        # res = await recommendtopic_list(1,10)
+        res = await recommendtopic_list({
+            'page': '1',
+            'limit': '10'})
         print(res)
 
     async def test_sql_like():

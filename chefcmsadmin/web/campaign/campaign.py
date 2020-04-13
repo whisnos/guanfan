@@ -212,20 +212,21 @@ async def campaign_list(arg_dict):
     if b_cnum.get('ctnum',0) == 0:
         return 0, None
 
-    # 实现倒排,最新的在前面
-    page = int(b_cnum.get('ctnum',0)) - page - epage
-    if page < 0:
-        # 第一页, page设置为0, epage 设置为 abs(-8)
-        epage = epage - abs(page)
-        page = 0
         
     campaign_list_sql = '''
     SELECT
-    *
+    *,
+(
+CASE
+	WHEN UNIX_TIMESTAMP(endtime) >= UNIX_TIMESTAMP(NOW()) AND UNIX_TIMESTAMP(starttime) <= UNIX_TIMESTAMP(NOW()) THEN 1
+	WHEN UNIX_TIMESTAMP(starttime) > UNIX_TIMESTAMP(NOW()) THEN 2
+	WHEN UNIX_TIMESTAMP(endtime) < UNIX_TIMESTAMP(NOW()) THEN 3
+END
+)AS statustime
     FROM
     campaign_info
     {}
-    ORDER BY status desc, sort desc
+    ORDER BY statustime asc, id desc
     LIMIT ?,?
     '''.format(where_str)
     wvalue_list.append(page)

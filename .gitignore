@@ -13,6 +13,7 @@ __pycache__/
 *.cfg
 *.json
 config.py
+backup/
 __main__.py
 
 
