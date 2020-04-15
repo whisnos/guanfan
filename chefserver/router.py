@@ -1,4 +1,5 @@
 ﻿from chefserver.webhandler.food_channel import ChannelListHandler
+from chefserver.webhandler.point import MyPointHandler, MyPointBillHandler
 from chefserver.webhandler.user import LoginHandler,SendSmsHandler,RestPasswordHandler
 from chefserver.webhandler.user import ModifyPhonedHandler,LogoutHandler,PersonInfoHandler
 from chefserver.webhandler.user import ModifyInfoHandler, SubmitAdvancedHandler,RegisterHandler
@@ -152,6 +153,8 @@ def make_app():
         (r"/auth/bind", AuthBindHandler),                        # 第三方登录绑定验证
         (r"/uploadvideo", VideoUploadAuthKeyHandler),            # 获取视频上传凭证
         (r"/callback/vodevent", VideoProcessCallBackHandler),    # 阿里云视频事件回调
+        (r"/mypoint/detail", MyPointHandler),                    # 积分-我的积分
+        (r"/mypoint/pointbill", MyPointBillHandler),             # 积分-我的账单
         (r"/test", TestHandler),                                 # 测试接口
         ],
         # cookie_secret = 'cb56YAgMjpevlWBNqgrv5g==',
