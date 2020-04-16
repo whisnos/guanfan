@@ -1,7 +1,6 @@
 ##ignore this file##
 .idea/
 bin/
-lib/
 lib64
 log/
 __pycache__/
