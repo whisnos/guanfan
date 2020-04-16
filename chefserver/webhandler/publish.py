@@ -233,6 +233,13 @@ class PushDongtaiHandler(BaseHandler):
 
         success, code, message, insert_dt_id = await publish_dongtai(userid, description, dt_type, itemid, dtimgall, videourl)
         if success:
+            # 更新频道动态关系
+            try:
+                chlist = self.verify_arg_legal(self.get_body_argument('chlist'), '所选频道列表', False, is_len=True, olen=50)
+                code1, msg, result = await channel_moment_add(insert_dt_id, chlist)
+            except tornado.web.MissingArgumentError as mise:
+                log.error(mise)
+
             if campaignid is not None:
                 # 参与活动
                 self.send_message(*await moment_campaign_join(userid, campaignid, insert_dt_id))
@@ -264,6 +271,13 @@ class PushVideoDongtaiHandler(BaseHandler):
 
         success, code, message, insert_dt_id = await publish_video_dongtai(userid, description, videoid, dt_type, itemid)
         if success:
+            # 更新频道动态关系
+            try:
+                chlist = self.verify_arg_legal(self.get_body_argument('chlist'), '所选频道列表', False, is_len=True, olen=50)
+                code1, msg, result = await channel_moment_add(insert_dt_id, chlist)
+            except tornado.web.MissingArgumentError as mise:
+                log.error(mise)
+
             if campaignid is not None:
                 # 参与活动
                 print(success, code, message, insert_dt_id)
@@ -278,9 +292,9 @@ async def publish_video_dongtai(userid, dtinfo, videoid, dt_type=0, itemid=0):
         return False, 1014, '视频ID不存在', 0
 
     insert_dt_sql = '''INSERT INTO moments_info 
-    (`userId`, `momentsDescription`, `type`, `itemId`, `likeCount`, `status`, `isvideo`)
+    (`userId`, `momentsDescription`, `type`, `itemId`, `likeCount`, `status`, `visitCount`, `isvideo`)
     VALUES 
-    (?,        ?,                     ?,      ?,         ?,         ?, 1)
+    (?,        ?,                     ?,      ?,         ?,         ?, 0, 1)
     '''
 
     sqllist = []
@@ -352,17 +366,16 @@ async def delete_dongtai(userid, dtid):
 async def publish_dongtai(userid, dtinfo, dt_type=0, itemid=0, imgliststr=None, videourl=None):
     ''' 发布动态 '''
     insert_dt_sql = '''INSERT INTO moments_info 
-    (`userId`, `momentsDescription`, `momentsImgUrl`, `momentsVideoUrl`, `type`, `itemId`, `likeCount`, `status`)
+    (`userId`, `momentsDescription`, `momentsImgUrl`, `momentsVideoUrl`, `type`, `itemId`, `likeCount`, `status`,`visitCount`)
     VALUES 
-    (?,        ?,                     ?,               ?,                  ?,      ?,         ?,         ?)
+    (?,        ?,                     ?,               ?,                  ?,      ?,         ?,         ?,         ?)
     '''
     # print(userid, dtinfo, imgliststr, videourl, dt_type, itemid, 0)
 
     sqllist = []
     sqllist.append(
-        (insert_dt_sql, (userid, dtinfo, imgliststr, videourl, dt_type, itemid, 0, 0)))
+        (insert_dt_sql, (userid, dtinfo, imgliststr, videourl, dt_type, itemid, 0, 0, 0)))
     sqllist.append(('select last_insert_id()', ()))
-
     result = await dbins.execute_many(sqllist)
 
     # result = await dbins.execute(insert_dt_sql, (userid, dtinfo, imgliststr, videourl, dt_type, itemid, 0, 0))
@@ -580,6 +593,75 @@ where id = ? and userid = ? and status!=-1
         return False, 3001, '菜谱保存失败,请重试'
 
     return True, 0, '更新成功'
+
+
+async def channel_moment_add(id,chlist):
+    ''' 添加关联频道 '''
+    slist = chlist.split(',')
+    # 查询频道是否存在SQL
+    channel_exists_sql = '''
+    select COUNT(id) as amount from channel_info where id=?;
+    '''
+    # 添加频道关联动态SQL
+    insert_channel_moment_sql = '''
+    INSERT INTO channel_moment_relation
+    (`channelId`, `momentId`)
+       VALUES
+       (?,?);
+    '''
+    # 一次遍历 2次hit数据库 后期可考虑优化
+    for channel_id in slist:
+        t_exists = await dbins.selectone(channel_exists_sql, (channel_id,))
+        amount = t_exists.get('amount')
+        if amount is 0:
+            log.error('频道动态关联失败,频道不存在,sql:{},{}'.format(channel_exists_sql,
+                                                  (channel_id)))
+        else:
+            the_tuple = (channel_id, id)
+            await dbins.execute(insert_channel_moment_sql, (the_tuple))
+    return 0, "添加成功", None
+    # insert_channel_moment_sql= '''
+    # INSERT INTO channel_moment_relation
+    # (`channelId`, `momentId`)
+    #    VALUES
+    #    ?;
+    # '''
+    # print(9999999999,id,slist)
+    # the_str=''
+    # for i in slist:
+    #     the_tuple=(i,id)
+    #     the_str = the_str+str(the_tuple)
+    #
+    # the_sql_str = the_str.replace(')(','),(')
+    # print('the_sql_str',type(the_sql_str),the_sql_str)
+    # insert_result = await dbins.execute(insert_channel_moment_sql, (the_sql_str))
+    # print('insert_result',insert_result)
+    # if insert_result is None:
+    #     return 3001 , "添加失败", None
+    # else:
+    #     return 0, "添加成功", None
+
+    # insert_channel_moment_sql = '''
+    #     INSERT INTO channel_moment_relation
+    #     (`channelId`, `momentId`)
+    #        VALUES
+    #        (?,?);
+    #     '''
+    # for i in slist:
+    #     the_tuple = (i, id)
+    #     insert_result = await dbins.execute(insert_channel_moment_sql, (the_tuple))
+    #     if insert_result is None:
+    #         log.error('频道动态关联失败,sql:{},{}'.format(insert_channel_moment_sql,
+    #                                               (the_tuple)))
+    #         # return 3001, "添加失败", None
+    # # else:
+    # return 0, "添加成功", None
+
+class TestHandler(BaseHandler):
+    ''' test API '''
+    async def post(self):
+        pass
+        return self.send_message('OK', 200, 'SUCCESS')
 
 if __name__ == '__main__':
     # async def test_publish_dongtai():

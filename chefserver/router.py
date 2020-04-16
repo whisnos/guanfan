@@ -1,4 +1,5 @@
 ﻿from chefserver.webhandler.food_channel import ChannelListHandler
+from chefserver.webhandler.point import MyPointHandler, MyPointBillHandler
 from chefserver.webhandler.user import LoginHandler,SendSmsHandler,RestPasswordHandler
 from chefserver.webhandler.user import ModifyPhonedHandler,LogoutHandler,PersonInfoHandler
 from chefserver.webhandler.user import ModifyInfoHandler, SubmitAdvancedHandler,RegisterHandler
@@ -13,7 +14,8 @@ from chefserver.webhandler.myspace import AddPurchaHandler, DelPurchaHandler,Set
 from chefserver.webhandler.detail import DongtaiDetailHandler, RecipeDetailHandler, RecipeEditDetailHandler
 from chefserver.webhandler.detail import RecipeShowlistHandler, ReplylistHandler
 
-from chefserver.webhandler.publish import PushRecipeHandler, PushDongtaiHandler, PushVideoDongtaiHandler, EditRecipesubmitHandler
+from chefserver.webhandler.publish import PushRecipeHandler, PushDongtaiHandler, PushVideoDongtaiHandler, \
+    EditRecipesubmitHandler, TestHandler
 
 from chefserver.webhandler.subject import SubjectListHandler, SubjectDetailHandler
 
@@ -119,7 +121,7 @@ def make_app():
         (r"/dongtai/follownews", DtPlazafocusHandler),           # 动态广场_关注的最新动态
         (r"/dongtai/recommends", DtPlazaRecommendHandler),       # 动态广场_随机推荐动态
         (r"/search/recipe", SearchHandler),                      # 搜索菜谱
-        (r"/search/moment", SearchMomentHandler),                      # 搜索动态
+        (r"/search/moment", SearchMomentHandler),                # 搜索动态
         (r"/search/member", SearchMemberHandler),                # 搜索会员
         (r"/search/hotword", keywordHandler),                    # 返回热搜词
         (r"/index/banner", IndexBannerHandler),                  # 首页海报
@@ -151,6 +153,9 @@ def make_app():
         (r"/auth/bind", AuthBindHandler),                        # 第三方登录绑定验证
         (r"/uploadvideo", VideoUploadAuthKeyHandler),            # 获取视频上传凭证
         (r"/callback/vodevent", VideoProcessCallBackHandler),    # 阿里云视频事件回调
+        (r"/mypoint/detail", MyPointHandler),                    # 积分-我的积分
+        (r"/mypoint/pointbill", MyPointBillHandler),             # 积分-我的账单
+        (r"/test", TestHandler),                                 # 测试接口
         ],
         # cookie_secret = 'cb56YAgMjpevlWBNqgrv5g==',
         # login_url = '/',
