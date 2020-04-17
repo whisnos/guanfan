@@ -82,6 +82,21 @@ class User_PointBill(BaseModel):
         return cls.select(cls, User.id, User.userName).join(User)
 
 
+class Product_Point(BaseModel):
+    '''积分兑换 - 商品表'''
+    title = CharField(max_length=100, verbose_name="商品标题")
+    grade_no = IntegerField(verbose_name='积分数')
+    front_image = CharField(max_length=200, verbose_name="封面图")
+    updatetime = DateTimeField(default=datetime.now, verbose_name="更新时间")
+
+
+class Product_Point_Detail(BaseModel):
+    '''积分兑换 - 商品 - 详情图表'''
+    product_point = ForeignKeyField(Product_Point, verbose_name="所属商品", backref="product_points")
+    image = CharField(max_length=200, verbose_name="封面图")
+    updatetime = DateTimeField(default=datetime.now, verbose_name="更新时间")
+
+
 def just_test():
     # obj = User_Point()
     # obj.user_id = 2
