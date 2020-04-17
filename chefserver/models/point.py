@@ -101,6 +101,9 @@ class Product_Point_Detail(BaseModel):
     image = CharField(max_length=200, verbose_name="封面图")
     updatetime = DateTimeField(default=datetime.now, verbose_name="更新时间")
 
+    @classmethod
+    def extend(cls):
+        return cls.select(cls, Product_Point.id, Product_Point.title).join(Product_Point)
 
 def just_test():
     # obj = User_Point()

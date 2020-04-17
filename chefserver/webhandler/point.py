@@ -1,4 +1,4 @@
-from playhouse.shortcuts import model_to_dict, JOIN
+from playhouse.shortcuts import JOIN, model_to_dict
 
 from chefserver.config import PAGE_SIZE
 from chefserver.models.point import User, User_Point, User_PointBill, BILL_TYPE_DICT, Product_Point_Detail, \
@@ -48,7 +48,8 @@ class MyPointBillHandler(BaseHandler):
                 else:
                     user_pointbill_query = user_pointbill_query.filter(User_PointBill.bill_type > 0)
             if page:
-                user_pointbill_query = user_pointbill_query.paginate(int(page),PAGE_SIZE)
+                user_pointbill_query = user_pointbill_query.paginate(int(page), PAGE_SIZE)
+            print('user_pointbill_query', user_pointbill_query)
             user_pointbills = await self.application.objects.execute(user_pointbill_query)
             for bill in user_pointbills:
                 bill_dict = model_to_dict(bill)
@@ -70,8 +71,10 @@ class MyPointProductHandler(BaseHandler):
     async def post(self, *args, **kwargs):
         result = []
         page = self.verify_arg_legal(self.get_body_argument('page'), '页数', False, is_num=True)
-        products_query = Product_Point.select(Product_Point.id, Product_Point.title, Product_Point.grade_no, Product_Point.front_image, Product_Point.createTime).order_by(Product_Point.id.desc()).paginate(int(page), 2)
-        print('products_query',products_query)
+        products_query = Product_Point.select(Product_Point.id, Product_Point.title, Product_Point.grade_no,
+                                              Product_Point.front_image, Product_Point.createTime).order_by(
+            Product_Point.id.desc()).paginate(int(page), PAGE_SIZE)
+        print('products_query', products_query)
         products = await self.application.objects.execute(products_query)
         for p in products:
             p_dict = model_to_dict(p)
@@ -87,61 +90,44 @@ class MyPointProductHandler(BaseHandler):
 class ProductPointDetailHandler(BaseHandler):
     ''' 获取积分商品详情 '''
 
-    # @check_login
+    @check_login
     async def post(self):
         result = []
         did = self.verify_arg_legal(self.get_body_argument('did'), '动态ID', False, is_num=True)
-        # 判断用户与自己的状态:
-        # relationship = 0  # 0 未关注 1 已关注 2 互相关注
-        # user_session = await self.get_login()
-        # if user_session is False:
-        #     # 未登录
-        #     myid = 0
-        # else:
-        #     myid = user_session.get('id', 0)
-        print(1)
-        # query = (Person
-        #          .select(Person, Pet)
-        #          .join(Pet, JOIN.LEFT_OUTER)
-        #          .order_by(Person.name, Pet.name))
-        # print(22)
-        # product_detail = await self.application.objects.execute(query)
-        # for person in product_detail:
-        #     print(2)
-        #     # We need to check if they have a pet instance attached, since not all
-        #     # people have pets.
-        #     if hasattr(person, 'pet'):
-        #         print(person.name, person.pet.name)
+        product_query = Product_Point.select().order_by(Product_Point.id).where(Product_Point.id == did)
+        product = await self.application.objects.execute(product_query)
+        if product:
+            for p in product:
+                p_dict = model_to_dict(p)
+                ct = p_dict.get('createTime', None)
+                if ct:
+                    p_dict['createTime'] = ct.strftime('%Y-%m-%d %H:%M:%S')
+                p_dict.pop('updatetime')
+                result.append(p_dict)
+                pdetailimg_query = await self.application.objects.execute(p.product_points)
+                p_dict['imgs'] = []
+                for p1 in pdetailimg_query:
+                    p_dict['imgs'].append(p1.image)
+            success, code, message, result = True, 0, '获取成功', result
+            return self.send_message(success, code, message, result)
+        else:
+            return self.send_message(False, 404, '商品部存在', result)
+        # pdetail_query = Product_Point_Detail.extend()
+        # groups = await self.application.objects.execute(pdetail_query)
+        # dict_obj=[]
+        # dict_img={}
+        # dict_img['img']=[]
+        # for group in groups:
+        #     group_dict = model_to_dict(group)
+        #     if hasattr(dict_obj,'id'):
+        #         dict_img['img']=group_dict['image']
+        #         dict_obj.append(dict_img)
         #     else:
-        #         print(person.name, 'no pets')
-
-        # Product_Point.id, Product_Point.title, Product_Point.grade_no, Product_Point.front_image, Product_Point.createTime, Product_Point.product_points
-        # .prefetch(Product_Point_Detail.select().where(Product_Point.id == did))
-        product_detail_query = Product_Point.select(Product_Point,Product_Point_Detail).join(Product_Point_Detail, JOIN.LEFT_OUTER).where(Product_Point.id == did)
-        print('product_detail_query',product_detail_query)
-        product_detail = await self.application.objects.execute(product_detail_query)
-        for p in product_detail:
-            print(12,p.product_points)
-            for im in p.product_points:
-                print(13,im.id)
-            # p_dict = model_to_dict(p)
-            # print(13,p_dict)
-            # ct = p_dict.get('createTime', None)
-            # if ct:
-            #     p_dict['createTime'] = ct.strftime('%Y-%m-%d %H:%M:%S')
-            # p_dict.pop('updatetime')
-            # result.append(p_dict)
-            # if hasattr(p, 'product_points'):
-            #     print(p.title, p.product_points.id)
-            # else:
-            #     print(p.title, 'no pets')
-        success, code, message, result = '','','',result
-
-
-        print('result',result)
-        return self.send_message(success, code, message, result)
-
-
+        #         dict_img=group_dict['product_point']
+        #         dict_img['img']=group_dict['image']
+        #         dict_obj.append(dict_img)
+        #     result.append(dict_img)
+        # return self.send_message(False, 404, '商品部存在', dict_obj)
 if __name__ == '__main__':
     async def test_banner_list():
         # res = await banner_list(0)
