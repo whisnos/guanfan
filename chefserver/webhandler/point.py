@@ -53,7 +53,7 @@ class MyPointBillHandler(BaseHandler):
             for bill in user_pointbills:
                 bill_dict = model_to_dict(bill)
                 ct = bill_dict.get('createTime', None)
-                bill_dict['bill_type'] = BILL_TYPE_DICT.get(bill_dict.get('bill_type'))
+                # bill_dict['bill_type'] = BILL_TYPE_DICT.get(bill_dict.get('bill_type'))
                 if ct:
                     bill_dict['createTime'] = ct.strftime('%Y-%m-%d %H:%M:%S')
                 result.append(bill_dict)
