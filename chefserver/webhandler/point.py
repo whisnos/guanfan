@@ -1,5 +1,6 @@
 from playhouse.shortcuts import model_to_dict, JOIN
 
+from chefserver.config import PAGE_SIZE
 from chefserver.models.point import User, User_Point, User_PointBill, BILL_TYPE_DICT, Product_Point_Detail, \
     Product_Point
 from chefserver.webhandler.basehandler import BaseHandler, check_login
@@ -47,12 +48,12 @@ class MyPointBillHandler(BaseHandler):
                 else:
                     user_pointbill_query = user_pointbill_query.filter(User_PointBill.bill_type > 0)
             if page:
-                user_pointbill_query = user_pointbill_query.paginate(int(page),2)
+                user_pointbill_query = user_pointbill_query.paginate(int(page),PAGE_SIZE)
             user_pointbills = await self.application.objects.execute(user_pointbill_query)
             for bill in user_pointbills:
                 bill_dict = model_to_dict(bill)
                 ct = bill_dict.get('createTime', None)
-                bill_dict['bill_type'] = BILL_TYPE_DICT.get(bill_dict.get('bill_type'))
+                # bill_dict['bill_type'] = BILL_TYPE_DICT.get(bill_dict.get('bill_type'))
                 if ct:
                     bill_dict['createTime'] = ct.strftime('%Y-%m-%d %H:%M:%S')
                 result.append(bill_dict)
@@ -115,22 +116,25 @@ class ProductPointDetailHandler(BaseHandler):
         #         print(person.name, 'no pets')
 
         # Product_Point.id, Product_Point.title, Product_Point.grade_no, Product_Point.front_image, Product_Point.createTime, Product_Point.product_points
-        product_detail_query = Product_Point.select(Product_Point,Product_Point_Detail).where(Product_Point.id == did).join(Product_Point_Detail, JOIN.LEFT_OUTER).prefetch(Product_Point_Detail.select().where(Product_Point.id == did))
+        # .prefetch(Product_Point_Detail.select().where(Product_Point.id == did))
+        product_detail_query = Product_Point.select(Product_Point,Product_Point_Detail).join(Product_Point_Detail, JOIN.LEFT_OUTER).where(Product_Point.id == did)
         print('product_detail_query',product_detail_query)
         product_detail = await self.application.objects.execute(product_detail_query)
         for p in product_detail:
-            print(12,p)
-            p_dict = model_to_dict(p)
-            print(13,p_dict)
-            ct = p_dict.get('createTime', None)
-            if ct:
-                p_dict['createTime'] = ct.strftime('%Y-%m-%d %H:%M:%S')
-            p_dict.pop('updatetime')
-            result.append(p_dict)
-            if hasattr(p, 'product_points'):
-                print(p.title, p.product_points.id)
-            else:
-                print(p.title, 'no pets')
+            print(12,p.product_points)
+            for im in p.product_points:
+                print(13,im.id)
+            # p_dict = model_to_dict(p)
+            # print(13,p_dict)
+            # ct = p_dict.get('createTime', None)
+            # if ct:
+            #     p_dict['createTime'] = ct.strftime('%Y-%m-%d %H:%M:%S')
+            # p_dict.pop('updatetime')
+            # result.append(p_dict)
+            # if hasattr(p, 'product_points'):
+            #     print(p.title, p.product_points.id)
+            # else:
+            #     print(p.title, 'no pets')
         success, code, message, result = '','','',result
 
 

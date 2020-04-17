@@ -71,10 +71,15 @@ BILL_TYPE_DICT = {
     # (9, '兑换现金'),
 }
 
+BILL_STATUS = {
+    (0, '已完成'),
+    (1, '审核中'),
+}
 
 class User_PointBill(BaseModel):
     user = ForeignKeyField(User, verbose_name='用户')
     bill_type = IntegerField(choices=BILL_TYPE, verbose_name="账单类型")
+    bill_status = IntegerField(choices=BILL_STATUS, verbose_name="账单状态")
     grade_no = IntegerField(verbose_name='单笔积分数')
 
     @classmethod
