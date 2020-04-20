@@ -76,6 +76,7 @@ BILL_STATUS = {
     (1, '审核中'),
 }
 
+
 class User_PointBill(BaseModel):
     user = ForeignKeyField(User, verbose_name='用户')
     bill_type = IntegerField(choices=BILL_TYPE, verbose_name="账单类型")
@@ -91,6 +92,7 @@ class Product_Point(BaseModel):
     '''积分兑换 - 商品表'''
     title = CharField(max_length=100, verbose_name="商品标题")
     grade_no = IntegerField(verbose_name='积分数')
+    sku_no = IntegerField(verbose_name="库存数")
     front_image = CharField(max_length=200, verbose_name="封面图")
     updatetime = DateTimeField(default=datetime.now, verbose_name="更新时间")
 
@@ -104,6 +106,70 @@ class Product_Point_Detail(BaseModel):
     @classmethod
     def extend(cls):
         return cls.select(cls, Product_Point.id, Product_Point.title).join(Product_Point)
+
+
+class Express_Info(BaseModel):
+    '''快递公司'''
+    name = CharField(verbose_name="快递公司名称")
+
+
+EXPRESS_STATUS = {
+    (1, '代发货'),
+    (2, '已发货'),
+    (3, '已完成'),
+}
+
+
+class My_Express_Info(BaseModel):
+    '''我的快递'''
+    # user = ForeignKeyField(User, verbose_name="所属用户", backref="user_expresses")
+    express_info = ForeignKeyField(Express_Info, verbose_name="快递公司")
+    express_no = CharField(max_length=50, verbose_name="快递单号")
+    express_status = IntegerField(choices=EXPRESS_STATUS, default=0, verbose_name="快递状态")
+    updatetime = DateTimeField(default=datetime.now, verbose_name="更新时间")
+
+    @classmethod
+    def extend(cls):
+        return cls.select(cls, Express_Info.id,Express_Info.name).join(Express_Info,join_type=JOIN.LEFT_OUTER, on=cls.express_info).switch(cls)
+
+
+class My_Exchange_Info(BaseModel):
+    '''我的兑换'''
+    product_point = ForeignKeyField(Product_Point, verbose_name="所属商品", backref="product_exchanges")
+    express = ForeignKeyField(My_Express_Info, null=True, verbose_name="我的快递")
+    user = ForeignKeyField(User, verbose_name="所属用户", backref="user_exchanges")
+    express_status = IntegerField(choices=EXPRESS_STATUS, default=0, verbose_name="快递状态")
+    goods_no = IntegerField(verbose_name="商品数量")
+    grade_no = IntegerField(verbose_name='积分数')
+    remark = CharField(max_length=50, verbose_name='备注')
+    updatetime = DateTimeField(default=datetime.now, verbose_name="更新时间")
+
+    @classmethod
+    def extend(cls):
+        # 1. 多表join
+        # return cls.select(cls.id, cls.express_status, cls.grade_no, cls.goods_no, cls.createTime, cls.remark,
+        #                   Product_Point.id, Product_Point.title, My_Express_Info.id, My_Express_Info.express_no, User.id).join(
+        #     Product_Point, join_type=JOIN.LEFT_OUTER, on=cls.product_point).switch(cls).join(
+        #     My_Express_Info, join_type=JOIN.LEFT_OUTER, on=cls.express).switch(cls).join(
+        #     User, join_type=JOIN.LEFT_OUTER, on=cls.user).switch(cls)
+        return cls.select(cls,
+                          Product_Point,My_Express_Info.id,My_Express_Info.express_no, User).join(
+            Product_Point, join_type=JOIN.LEFT_OUTER, on=cls.product_point).switch(cls).join(
+            My_Express_Info, join_type=JOIN.LEFT_OUTER, on=cls.express).switch(cls).join(
+            User, join_type=JOIN.LEFT_OUTER, on=cls.user).switch(cls)
+
+
+class My_History_Address(BaseModel):
+    '''用户历史地址'''
+    user = ForeignKeyField(User, verbose_name="所属用户", backref="user_history_addresses")
+    exchangeorder = ForeignKeyField(My_Exchange_Info, verbose_name="用户兑换订单", backref="my_exchanges")
+    name = CharField(max_length=50, verbose_name="收件人")
+    mobile = CharField(max_length=20, verbose_name="手机号")
+    province = CharField(max_length=20, verbose_name="省")
+    city = CharField(max_length=20, verbose_name="市")
+    country = CharField(max_length=20, verbose_name="区")
+    address = CharField(max_length=30, verbose_name="详细地址")
+
 
 def just_test():
     # obj = User_Point()

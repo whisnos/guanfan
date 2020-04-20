@@ -2,7 +2,7 @@ from playhouse.shortcuts import JOIN, model_to_dict
 
 from chefserver.config import PAGE_SIZE
 from chefserver.models.point import User, User_Point, User_PointBill, BILL_TYPE_DICT, Product_Point_Detail, \
-    Product_Point
+    Product_Point, My_Exchange_Info, My_History_Address, My_Express_Info
 from chefserver.webhandler.basehandler import BaseHandler, check_login
 from chefserver.tool.tooltime import curDatetime
 from chefserver.tool.dbpool import DbOperate
@@ -111,7 +111,7 @@ class ProductPointDetailHandler(BaseHandler):
             success, code, message, result = True, 0, '获取成功', result
             return self.send_message(success, code, message, result)
         else:
-            return self.send_message(False, 404, '商品部存在', result)
+            return self.send_message(False, 404, '商品不存在', result)
         # pdetail_query = Product_Point_Detail.extend()
         # groups = await self.application.objects.execute(pdetail_query)
         # dict_obj=[]
@@ -128,6 +128,106 @@ class ProductPointDetailHandler(BaseHandler):
         #         dict_obj.append(dict_img)
         #     result.append(dict_img)
         # return self.send_message(False, 404, '商品部存在', dict_obj)
+
+
+class MyPointMyExchangeHandler(BaseHandler):
+    ''' 获取积分商品列表 '''
+
+    @check_login
+    async def post(self):
+        result = []
+        userid = self.get_session().get('id', 0)
+        sort = self.verify_arg_legal(self.get_body_argument('sort'), '排序类型', False, is_num=True, uchecklist=True,
+                                     user_check_list=['0', '1', '2', '3'])
+        page = self.verify_arg_legal(self.get_body_argument('page'), '页数', False, is_num=True)
+        my_exchange_query = My_Exchange_Info.extend().where(My_Exchange_Info.user_id == userid)
+        if sort:
+            if sort != '0':
+                my_exchange_query = my_exchange_query.where(My_Exchange_Info.express_status == sort)
+            else:
+                pass
+        my_exchange_query = my_exchange_query.order_by(My_Exchange_Info.id.desc()).paginate(int(page), PAGE_SIZE)
+        exchanges_warpper = await self.application.objects.execute(my_exchange_query)
+        if exchanges_warpper:
+            for ex in exchanges_warpper:
+                ex_dict = model_to_dict(ex)
+                ct = ex_dict.get('createTime', None)
+                if ct:
+                    ex_dict['createTime'] = ct.strftime('%Y-%m-%d %H:%M:%S')
+                ex_dict['product_point'].pop('createTime')
+                ex_dict['product_point'].pop('updatetime')
+                ex_dict['user'].pop('createTime')
+                ex_dict.pop('updatetime')
+                express_info_query = My_Express_Info.extend().where(My_Express_Info.id == ex.express_id)
+                express_info = await self.application.objects.execute(express_info_query)
+                if express_info:
+                    for addin in express_info:
+                        express_info_dict = model_to_dict(addin)
+                        express_info_dict.pop('createTime')
+                        express_info_dict.pop('updatetime')
+                        ex_dict['express'] = express_info_dict
+                result.append(ex_dict)
+            success, code, message = True, 0, '获取成功'
+            return self.send_message(success, code, message, result)
+
+        else:
+            return self.send_message(False, 404, '订单不存在', result)
+
+
+class MyExchangeDetailHandler(BaseHandler):
+    ''' 获取兑换订单详情 '''
+
+    @check_login
+    async def post(self):
+        result = []
+        did = self.verify_arg_legal(self.get_body_argument('did'), '动态ID', False, is_num=True)
+        query_ = My_Exchange_Info.extend().where(My_Exchange_Info.id == did)
+        exchange_warpper = await self.application.objects.execute(query_)
+        if exchange_warpper:
+            for p in exchange_warpper:
+                p_dict = model_to_dict(p)
+                ct = p_dict.get('createTime', None)
+                if ct:
+                    p_dict['createTime'] = ct.strftime('%Y-%m-%d %H:%M:%S')
+                p_dict.pop('updatetime')
+                p_dict['product_point'].pop('createTime')
+                p_dict['product_point'].pop('updatetime')
+                p_dict.pop('user')
+                result.append(p_dict)
+
+                # 找出对应历史地址
+                exchange_address_query = My_History_Address.select().where(
+                    My_History_Address.exchangeorder_id == p_dict['id'])
+                address_dict = {}
+                p_dict['address'] = {}
+                exchange_address_wrapper = await self.application.objects.execute(exchange_address_query)
+                if exchange_address_wrapper:
+                    for ad in exchange_address_wrapper:
+                        address_dict['name'] = ad.name
+                        address_dict['mobile'] = ad.mobile
+                        address_dict['province'] = ad.province
+                        address_dict['city'] = ad.city
+                        address_dict['address'] = ad.address
+                else:
+                    pass
+                p_dict['address'] = address_dict
+
+                # 找出快递信息
+                express_info_query = My_Express_Info.extend().where(My_Express_Info.id == p.express_id)
+                express_info = await self.application.objects.execute(express_info_query)
+                if express_info:
+                    for addin in express_info:
+                        express_info_dict = model_to_dict(addin)
+                        express_info_dict.pop('createTime')
+                        express_info_dict.pop('updatetime')
+                        p_dict['express'] = express_info_dict
+
+            success, code, message, result = True, 0, '获取成功', result
+            return self.send_message(success, code, message, result)
+        else:
+            return self.send_message(False, 404, '订单不存在', result)
+
+
 if __name__ == '__main__':
     async def test_banner_list():
         # res = await banner_list(0)

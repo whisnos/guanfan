@@ -1,6 +1,6 @@
 ﻿from chefserver.webhandler.food_channel import ChannelListHandler
 from chefserver.webhandler.point import MyPointHandler, MyPointBillHandler, MyPointProductHandler, \
-    ProductPointDetailHandler
+    ProductPointDetailHandler, MyPointMyExchangeHandler, MyExchangeDetailHandler
 from chefserver.webhandler.user import LoginHandler,SendSmsHandler,RestPasswordHandler
 from chefserver.webhandler.user import ModifyPhonedHandler,LogoutHandler,PersonInfoHandler
 from chefserver.webhandler.user import ModifyInfoHandler, SubmitAdvancedHandler,RegisterHandler
@@ -103,7 +103,8 @@ def make_app():
         (r"/detail/editrecipe", RecipeEditDetailHandler),        # 用户编辑菜谱详情
         (r"/detail/showlist", RecipeShowlistHandler),            # 菜谱作品秀(全部)
         (r"/detail/replylist", ReplylistHandler),                # 评论列表
-        (r"/detail/propoint", ProductPointDetailHandler),                # 评论列表
+        (r"/detail/propoint", ProductPointDetailHandler),        # 积分 - 商品详情
+        (r"/detail/exchange", MyExchangeDetailHandler),          # 积分 - 兑换订单详情
         (r"/subject/topiclist", SubjectListHandler),             # 主题列表
         (r"/subject/topicdetail", SubjectDetailHandler),         # 主题详情
         (r"/action/reply", ReplyHandler),                        # 添加评论
@@ -158,6 +159,7 @@ def make_app():
         (r"/mypoint/detail", MyPointHandler),                    # 积分-我的积分
         (r"/mypoint/pointbill", MyPointBillHandler),             # 积分-我的账单
         (r"/mypoint/product", MyPointProductHandler),            # 积分-商品列表
+        (r"/mypoint/exchange", MyPointMyExchangeHandler),        # 积分-我的兑换
         (r"/test", TestHandler),                                 # 测试接口
         ],
         # cookie_secret = 'cb56YAgMjpevlWBNqgrv5g==',
