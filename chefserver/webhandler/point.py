@@ -1,8 +1,10 @@
+from peewee_async import transaction, savepoint
 from playhouse.shortcuts import JOIN, model_to_dict
 
-from chefserver.config import PAGE_SIZE
+from chefserver.config import PAGE_SIZE, DATABASE
 from chefserver.models.point import User, User_Point, User_PointBill, BILL_TYPE_DICT, Product_Point_Detail, \
-    Product_Point, My_Exchange_Info, My_History_Address, My_Express_Info
+    Product_Point, My_Exchange_Info, My_History_Address, My_Express_Info, Bt_Area, My_Address
+from chefserver.tool.function import verify_num
 from chefserver.webhandler.basehandler import BaseHandler, check_login
 from chefserver.tool.tooltime import curDatetime
 from chefserver.tool.dbpool import DbOperate
@@ -226,6 +228,85 @@ class MyExchangeDetailHandler(BaseHandler):
             return self.send_message(success, code, message, result)
         else:
             return self.send_message(False, 404, '订单不存在', result)
+
+
+class AddressDetailHandler(BaseHandler):
+    ''' 获取省市区 '''
+
+    # @check_login
+    async def get(self):
+        result = []
+        pid = self.get_body_argument('pid', None)  # '省id'
+        cid = self.get_body_argument('cid', None)  # '市id'
+        if pid and cid:
+            return self.send_message(False, 404, 'pid 或 cid 参数错误', result)
+        query_no = 0
+        if pid:
+            query_no = verify_num(pid)
+        elif cid:
+            query_no = verify_num(cid)
+        area_query = Bt_Area.select().where(Bt_Area.parentId == query_no)
+        area_wrappers = await self.application.objects.execute(area_query)
+        if area_wrappers:
+            for a in area_wrappers:
+                area_dict = model_to_dict(a)
+                result.append(area_dict)
+            success, code, message, result = True, 0, '获取成功', result
+            return self.send_message(success, code, message, result)
+
+        else:
+            return self.send_message(False, 404, '获取失败', result)
+
+
+class MyAddressHandler(BaseHandler):
+    ''' 创建 修改 删除 地址 '''
+
+    @check_login
+    async def post(self):
+        result = []
+        DATABASE.autocommit(False)
+        print(1)
+        userid = self.get_session().get('id', 0)
+        name = self.verify_arg_legal(self.get_body_argument('name'), '收件人', False, )
+        mobile = self.verify_arg_legal(self.get_body_argument('mobile'), '手机号', False, )
+        pid = self.verify_arg_num(self.get_body_argument('pid'), '省id', is_num=True, )
+        cid = self.verify_arg_num(self.get_body_argument('cid'), '市id', is_num=True, )
+        aid = self.verify_arg_num(self.get_body_argument('aid'), '县区id', is_num=True, )
+        address = self.verify_arg_legal(self.get_body_argument('address'), '详细地址', False, is_len=50, )
+        is_default = self.verify_arg_num(self.get_body_argument('is_default'), '是否默认', is_num=True)
+        verify_city_ = Bt_Area.select().where(Bt_Area.id == aid and Bt_Area.parentId == cid)
+        verify_province_ = Bt_Area.select().where(Bt_Area.id == cid and Bt_Area.parentId == pid)
+        verify_city_wrappers = await self.application.objects.execute(verify_city_)
+        verify_province_wrappers = await self.application.objects.execute(verify_province_)
+
+        if not verify_city_wrappers or not verify_province_wrappers:
+            return self.send_message(False, 404, '创建失败 省市区参数错误', result)
+
+        # 如果要设置为默认地址，先查询数据库是否有存在默认地址，有改为非默认
+        if is_default:
+            my_address_query = My_Address.select().where(My_Address.user_id == userid, My_Address.is_default == 1)
+            my_address_wrappers = await self.application.objects.execute(my_address_query)
+            if my_address_wrappers:
+                for ad in my_address_wrappers:
+                    ad.is_default = 0
+                    await self.application.objects.update(ad)
+        data_dict = {
+            "user_id": userid,
+            "name": name,
+            "mobile": mobile,
+            "province": pid,
+            "city": cid,
+            "area": aid,
+            "address": address,
+            "is_default": is_default,
+        }
+        try:
+            await self.application.objects.create(My_Address, **data_dict)
+        except Exception as e:
+            # 日志
+            log.info('{} 地址创建失败:{}'.format(userid, data_dict))
+        success, code, message, result = True, 0, '获取成功', result
+        return self.send_message(success, code, message, result)
 
 
 if __name__ == '__main__':

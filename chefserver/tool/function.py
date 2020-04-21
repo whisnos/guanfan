@@ -11,6 +11,16 @@ def get_uuid():
     return str(uuid.uuid4())
 
 
+def verify_num(value):
+    # 判断是否是纯数字
+    try:
+        if isinstance(value, str):
+            return int(value)
+        else:
+            return False
+    except ValueError as e:
+        return False
+
 if __name__ == '__main__':
     import time
     stamp = int(time.time())
