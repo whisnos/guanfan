@@ -193,6 +193,7 @@ class My_Address(BaseModel):
     area = ForeignKeyField(Bt_Area, verbose_name="区")
     address = CharField(max_length=30, verbose_name="详细地址")
     is_default = BooleanField(default=False, verbose_name="是否默认地址")
+    is_delete = BooleanField(default=False, verbose_name="是否删除")
     updatetime = DateTimeField(default=datetime.now, verbose_name="更新时间")
 
 

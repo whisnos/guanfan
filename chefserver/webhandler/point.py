@@ -262,10 +262,50 @@ class MyAddressHandler(BaseHandler):
     ''' 创建 修改 删除 地址 '''
 
     @check_login
+    async def get(self):
+        result = []
+        userid = self.get_session().get('id', 0)
+        my_address_query = My_Address.select().order_by(My_Address.id.desc()).where(My_Address.user_id == userid,
+                                                                                    My_Address.is_delete == False)
+        address_wrappers = await self.application.objects.execute(my_address_query)
+        if address_wrappers:
+            for ad in address_wrappers:
+                # Bt_Area.select(Bt_Area.name).where(Bt_Area.id==ad.province_id)
+                sql_ = '''
+    SELECT
+    t1.name as p_name,
+    t2.name as c_name,
+    t3.name as a_name
+    from
+    (select
+    name
+    from bt_area
+    where id=?) as t1
+    inner join bt_area as t2
+    on t2.id = ?
+    inner join bt_area as t3
+    on t3.id = ?'''
+                address_result = await dbins.select(sql_, (ad.province_id, ad.city_id, ad.area_id))
+                if address_result is None:
+                    return False, 3003, '获取收货地址失败,请重试', None
+                else:
+                    address_detail = address_result[0]
+                    detail_dict = {}
+                    detail_dict['id'] = ad.id
+                    detail_dict['name'] = ad.name
+                    detail_dict['mobile'] = ad.mobile
+                    address_detail['address'] = ad.address
+                    detail_dict['detail'] = address_detail
+                    detail_dict['is_default'] = ad.is_default
+                    result.append(detail_dict)
+            success, code, message, result = True, 0, '获取成功', result
+            return self.send_message(success, code, message, result)
+        else:
+            return self.send_message(False, 404, '地址为空', result)
+
+    @check_login
     async def post(self):
         result = []
-        DATABASE.autocommit(False)
-        print(1)
         userid = self.get_session().get('id', 0)
         name = self.verify_arg_legal(self.get_body_argument('name'), '收件人', False, )
         mobile = self.verify_arg_legal(self.get_body_argument('mobile'), '手机号', False, )
@@ -283,30 +323,146 @@ class MyAddressHandler(BaseHandler):
             return self.send_message(False, 404, '创建失败 省市区参数错误', result)
 
         # 如果要设置为默认地址，先查询数据库是否有存在默认地址，有改为非默认
-        if is_default:
-            my_address_query = My_Address.select().where(My_Address.user_id == userid, My_Address.is_default == 1)
-            my_address_wrappers = await self.application.objects.execute(my_address_query)
-            if my_address_wrappers:
-                for ad in my_address_wrappers:
-                    ad.is_default = 0
-                    await self.application.objects.update(ad)
-        data_dict = {
-            "user_id": userid,
+        async with await DATABASE.transaction() as transaction:
+            if is_default:
+                query = (My_Address.use(transaction).update({My_Address.is_default: 0})
+                         .where(My_Address.user == userid, My_Address.is_default == 1))
+                await query.execute()
+
+            data_dict = {
+                "user_id": userid,
+                "name": name,
+                "mobile": mobile,
+                "province": pid,
+                "city": cid,
+                "area": aid,
+                "address": address,
+                "is_default": is_default,
+            }
+            try:
+                # await self.application.objects.create(My_Address, **data_dict)
+                await My_Address.use(transaction).create(**data_dict)
+            except Exception as e:
+                # 日志
+                log.info('{} 地址创建失败:{}-{}'.format(userid, data_dict, e))
+                success, code, message, result = False, 404, '创建失败', ''
+                return self.send_message(success, code, message, result)
+
+        success, code, message, result = True, 0, '创建成功', result
+        return self.send_message(success, code, message, result)
+
+    @check_login
+    async def put(self, *args, **kwargs):
+        result = []
+        userid = self.get_session().get('id', 0)
+        did = self.verify_arg_legal(self.get_body_argument('did'), '地址id', False, is_num=True)
+        name = self.verify_arg_legal(self.get_body_argument('name'), '收件人', False, )
+        mobile = self.verify_arg_legal(self.get_body_argument('mobile'), '手机号', False, )
+        pid = self.verify_arg_num(self.get_body_argument('pid'), '省id', is_num=True, )
+        cid = self.verify_arg_num(self.get_body_argument('cid'), '市id', is_num=True, )
+        aid = self.verify_arg_num(self.get_body_argument('aid'), '县区id', is_num=True, )
+        address = self.verify_arg_legal(self.get_body_argument('address'), '详细地址', False, is_len=50, )
+        is_default = self.verify_arg_num(self.get_body_argument('is_default'), '是否默认', is_num=True)
+
+        try:
+            address_obj = await self.application.objects.get(My_Address, id=did, user_id=userid)
+        except My_Address.DoesNotExist as e:
+            return self.send_message(False, 404, 'did参数错误', result)
+
+        verify_city_ = Bt_Area.select().where(Bt_Area.id == aid and Bt_Area.parentId == cid)
+        verify_province_ = Bt_Area.select().where(Bt_Area.id == cid and Bt_Area.parentId == pid)
+        verify_city_wrappers = await self.application.objects.execute(verify_city_)
+        verify_province_wrappers = await self.application.objects.execute(verify_province_)
+
+        if not verify_city_wrappers or not verify_province_wrappers:
+            return self.send_message(False, 404, '创建失败 省市区参数错误', result)
+
+        add_data = {
             "name": name,
             "mobile": mobile,
-            "province": pid,
-            "city": cid,
-            "area": aid,
+            "province_id": pid,
+            "city_id": cid,
+            "area_id": aid,
             "address": address,
             "is_default": is_default,
+            "updatetime": curDatetime(),
         }
-        try:
-            await self.application.objects.create(My_Address, **data_dict)
-        except Exception as e:
-            # 日志
-            log.info('{} 地址创建失败:{}'.format(userid, data_dict))
-        success, code, message, result = True, 0, '获取成功', result
+
+        # 如果要设置为默认地址，先查询数据库是否有存在默认地址，有改为非默认
+        async with await DATABASE.transaction() as transaction:
+            try:
+                if is_default:
+                    query = (My_Address.use(transaction).update({My_Address.is_default: 0})
+                             .where(My_Address.user == userid, My_Address.is_default == 1))
+                    await query.execute()
+                await My_Address.use(transaction).update(**add_data).where(My_Address.id == did)
+            except Exception as e:
+                # 日志
+                log.info('{} 地址修改失败:{}-{}'.format(userid, add_data, e))
+                success, code, message, result = False, 404, '修改失败', ''
+                return self.send_message(success, code, message, result)
+        success, code, message, result = True, 0, '修改成功', result
         return self.send_message(success, code, message, result)
+
+    @check_login
+    async def delete(self, *args, **kwargs):
+        result = []
+        userid = self.get_session().get('id', 0)
+        did = self.verify_arg_legal(self.get_body_argument('did'), '地址id', False, is_num=True)
+        self.verify_arg_num(self.get_body_argument('is_delete'), '是否默认', is_num=True)
+        try:
+            add_obj = await self.application.objects.get(My_Address, id=did, is_delete=False, user_id=userid)
+        except My_Address.DoesNotExist:
+            return self.send_message(False, 404, '地址不存在', result)
+        add_obj.is_delete = True
+        await self.application.objects.update(add_obj)
+        success, code, message, result = True, 0, '删除成功', result
+        return self.send_message(success, code, message, result)
+
+
+class MyAddressDetailHandler(BaseHandler):
+    ''' 创建 修改 删除 地址 '''
+
+    @check_login
+    async def get(self):
+        result = []
+        userid = self.get_session().get('id', 0)
+        address_wrappers = await self.application.objects.execute(
+            My_Address.select().order_by(My_Address.id.desc()).where(
+                My_Address.user_id == userid, My_Address.is_delete == False, My_Address.is_default == True).limit(1))
+        if address_wrappers:
+            for ad in address_wrappers:
+                sql_ = '''
+               SELECT
+               t1.name as p_name,
+               t2.name as c_name,
+               t3.name as a_name
+               from
+               (select
+               name
+               from bt_area
+               where id=?) as t1
+               inner join bt_area as t2
+               on t2.id = ?
+               inner join bt_area as t3
+               on t3.id = ?'''
+                address_result = await dbins.select(sql_, (ad.province_id, ad.city_id, ad.area_id))
+                if address_result is None:
+                    return False, 3003, '获取收货地址失败,请重试', None
+                else:
+                    address_detail = address_result[0]
+                    detail_dict = {}
+                    detail_dict['id'] = ad.id
+                    detail_dict['name'] = ad.name
+                    detail_dict['mobile'] = ad.mobile
+                    address_detail['address'] = ad.address
+                    detail_dict['detail'] = address_detail
+                    detail_dict['is_default'] = ad.is_default
+                    result.append(detail_dict)
+            success, code, message, result = True, 0, '获取成功', result
+            return self.send_message(success, code, message, result)
+        else:
+            return self.send_message(False, 400, '没有默认地址', result)
 
 
 if __name__ == '__main__':
