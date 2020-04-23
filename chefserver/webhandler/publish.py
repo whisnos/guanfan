@@ -1,4 +1,7 @@
 import tornado.web
+
+from chefserver.config import DATABASE
+from chefserver.models.point import Express_Info
 from chefserver.tool.dbpool import DbOperate
 from chefserver.tool import applog
 from chefserver.webhandler.basehandler import BaseHandler, check_login
@@ -657,10 +660,23 @@ async def channel_moment_add(id,chlist):
     # # else:
     # return 0, "添加成功", None
 
+
 class TestHandler(BaseHandler):
     ''' test API '''
-    async def post(self):
-        pass
+
+    # @DATABASE.transaction()
+    async def get(self):
+        try:
+            async with await DATABASE.transaction() as transaction:
+                query = (Express_Info.use(transaction).update({Express_Info.num: Express_Info.num + 1})
+                         .where(Express_Info.id == 1))
+
+                # await self.application.objects.execute(query)
+                await query.execute()
+                # ddd
+
+        except Exception as e:
+            print(111,e)
         return self.send_message('OK', 200, 'SUCCESS')
 
 if __name__ == '__main__':
