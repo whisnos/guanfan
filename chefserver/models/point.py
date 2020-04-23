@@ -22,7 +22,7 @@ POINT_TYPE = {
 class Point_Info(BaseModel):
     point_type = IntegerField(choices=POINT_TYPE, verbose_name="积分类型")
     grade_no = IntegerField(verbose_name="积分数")
-
+    status = BooleanField(default=True, verbose_name="状态")
 
 OPTIONS_TYPE = {
     (1, 'every_day 每天N次'),
@@ -35,7 +35,7 @@ class Point_Setting(BaseModel):
     pointinfo = ForeignKeyField(Point_Info, verbose_name="积分类型")
     count = IntegerField(default=0, verbose_name="次数")
     options_type = IntegerField(choices=OPTIONS_TYPE, verbose_name="选项类型")
-    status = BooleanField(default=True, verbose_name="状态")
+    # status = BooleanField(default=True, verbose_name="状态")
     updatetime = DateTimeField(default=datetime.now, verbose_name="更新时间")
 
 
