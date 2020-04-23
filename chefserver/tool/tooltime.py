@@ -147,10 +147,22 @@ def string_to_time(tstring, tformat=LOCAL_FORMAT):
     ''' 字符串转时间对象 '''
     return time.strftime(tstring, tformat)
 
+def rest_of_day():
+    """
+    :return: 截止到目前当日剩余时间
+    """
+    today = datetime.datetime.strptime(str(datetime.date.today()), "%Y-%m-%d")
+    tomorrow = today + datetime.timedelta(days=1)
+    nowTime = datetime.datetime.now()
+    # return (tomorrow - nowTime).microseconds  # 获取毫秒值
+    return (tomorrow - nowTime).seconds  # 获取秒
+    # return (tomorrow - nowTime).min  # 获取分钟
+
 if __name__ == '__main__':
+    rest_of_day()
     print(get_utc_Timestamp('2019-09-03T08:17:59Z') - time.time())
     print(type(get_utc_localtime('2019-09-03T08:17:59Z')))
-    
+
     d_local_time = get_utc_datatime('2019-09-03T08:17:59Z')
     print(str(d_local_time))
     print(d_local_time.year)
