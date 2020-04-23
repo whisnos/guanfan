@@ -199,6 +199,7 @@ async def campaign_join_list(arg_dict):
                 LEFT JOIN recipe_info AS reci ON camjoin.joinid = reci.id 
                 AND reci.`status` = 1 
                 AND reci.isEnable = 1
+                ORDER BY camjoin.id DESC
         '''.format(where_str)
     else:
         campaign_join_list_sql = '''
@@ -211,6 +212,7 @@ async def campaign_join_list(arg_dict):
                 ( SELECT id, userid, jointype, joinid FROM campaign_join {} LIMIT ?, ? ) camjoin
                 LEFT JOIN moments_info AS dt ON camjoin.joinid = dt.id 
                 AND dt.`status` = 0
+                ORDER BY camjoin.id DESC
         '''.format(where_str)
 
     wvalue_list.append(page)
