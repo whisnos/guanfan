@@ -202,6 +202,89 @@ class EditRecipesubmitHandler(BaseHandler):
                 return self.send_message(True, 0, '发布菜谱成功, 动态生成异常, 请重新发布动态')
 
 
+async def update_dt_point(self,userid):
+    ''' 处理发布动态积分联动'''
+    try:
+        point_info_obj = await self.application.objects.get(Point_Info, point_type=0)
+        # 发布动态获取的积分数
+        grade_no = point_info_obj.grade_no
+        point_setting_obj = await self.application.objects.get(Point_Setting, pointinfo=point_info_obj.id)
+        # 获取设置的类型 options_type 1, 'every_day 每天N次' 3, 'no_limit 没有限制'
+        if point_setting_obj.options_type == 1:
+
+            # redis
+            cacheojb = CacheUserPointinfo(userid)
+            cres = await cacheojb.createCache()
+            if cres is False:
+                log.error("用户{}-积分缓存创建失败。".format(userid))
+            # 获取用户今天已发布的数量
+            num_dt = await cacheojb.get_dongtai()
+
+            # 获取count
+            count = point_setting_obj.count
+            # 如果redis中的数量 >= count
+            if int(num_dt) >= count:
+                # 不增加积分
+                pass
+            else:
+                # 处理积分 账单
+                try:
+                    user_point_obj = await self.application.objects.get(User_Point, user_id=userid)
+                except User_Point.DoesNotExist:
+                    user_point_obj = await self.application.objects.create(User_Point, user_id=userid)
+                async with await DATABASE.transaction() as transaction:
+                    # 过滤刷积分
+                    if num_dt == await cacheojb.get_dongtai():
+                        # 增加积分
+                        query_sql = (User_Point.use(transaction).update({User_Point.point: User_Point.point + grade_no})
+                                 .where(User_Point.id == user_point_obj.id))
+                        await query_sql.execute()
+
+                        # 增加积分账单
+                        await User_PointBill.use(transaction).create(user_id=userid, bill_type=1, bill_status=0, grade_no=grade_no)
+
+                        await cacheojb.set_dongtai(1)
+
+        elif point_setting_obj.options_type == 2:
+            try:
+                user_bill_obj = await self.application.objects.get(User_PointBill, user_id=userid, bill_type=1)
+            except User_PointBill.DoesNotExist:
+                # 处理积分 账单
+                try:
+                    user_point_obj = await self.application.objects.get(User_Point, user_id=userid)
+                except User_Point.DoesNotExist:
+                    user_point_obj = await self.application.objects.create(User_Point, user_id=userid)
+                async with await DATABASE.transaction() as transaction:
+                    # 增加积分
+                    query_sql = (User_Point.use(transaction).update({User_Point.point: User_Point.point + grade_no})
+                                 .where(User_Point.id == user_point_obj.id))
+                    await query_sql.execute()
+
+                    # 增加积分账单
+                    await User_PointBill.use(transaction).create(user_id=userid, bill_type=1, bill_status=0,
+                                                                 grade_no=grade_no)
+        elif point_setting_obj.options_type == 3:
+            # 处理积分 账单
+            try:
+                user_point_obj = await self.application.objects.get(User_Point, user_id=userid)
+            except User_Point.DoesNotExist:
+                user_point_obj = await self.application.objects.create(User_Point, user_id=userid)
+            async with await DATABASE.transaction() as transaction:
+                # 增加积分
+                query_sql = (User_Point.use(transaction).update({User_Point.point: User_Point.point + grade_no})
+                             .where(User_Point.id == user_point_obj.id))
+                await query_sql.execute()
+
+                # 增加积分账单
+                await User_PointBill.use(transaction).create(user_id=userid, bill_type=1, bill_status=0,
+                                                             grade_no=grade_no)
+
+
+    except Exception as e:
+        log.error("用户{}发布动态，更新积分失败 异常{}".format(userid,e))
+        return False
+    return True
+
 class PushDongtaiHandler(BaseHandler):
     ''' 发布动态(图片) '''
     @check_login
@@ -237,64 +320,7 @@ class PushDongtaiHandler(BaseHandler):
         success, code, message, insert_dt_id = await publish_dongtai(userid, description, dt_type, itemid, dtimgall, videourl)
         if success:
             # 处理积分
-            try:
-                point_info_obj = await self.application.objects.get(Point_Info, point_type=0)
-                # 发布动态获取的积分数
-                grade_no = point_info_obj.grade_no
-                point_setting_obj = await self.application.objects.get(Point_Setting, pointinfo=point_info_obj.id)
-                # 获取设置的类型 options_type 1, 'every_day 每天N次' 3, 'no_limit 没有限制'
-                if point_setting_obj.options_type == 1:
-
-                    # redis
-                    cacheojb = CacheUserPointinfo(userid)
-                    cres = await cacheojb.createCache()
-                    if cres is False:
-                        log.error("用户{}-积分缓存创建失败。".format(userid))
-                    # 获取用户今天已发布的数量
-                    num_dt = await cacheojb.get_dongtai()
-
-                    # 获取count
-                    count = point_setting_obj.count
-                    # 如果redis中的数量 >= count
-                    if int(num_dt) >= count:
-                        # 不增加积分
-                        pass
-                    else:
-                        # 处理积分 账单
-                        try:
-                            user_point_obj = await self.application.objects.get(User_Point, user_id=userid)
-                        except User_Point.DoesNotExist:
-                            user_point_obj = await self.application.objects.create(User_Point, user_id=userid)
-                        async with await DATABASE.transaction() as transaction:
-                            # 增加积分
-                            query_sql = (User_Point.use(transaction).update({User_Point.point: User_Point.point + grade_no})
-                                     .where(User_Point.id == user_point_obj.id))
-                            await query_sql.execute()
-
-                            # 增加积分账单
-                            await User_PointBill.use(transaction).create(user_id=userid, bill_type=1, bill_status=0, grade_no=grade_no)
-
-                        await cacheojb.set_dongtai(1)
-
-                elif point_setting_obj.options_type == 3:
-                    # 处理积分 账单
-                    try:
-                        user_point_obj = await self.application.objects.get(User_Point, user_id=userid)
-                    except User_Point.DoesNotExist:
-                        user_point_obj = await self.application.objects.create(User_Point, user_id=userid)
-                    async with await DATABASE.transaction() as transaction:
-                        # 增加积分
-                        query_sql = (User_Point.use(transaction).update({User_Point.point: User_Point.point + grade_no})
-                                     .where(User_Point.id == user_point_obj.id))
-                        await query_sql.execute()
-
-                        # 增加积分账单
-                        await User_PointBill.use(transaction).create(user_id=userid, bill_type=1, bill_status=0,
-                                                                     grade_no=grade_no)
-
-
-            except Point_Info.DoesNotExist:
-                pass
+            await update_dt_point(self, userid)
 
             # 更新频道动态关系
             try:
@@ -335,66 +361,7 @@ class PushVideoDongtaiHandler(BaseHandler):
         success, code, message, insert_dt_id = await publish_video_dongtai(userid, description, videoid, dt_type, itemid)
         if success:
             # 处理积分
-            try:
-                point_info_obj = await self.application.objects.get(Point_Info, point_type=0)
-                # 发布动态获取的积分数
-                grade_no = point_info_obj.grade_no
-                point_setting_obj = await self.application.objects.get(Point_Setting, pointinfo=point_info_obj.id)
-                # 获取设置的类型 options_type 1, 'every_day 每天N次' 3, 'no_limit 没有限制'
-                if point_setting_obj.options_type == 1:
-
-                    # redis
-                    cacheojb = CacheUserPointinfo(userid)
-                    cres = await cacheojb.createCache()
-                    if cres is False:
-                        log.error("用户{}-积分缓存创建失败。".format(userid))
-                    # 获取用户今天已发布的数量
-                    num_dt = await cacheojb.get_dongtai()
-
-                    # 获取count
-                    count = point_setting_obj.count
-                    # 如果redis中的数量 >= count
-                    if int(num_dt) >= count:
-                        # 不增加积分
-                        pass
-                    else:
-                        # 处理积分 账单
-                        try:
-                            user_point_obj = await self.application.objects.get(User_Point, user_id=userid)
-                        except User_Point.DoesNotExist:
-                            user_point_obj = await self.application.objects.create(User_Point, user_id=userid)
-                        async with await DATABASE.transaction() as transaction:
-                            # 增加积分
-                            query_sql = (
-                                User_Point.use(transaction).update({User_Point.point: User_Point.point + grade_no})
-                                .where(User_Point.id == user_point_obj.id))
-                            await query_sql.execute()
-
-                            # 增加积分账单
-                            await User_PointBill.use(transaction).create(user_id=userid, bill_type=1, bill_status=0,
-                                                                         grade_no=grade_no)
-
-                        await cacheojb.set_dongtai(1)
-
-                elif point_setting_obj.options_type == 3:
-                    # 处理积分 账单
-                    try:
-                        user_point_obj = await self.application.objects.get(User_Point, user_id=userid)
-                    except User_Point.DoesNotExist:
-                        user_point_obj = await self.application.objects.create(User_Point, user_id=userid)
-                    async with await DATABASE.transaction() as transaction:
-                        # 增加积分
-                        query_sql = (User_Point.use(transaction).update({User_Point.point: User_Point.point + grade_no})
-                                     .where(User_Point.id == user_point_obj.id))
-                        await query_sql.execute()
-
-                        # 增加积分账单
-                        await User_PointBill.use(transaction).create(user_id=userid, bill_type=1, bill_status=0,
-                                                                     grade_no=grade_no)
-
-
-            except Point_Info.DoesNotExist:
-                pass
+            await update_dt_point(self, userid)
 
             # 更新频道动态关系
             try:

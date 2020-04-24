@@ -98,6 +98,7 @@ class ProductPointDetailHandler(BaseHandler):
         did = self.verify_arg_legal(self.get_body_argument('did'), '动态ID', False, is_num=True)
         product_query = Product_Point.select().order_by(Product_Point.id).where(Product_Point.id == did)
         product = await self.application.objects.execute(product_query)
+        p_dict = {}
         if product:
             for p in product:
                 p_dict = model_to_dict(p)
@@ -110,7 +111,7 @@ class ProductPointDetailHandler(BaseHandler):
                 p_dict['imgs'] = []
                 for p1 in pdetailimg_query:
                     p_dict['imgs'].append(p1.image)
-            success, code, message, result = True, 0, '获取成功', result
+            success, code, message, result = True, 0, '获取成功', p_dict
             return self.send_message(success, code, message, result)
         else:
             return self.send_message(False, 404, '商品不存在', result)
