@@ -3,7 +3,7 @@ from playhouse.shortcuts import JOIN, model_to_dict
 
 from chefserver.config import PAGE_SIZE, DATABASE
 from chefserver.models.point import User, User_Point, User_PointBill, BILL_TYPE_DICT, Product_Point_Detail, \
-    Product_Point, My_Exchange_Info, My_History_Address, My_Express_Info, Bt_Area, My_Address
+    Product_Point, My_Exchange_Info, My_History_Address, My_Express_Info, Area, My_Address
 from chefserver.tool.function import verify_num
 from chefserver.webhandler.basehandler import BaseHandler, check_login
 from chefserver.tool.tooltime import curDatetime
@@ -241,12 +241,12 @@ class AddressDetailHandler(BaseHandler):
         cid = self.get_body_argument('cid', None)  # '市id'
         if pid and cid:
             return self.send_message(False, 404, 'pid 或 cid 参数错误', result)
-        query_no = 0
+        query_no = None
         if pid:
             query_no = verify_num(pid)
         elif cid:
             query_no = verify_num(cid)
-        area_query = Bt_Area.select().where(Bt_Area.parentId == query_no)
+        area_query = Area.select().where(Area.pid == query_no)
         area_wrappers = await self.application.objects.execute(area_query)
         if area_wrappers:
             for a in area_wrappers:
@@ -271,7 +271,6 @@ class MyAddressHandler(BaseHandler):
         address_wrappers = await self.application.objects.execute(my_address_query)
         if address_wrappers:
             for ad in address_wrappers:
-                # Bt_Area.select(Bt_Area.name).where(Bt_Area.id==ad.province_id)
                 sql_ = '''
     SELECT
     t1.name as p_name,
@@ -280,11 +279,11 @@ class MyAddressHandler(BaseHandler):
     from
     (select
     name
-    from bt_area
+    from area
     where id=?) as t1
-    inner join bt_area as t2
+    inner join area as t2
     on t2.id = ?
-    inner join bt_area as t3
+    inner join area as t3
     on t3.id = ?'''
                 address_result = await dbins.select(sql_, (ad.province_id, ad.city_id, ad.area_id))
                 if address_result is None:
@@ -315,8 +314,8 @@ class MyAddressHandler(BaseHandler):
         aid = self.verify_arg_num(self.get_body_argument('aid'), '县区id', is_num=True, )
         address = self.verify_arg_legal(self.get_body_argument('address'), '详细地址', False, is_len=50, )
         is_default = self.verify_arg_num(self.get_body_argument('is_default'), '是否默认', is_num=True)
-        verify_city_ = Bt_Area.select().where(Bt_Area.id == aid and Bt_Area.parentId == cid)
-        verify_province_ = Bt_Area.select().where(Bt_Area.id == cid and Bt_Area.parentId == pid)
+        verify_city_ = Area.select().where(Area.id == aid and Area.pid == cid)
+        verify_province_ = Area.select().where(Area.id == cid and Area.pid == pid)
         verify_city_wrappers = await self.application.objects.execute(verify_city_)
         verify_province_wrappers = await self.application.objects.execute(verify_province_)
 
@@ -370,8 +369,8 @@ class MyAddressHandler(BaseHandler):
         except My_Address.DoesNotExist as e:
             return self.send_message(False, 404, 'did参数错误', result)
 
-        verify_city_ = Bt_Area.select().where(Bt_Area.id == aid and Bt_Area.parentId == cid)
-        verify_province_ = Bt_Area.select().where(Bt_Area.id == cid and Bt_Area.parentId == pid)
+        verify_city_ = Area.select().where(Area.id == aid and Area.pid == cid)
+        verify_province_ = Area.select().where(Area.id == cid and Area.pid == pid)
         verify_city_wrappers = await self.application.objects.execute(verify_city_)
         verify_province_wrappers = await self.application.objects.execute(verify_province_)
 
@@ -441,11 +440,11 @@ class MyAddressDetailHandler(BaseHandler):
                from
                (select
                name
-               from bt_area
+               from Area
                where id=?) as t1
-               inner join bt_area as t2
+               inner join Area as t2
                on t2.id = ?
-               inner join bt_area as t3
+               inner join Area as t3
                on t3.id = ?'''
                 address_result = await dbins.select(sql_, (ad.province_id, ad.city_id, ad.area_id))
                 if address_result is None:

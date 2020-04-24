@@ -15,3 +15,12 @@ class PeeModel(Model):
 
 class BaseModel(PeeModel, torpeewee_model):
     pass
+
+# 建表时打开
+# delete FROM `bt_area` where level=4
+
+# class BaseModel(Model):
+#     createTime = DateTimeField(default=datetime.now, verbose_name="创建时间")
+#
+#     class Meta:
+#         database = DATABASE
