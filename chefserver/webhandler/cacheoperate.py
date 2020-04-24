@@ -6,11 +6,14 @@ from chefserver.tool.async_redis_pool import RedisOperate
 from chefserver.tool.dbpool import DbOperate
 from tornado.escape import json_decode, json_encode
 from chefserver.tool import applog
+from chefserver.tool.tooltime import rest_of_day
 
 log = applog.get_log('webhandler.cache')
 
+
 class CacheBase(object):
     """ 缓存操作基类 """
+
     def __init__(self):
         super(CacheBase, self).__init__()
         self.redis = RedisOperate.instance()
@@ -19,6 +22,7 @@ class CacheBase(object):
 
 class CachePapeHotDongtai(CacheBase):
     ''' 动态广场热门缓存 '''
+
     def __init__(self):
         super(CachePapeHotDongtai, self).__init__()
         self.basekey = "hotdongtai:"
@@ -30,7 +34,7 @@ class CachePapeHotDongtai(CacheBase):
 
     async def set(self, argkey, value):
         ''' 设置值,argkey=广场类型+页数'''
-        result = await self.redis.set_and_expire(self.basekey + argkey, json_encode(value), 120) 
+        result = await self.redis.set_and_expire(self.basekey + argkey, json_encode(value), 120)
         # 设置过期时间半小时
         return result
 
@@ -39,8 +43,10 @@ class CachePapeHotDongtai(CacheBase):
         result = await self.redis.get_data(self.basekey + argkey)
         return json_decode(result)
 
+
 class CacheRecommedDongtai(CacheBase):
     ''' 动态广场动态推荐缓存类 '''
+
     def __init__(self):
         super(CacheRecommedDongtai, self).__init__()
         self.basekey = "recommenddongtai"
@@ -84,6 +90,7 @@ class CacheRecommedDongtai(CacheBase):
 
 class CacheFans(CacheBase):
     ''' 用户关注列表缓存redis SET '''
+
     def __init__(self, setid):
         super(CacheFans, self).__init__()
         self.key = "fans:{}".format(setid)
@@ -103,8 +110,10 @@ class CacheFans(CacheBase):
         result = await self.redis.set_size(self.key)
         return result
 
+
 class CacheFollow(CacheBase):
     ''' 用户粉丝缓存列表redis SET '''
+
     def __init__(self, setid):
         super(CacheFollow, self).__init__()
         self.key = "follow:{}".format(setid)
@@ -124,8 +133,10 @@ class CacheFollow(CacheBase):
         result = await self.redis.set_size(self.key)
         return result
 
+
 class CacheUserinfo(CacheBase):
     """ 用户个人信息相关Cache,类型 HASH """
+
     def __init__(self, userid):
         super(CacheUserinfo, self).__init__()
         self.userid = userid
@@ -146,19 +157,19 @@ class CacheUserinfo(CacheBase):
     async def get_dongtai(self, force_update=False):
         ''' 获取动态值没有就更新到缓存 '''
         await self.createCache()
-        result = await self.redis.hash_hexists(self.key,'num_dt')
+        result = await self.redis.hash_hexists(self.key, 'num_dt')
         if result == 1 and force_update is False:
             # 已存在，返回值
             return await self.get('num_dt')
         else:
             # 不存在,从数据库中更新
-            sql= '''select count(id) as num from moments_info where userid=? and status=0 limit 1'''
+            sql = '''select count(id) as num from moments_info where userid=? and status=0 limit 1'''
             db_res = await DbOperate().instance().select(sql, (self.userid))
-            if len(db_res)<=0:
+            if len(db_res) <= 0:
                 return False
             else:
-                moment_num = db_res[0].get('num',0)
-                result = await self.add(self.key, 'num_dt',moment_num)
+                moment_num = db_res[0].get('num', 0)
+                result = await self.add(self.key, 'num_dt', moment_num)
                 if result == 'OK':
                     return moment_num
                 else:
@@ -171,19 +182,19 @@ class CacheUserinfo(CacheBase):
     async def get_follow(self, force_update=False):
         ''' 获取关注人数 '''
         await self.createCache()
-        result = await self.redis.hash_hexists(self.key,'num_follow')
+        result = await self.redis.hash_hexists(self.key, 'num_follow')
         if result == 1 and force_update is False:
             # 已存在，返回值
             return await self.get('num_follow')
         else:
             # 不存在,从数据库中更新关注人数
-            sql= '''select count(id) as num from focus_info where userid=? and unfollow=0 limit 1'''
+            sql = '''select count(id) as num from focus_info where userid=? and unfollow=0 limit 1'''
             db_res = await DbOperate().instance().select(sql, (self.userid))
-            if len(db_res)<=0:
+            if len(db_res) <= 0:
                 return False
             else:
-                follow_num = db_res[0].get('num',0)
-                result = await self.add(self.key, 'num_follow',follow_num)
+                follow_num = db_res[0].get('num', 0)
+                result = await self.add(self.key, 'num_follow', follow_num)
                 if result == 'OK':
                     return follow_num
                 else:
@@ -196,19 +207,19 @@ class CacheUserinfo(CacheBase):
     async def get_fans(self, force_update=False):
         ''' 获取粉丝数 '''
         await self.createCache()
-        result = await self.redis.hash_hexists(self.key,'num_fans')
+        result = await self.redis.hash_hexists(self.key, 'num_fans')
         if result == 1 and force_update is False:
             # 已存在，返回值
             return await self.get('num_fans')
         else:
             # 不存在,从数据库中更新关注人数
-            sql= '''select count(id) as num from focus_info where focusUserId=? and unfollow=0 limit 1'''
+            sql = '''select count(id) as num from focus_info where focusUserId=? and unfollow=0 limit 1'''
             db_res = await DbOperate().instance().select(sql, (self.userid))
-            if len(db_res)<=0:
+            if len(db_res) <= 0:
                 return False
             else:
-                fan_num = db_res[0].get('num',0)
-                result = await self.add(self.key, 'num_fans',fan_num)
+                fan_num = db_res[0].get('num', 0)
+                result = await self.add(self.key, 'num_fans', fan_num)
                 if result == 'OK':
                     return fan_num
                 else:
@@ -221,19 +232,19 @@ class CacheUserinfo(CacheBase):
     async def get_shipu(self, force_update=False):
         ''' 获取食谱数量 '''
         await self.createCache()
-        result = await self.redis.hash_hexists(self.key,'num_shipu')
+        result = await self.redis.hash_hexists(self.key, 'num_shipu')
         if result == 1 and force_update is False:
             # 已存在，返回值
             return await self.get('num_shipu')
         else:
             # 不存在,从数据库中更新关注人数
-            sql= '''select count(id) as num from recipe_info where userid=? and status!=-1 and status!=2 and isEnable=1 limit 1'''
+            sql = '''select count(id) as num from recipe_info where userid=? and status!=-1 and status!=2 and isEnable=1 limit 1'''
             db_res = await DbOperate().instance().select(sql, (self.userid))
-            if len(db_res)<=0:
+            if len(db_res) <= 0:
                 return False
             else:
-                shipu_num = db_res[0].get('num',0)
-                result = await self.add(self.key, 'num_shipu',shipu_num)
+                shipu_num = db_res[0].get('num', 0)
+                result = await self.add(self.key, 'num_shipu', shipu_num)
                 if result == 'OK':
                     return shipu_num
                 else:
@@ -258,7 +269,7 @@ class CacheUserinfo(CacheBase):
 
     async def updateBasicCache(self):
         ''' 创建 用户相关 hash 缓存'''
-        sql= '''select username, headimg, mobile, sex, birthday, address, personalProfile, tag, status, certificationStatus,certified from user where id=? limit 1 '''
+        sql = '''select username, headimg, mobile, sex, birthday, address, personalProfile, tag, status, certificationStatus,certified from user where id=? limit 1 '''
         useinfo = await DbOperate().instance().select(sql, (self.userid))
         # print(useinfo)
         # add_res = await self.add(tuple(useinfo[0].items()))
@@ -269,7 +280,7 @@ class CacheUserinfo(CacheBase):
         dkvl = useinfo[0]
         dk = dkvl.keys()
         dv = dkvl.values()
-        for k,v in zip(dk,dv):
+        for k, v in zip(dk, dv):
             arglist.append(k)
             arglist.append(str(v))
         add_res = await self.add(*tuple(arglist))
@@ -288,15 +299,18 @@ async def cache_up_follow(userid, num=1):
     cache = CacheUserinfo(userid)
     await cache.set_follow(num)
 
+
 async def cache_up_fans(userid, num=1):
     ''' 更新用户缓存,粉丝数量 '''
     cache = CacheUserinfo(userid)
     await cache.set_fans(num)
 
+
 async def cache_up_caipu(userid, num=1):
     ''' 更新用户缓存,菜谱数量 '''
     cache = CacheUserinfo(userid)
     await cache.set_shipu(num)
+
 
 async def cache_up_dongtai(userid, num=1):
     ''' 更新用户缓存,动态数量 '''
@@ -304,43 +318,130 @@ async def cache_up_dongtai(userid, num=1):
     await cache.set_dongtai(num)
 
 
+class CacheUserPointinfo(CacheBase):
+    """ 用户积分相关Cache,类型 HASH """
+
+    def __init__(self, userid):
+        super(CacheUserPointinfo, self).__init__()
+        self.userid = userid
+        self.key = "userinfopoint:{}".format(userid)
+
+    async def get(self, field):
+        ''' 获取键值 '''
+        return await self.redis.hash_get(self.key, field)
+
+    async def add(self, *fv):
+        ''' 添加键值 '''
+        return await self.redis.hash_set(*fv)
+
+    async def exists(self):
+        ''' key是否存在 '''
+        result = await self.redis.exists(self.key)
+        return result == 1
+
+    async def exprie(self, etime):
+        '''exprie time set by key'''
+        return await self.redis.exprie(self.key, etime)
+
+    async def createCache(self, force_update=False):
+        ''' 创建hash '''
+        if await self.exists() and force_update is False:
+            ''' 已存在不创建 '''
+            return True
+        ''' 创建userinfocache'''
+        return await self.updateBasicCache()
+
+    async def get_shipu(self, force_update=False):
+        ''' 获取用户积分食谱 发布次数值没有就更新到缓存 '''
+        # await self.createCache()
+        result = await self.redis.hash_hexists(self.key, 'num_sp')
+        if result == 1 and force_update is False:
+            # 已存在，返回值
+            return await self.get('num_sp')
+        else:
+            # 不存在,从数据库中更新
+            result = await self.add(self.key, 'num_sp', 0)
+            # 设置过期时间
+            rest_today = rest_of_day()
+            await self.exprie(rest_today)
+            if result == 'OK':
+                return 0
+            else:
+                return False
+
+    async def set_shipu(self, value=1):
+        ''' shipu+1 '''
+        return await self.redis.hash_hincrby(self.key, 'num_sp', value)
+
+    async def get_dongtai(self, force_update=False):
+        ''' 获取用户积分动态 发布次数值没有就更新到缓存 '''
+        # await self.createCache()
+        result = await self.redis.hash_hexists(self.key, 'num_dt')
+        if result == 1 and force_update is False:
+            # 已存在，返回值
+            return await self.get('num_dt')
+        else:
+            # 不存在,从数据库中更新
+            result = await self.add(self.key, 'num_dt', 0)
+            # 设置过期时间
+            rest_today = rest_of_day()
+            await self.exprie(rest_today)
+            if result == 'OK':
+                return 0
+            else:
+                return False
+
+    async def set_dongtai(self, value=1):
+        ''' 设置动态发布次数+1 '''
+        return await self.redis.hash_hincrby(self.key, 'num_dt', value)
+
+    async def updateBasicCache(self):
+        ''' 创建 用户相关 hash 缓存'''
+        await self.get_dongtai(force_update=True)
+        await self.get_shipu(force_update=True)
+        return True
+
+
 if __name__ == '__main__':
     async def test_create():
-        obj = CacheUserinfo(55)        
+        obj = CacheUserinfo(55)
         rdget = await obj.createCache()
         print(rdget)
+
 
     async def test_getdongtai():
         r = await obj.get_dongtai()
         print("动态:", r, type(r))
         r = await obj.get_follow()
-        print("关注:",r,type(r))
+        print("关注:", r, type(r))
         r = await obj.get_fans()
-        print("粉丝:",r,type(r))
+        print("粉丝:", r, type(r))
         r = await obj.get_shipu()
-        print("食谱:",r,type(r))
+        print("食谱:", r, type(r))
 
-        sr= await obj.set_dongtai()
+        sr = await obj.set_dongtai()
         print("动态:", sr, type(sr))
-        sr= await obj.set_follow()
+        sr = await obj.set_follow()
         print("关注:", sr, type(sr))
-        sr= await obj.set_fans()
+        sr = await obj.set_fans()
         print("粉丝:", sr, type(sr))
-        sr= await obj.set_shipu()
+        sr = await obj.set_shipu()
         print("食谱:", sr, type(sr))
+
 
     async def test_getpagehotdongtai():
         ''' 获取热门动态 '''
         hotcache = CachePapeHotDongtai()
         print(hotcache)
-        res = await hotcache.exists('2'+'1')
+        res = await hotcache.exists('2' + '1')
         print('exists:', res)
 
-        res = await hotcache.set('2'+'1','{"id":10086}')
+        res = await hotcache.set('2' + '1', '{"id":10086}')
         print('set:', res)
 
-        res = await hotcache.get('2'+'1')
+        res = await hotcache.get('2' + '1')
         print('get:', res)
+
 
     async def test_getrecommenddongtai():
         ''' 获取热门动态 '''
@@ -350,6 +451,7 @@ if __name__ == '__main__':
 
 
     import asyncio
+
     loop = asyncio.get_event_loop()
     loop.run_until_complete(test_getrecommenddongtai())
 
