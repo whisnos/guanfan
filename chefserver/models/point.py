@@ -173,13 +173,14 @@ class My_History_Address(BaseModel):
     address = CharField(max_length=30, verbose_name="详细地址")
 
 
-class Bt_Area(Model):
+class Area(Model):
     '''省市区'''
+    pid = IntegerField(verbose_name="行政区代码",null=True)
+    node = CharField(verbose_name="行政区代码",null=True)
     name = CharField(max_length=50, verbose_name="名称")
-    parentId = IntegerField(verbose_name="行政区代码")
-    isShow = IntegerField(default=0, verbose_name="是否显示 0显示 1不显示")
-    areaType = IntegerField(verbose_name="级别标志 1省 2市 3区")
-
+    level = IntegerField(verbose_name="级别标志 1省 2市 3区")
+    lat =DoubleField()
+    lng=DoubleField()
     class Meta:
         database = DATABASE
 
@@ -188,9 +189,9 @@ class My_Address(BaseModel):
     user = ForeignKeyField(User, verbose_name="所属用户", backref="user_addresses")
     name = CharField(max_length=50, verbose_name="收件人")
     mobile = CharField(max_length=20, verbose_name="手机号")
-    province = ForeignKeyField(Bt_Area, verbose_name="省")
-    city = ForeignKeyField(Bt_Area, verbose_name="市")
-    area = ForeignKeyField(Bt_Area, verbose_name="区")
+    province = ForeignKeyField(Area, verbose_name="省")
+    city = ForeignKeyField(Area, verbose_name="市")
+    area = ForeignKeyField(Area, verbose_name="区")
     address = CharField(max_length=30, verbose_name="详细地址")
     is_default = BooleanField(default=False, verbose_name="是否默认地址")
     is_delete = BooleanField(default=False, verbose_name="是否删除")
