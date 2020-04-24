@@ -133,6 +133,19 @@ class ProductPointDetailHandler(BaseHandler):
         # return self.send_message(False, 404, '商品部存在', dict_obj)
 
 
+class MyPointPorderHandler(BaseHandler):
+    ''' 获取积分商品列表 '''
+
+    @check_login
+    async def post(self):
+        address_id = self.verify_arg_legal(self.get_body_argument('address_id'), '地址id', False, is_num=True)
+        product_id = self.verify_arg_legal(self.get_body_argument('product_id'), '商品id', False, is_num=True)
+        num = self.verify_arg_legal(self.get_body_argument('num'), '数量', False, is_num=True)
+        total = self.verify_arg_legal(self.get_body_argument('total'), '总积分', False, is_num=True)
+        remark = self.verify_arg_legal(self.get_body_argument('remark'), '备注', True, 49, is_num=True)
+
+
+
 class MyPointMyExchangeHandler(BaseHandler):
     ''' 获取积分商品列表 '''
 

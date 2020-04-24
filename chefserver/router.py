@@ -1,7 +1,7 @@
 ﻿from chefserver.webhandler.food_channel import ChannelListHandler
 from chefserver.webhandler.point import MyPointHandler, MyPointBillHandler, MyPointProductHandler, \
     ProductPointDetailHandler, MyPointMyExchangeHandler, MyExchangeDetailHandler, AddressDetailHandler, \
-    MyAddressHandler, MyAddressDetailHandler
+    MyAddressHandler, MyAddressDetailHandler, MyPointPorderHandler
 from chefserver.webhandler.user import LoginHandler,SendSmsHandler,RestPasswordHandler
 from chefserver.webhandler.user import ModifyPhonedHandler,LogoutHandler,PersonInfoHandler
 from chefserver.webhandler.user import ModifyInfoHandler, SubmitAdvancedHandler,RegisterHandler
@@ -160,6 +160,7 @@ def make_app():
         (r"/mypoint/detail", MyPointHandler),                    # 积分-我的积分
         (r"/mypoint/pointbill", MyPointBillHandler),             # 积分-我的账单
         (r"/mypoint/product", MyPointProductHandler),            # 积分-商品列表
+        (r"/mypoint/porder", MyPointPorderHandler),              # 积分-我的兑换
         (r"/mypoint/exchange", MyPointMyExchangeHandler),        # 积分-我的兑换
         (r"/address/detail", AddressDetailHandler),              # 地址-省市区获取
         (r"/my/address", MyAddressHandler),                      # 地址-省市区获取 get post put delete
