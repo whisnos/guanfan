@@ -46,7 +46,7 @@ class BaseHandler(tornado.web.RequestHandler):
         responsedict.setdefault('message', msg)
         responsedict.setdefault('result', result)
         self.write(responsedict)
-        raise tornado.web.Finish()
+        tornado.web.Finish()
         # return self.finish()
 
     def set_default_headers(self):

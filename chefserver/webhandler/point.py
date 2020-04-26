@@ -132,6 +132,140 @@ class ProductPointDetailHandler(BaseHandler):
         #     result.append(dict_img)
         # return self.send_message(False, 404, '商品部存在', dict_obj)
 
+async def process_the_history(name, mobile, province, city, area, address):
+    sql_ = '''
+        SELECT
+        t1.name as p_name,
+        t2.name as c_name,
+        t3.name as a_name
+        from
+        (select
+        name
+        from area
+        where id=?) as t1
+        inner join area as t2
+        on t2.id = ?
+        inner join area as t3
+        on t3.id = ?'''
+    address_result = await dbins.select(sql_, (province, city, area))
+    if address_result is None:
+        return False,  None
+    address_detail = address_result[0]
+    return True, address_detail
+
+class MyPointPorderHandler(BaseHandler):
+    ''' 获取积分商品列表 '''
+
+    @check_login
+    async def post(self):
+        result = {}
+        userid = self.get_session().get('id', 0)
+        address_id = self.verify_arg_num(self.get_body_argument('address_id'), '地址id', is_num=True)
+        product_id = self.verify_arg_num(self.get_body_argument('product_id'), '商品id', is_num=True)
+        num = self.verify_arg_num(self.get_body_argument('num'), '数量', is_num=True)
+        total = self.verify_arg_num(self.get_body_argument('total'), '总积分', is_num=True)
+        remark = self.verify_arg_legal(self.get_body_argument('remark',''), '备注', True, 49)
+
+        # 验证地址
+        try:
+            address_obj = await self.application.objects.get(My_Address, id=address_id, user_id=userid, is_delete=False)
+            product_obj = await self.application.objects.get(Product_Point, id=product_id)
+
+            if product_obj.sku_no < num:
+                return self.send_message(False, 400, '商品库存不足', result)
+            # 验证商品 数据库的 数量 和 积分 是否和传过来的积分一致
+            if product_obj.grade_no != total:
+                return self.send_message(False, 400, '商品积分参数错误', result)
+            # 验证用户积分是否大于商品积分
+            user_point_obj = await self.application.objects.get(User_Point, user_id=userid)
+            if user_point_obj.point < total:
+                return self.send_message(False, 400, '积分不足', result)
+            address_data = {
+            }
+
+            status,address_res = await process_the_history(address_obj.name, address_obj.mobile, address_obj.province_id, address_obj.city_id, address_obj.area_id, address_obj.address)
+
+            if status is False:
+                return self.send_message(False, 400, '用户地址参数错误', result)
+
+            try:
+                async with await DATABASE.transaction() as transaction:
+                    # 处理商品库存
+                    query = (Product_Point.use(transaction).update({Product_Point.sku_no: Product_Point.sku_no - num})
+                             .where(Product_Point.id == product_id, Product_Point.sku_no >= num))
+                    product_unum=await query.execute()
+                    # # 处理用户积分 User_Point 扣积分
+                    query1 = (User_Point.use(transaction).update({User_Point.point: User_Point.point - total})
+                             .where(User_Point.user_id == userid, User_Point.point >= total))
+                    userpoint_unum=await query1.execute()
+
+                    if product_unum == 0 or userpoint_unum == 0:
+                        return self.send_message(False, 404, '参数错误', result)
+                    # 生成订单 My_Exchange_Info
+                    exchange_order_data = {
+                        "product_point_id":product_id,
+                        "user_id":userid,
+                        "goods_no":num,
+                        "grade_no":total,
+                        "remark":remark,
+                        # "express_id":None
+                        "express_status":0
+                    }
+                    t=await My_Exchange_Info.use(transaction).create(**exchange_order_data)
+
+                    # 增加用户历史地址 My_History_Address
+                    history_data = {
+                        "user_id":userid,
+                        # "exchangeorder_id":1,
+                        "name":address_obj.name,
+                        "mobile":address_obj.mobile,
+                        "province":address_res['p_name'],
+                        "city": address_res['c_name'],
+                        "country": address_res['a_name'],
+                        "address": address_obj.address,
+                        # "exchangeorder":t
+
+                    }
+                    history_address_obj = await My_History_Address.use(transaction).create(**history_data)
+                    # 增加用户 积分账单记录 User_PointBill
+                    user_bill_data = {
+                        "user_id":userid,
+                        "bill_type":-2,
+                        "bill_status":0,
+                        "grade_no":total
+                    }
+                    await User_PointBill.use(transaction).create(**user_bill_data)
+            except Exception as e:
+                product_id('下单异常',e)
+                return self.send_message(False, 400, '下单异常', result)
+            # 再处理 我的兑换 和 历史地址 关联
+            await My_History_Address.update({My_History_Address.exchangeorder_id: t.id}).where(My_History_Address.id == history_address_obj.id)
+            return self.send_message(True, 0, '下单成功', result)
+                # ddd
+        except My_Address.DoesNotExist:
+            return self.send_message(False, 404, '收货地址不存在', result)
+        except Product_Point.DoesNotExist:
+            return self.send_message(False, 404, '商品不存在', result)
+        except User_Point.DoesNotExist:
+            return self.send_message(False, 404, '用户积分不存在', result)
+
+
+
+class MyPointCmOrderHandler(BaseHandler):
+    ''' 获取兑换订单详情 '''
+
+    @check_login
+    async def post(self):
+        result = {}
+        userid = self.get_session().get('id', 0)
+        did = self.verify_arg_legal(self.get_body_argument('did'), '动态ID', False, is_num=True)
+        try:
+            the_exchange_order = await self.application.objects.get(My_Exchange_Info, user_id=userid, id=did, express_status=1)
+            the_exchange_order.express_status = 2
+            await self.application.objects.update(the_exchange_order)
+            return self.send_message(False, 0, '收货成功', result)
+        except My_Exchange_Info.DoesNotExist:
+            return self.send_message(False, 404, '订单不存在', result)
 
 class MyPointMyExchangeHandler(BaseHandler):
     ''' 获取积分商品列表 '''
