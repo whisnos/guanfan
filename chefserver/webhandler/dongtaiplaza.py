@@ -51,7 +51,7 @@ class DtPlazaHandler(BaseHandler):
             await plaza_like_process(myid, result) # 增加是否点赞
             if userblock is not None:
                 # 黑名单过滤
-                cache = [i for i in cache if i.get('userid') not in userblock]
+                result = [i for i in result if i.get('userid') not in userblock]
                 # self.send_message(True, 0, "success", [i for i in result if i.get('userid') not in userblock])
         return self.send_message(success, code, message, result)
 
