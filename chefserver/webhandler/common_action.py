@@ -117,7 +117,7 @@ async def get_all_blocks(myid):
     SELECT blockuserid FROM block_info WHERE userid=? limit 1000
     '''
     result = await dbins.select(sql_all, (myid))
-    if result is None:
+    if not result:
         return None
     return [i.get('blockuserid',0) for i in result]
 
