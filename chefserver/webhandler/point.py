@@ -574,15 +574,14 @@ class MyAddressDetailHandler(BaseHandler):
                from
                (select
                name
-               from Area
+               from area
                where id=?) as t1
-               inner join Area as t2
+               inner join area as t2
                on t2.id = ?
-               inner join Area as t3
+               inner join area as t3
                on t3.id = ?'''
                 # 日志
                 address_result = await dbins.select(sql_, (ad.province_id, ad.city_id, ad.area_id))
-                log.info('地址:{}-{}-{}-{}'.format(ad.province_id, ad.city_id, ad.area_id,address_result))
                 if address_result is None:
                     return self.send_message(False, 3003, '获取收货地址失败,请重试', None)
                 else:
