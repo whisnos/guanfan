@@ -599,6 +599,47 @@ class MyAddressDetailHandler(BaseHandler):
         else:
             return self.send_message(False, 400, '没有默认地址', result)
 
+    @check_login
+    async def post(self):
+        result = []
+        userid = self.get_session().get('id', 0)
+        did = self.verify_arg_legal(self.get_body_argument('did'), '地址id', False, is_num=True)
+        address_wrappers = await self.application.objects.execute(
+            My_Address.select().where(
+                My_Address.user_id == userid, My_Address.id == did, My_Address.is_delete == False))
+        if address_wrappers:
+            for ad in address_wrappers:
+                sql_ = '''
+                       SELECT
+                       t1.name as p_name,
+                       t2.name as c_name,
+                       t3.name as a_name
+                       from
+                       (select
+                       name
+                       from area
+                       where id=?) as t1
+                       inner join area as t2
+                       on t2.id = ?
+                       inner join area as t3
+                       on t3.id = ?'''
+                address_result = await dbins.select(sql_, (ad.province_id, ad.city_id, ad.area_id))
+                if address_result is None:
+                    return self.send_message(False, 3003, '获取收货地址失败,请重试', None)
+                else:
+                    address_detail = address_result[0]
+                    detail_dict = {}
+                    detail_dict['id'] = ad.id
+                    detail_dict['name'] = ad.name
+                    detail_dict['mobile'] = ad.mobile
+                    address_detail['address'] = ad.address
+                    detail_dict['detail'] = address_detail
+                    detail_dict['is_default'] = ad.is_default
+                    result.append(detail_dict)
+            success, code, message, result = True, 0, '获取成功', result
+            return self.send_message(success, code, message, result)
+        else:
+            return self.send_message(False, 400, '地址不存在', result)
 
 if __name__ == '__main__':
     async def test_banner_list():
