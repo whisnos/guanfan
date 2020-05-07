@@ -543,7 +543,7 @@ class MyAddressHandler(BaseHandler):
         result = []
         userid = self.get_session().get('id', 0)
         did = self.verify_arg_legal(self.get_body_argument('did'), '地址id', False, is_num=True)
-        self.verify_arg_num(self.get_body_argument('is_delete'), '是否默认', is_num=True)
+        # self.verify_arg_num(self.get_body_argument('is_delete'), '是否默认', is_num=True)
         try:
             add_obj = await self.application.objects.get(My_Address, id=did, is_delete=False, user_id=userid)
         except My_Address.DoesNotExist:
@@ -563,7 +563,7 @@ class MyAddressDetailHandler(BaseHandler):
         userid = self.get_session().get('id', 0)
         address_wrappers = await self.application.objects.execute(
             My_Address.select().order_by(My_Address.id.desc()).where(
-                My_Address.user_id == userid, My_Address.is_delete == False, My_Address.is_default == True).limit(1))
+                My_Address.user_id == userid, My_Address.is_delete == False, My_Address.is_default == True))
         if address_wrappers:
             for ad in address_wrappers:
                 sql_ = '''
