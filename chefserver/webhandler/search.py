@@ -356,11 +356,11 @@ async def add_hotkeyword(keyword):
         # 新词
         ins_key_sql = '''
         INSERT INTO hot_keyword
-        (keyword, visitCount, updateTime, createTime)
+        (keyword, visitCount, updateTime, createTime, sort, status)
         VALUES
-        (?,         ?,          ?,          ?)
+        (?,         ?,          ?,          ?,          ?,          ?)
         '''
-        ins_res = await dbins.execute(ins_key_sql, (keyword, 1, curtime, curtime))
+        ins_res = await dbins.execute(ins_key_sql, (keyword, 1, curtime, curtime, 0, 0))
         if ins_res is None:
             return False, 3002, '添加搜索词异常,请重试', None
         else:
@@ -386,7 +386,7 @@ async def get_hotkeyword(pagenum=0, epage=10):
     page = 0 if pagenum-1 <= 0 else pagenum-1
     page = page*epage
     sql = '''
-    select keyword from hot_keyword order by visitCount desc limit ?,?
+    select keyword from hot_keyword where status=0 order by visitCount desc limit ?,?
     '''
     result = await dbins.select(sql, (page, epage))
     if result is None:
