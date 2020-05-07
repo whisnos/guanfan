@@ -4,8 +4,8 @@ Created on 2012-7-3
 
 @author: lihao
 '''
-import requests
-
+# import requests
+from aiohttp_requests import requests
 from chefserver.config import TAO_APP_KEY, TAO_APP_SECRET
 
 try:
@@ -262,7 +262,22 @@ class RestApi(object):
                 public_parameter[k] = v
         return public_parameter
 
-    def getResponse(self, public_parameter=None, data=None, timeout=30):
+
+    async def repeat_try(self,data,public_parameter):
+        for i in range(1, 4):
+            print('无结果 尝试3次')
+            print('第'+str(i)+'次')
+            # res = await self.getResponse(data=data)
+            response = await requests.post('http://gw.api.taobao.com/router/rest', params=public_parameter)
+            text = await response.text()
+            jsonobj = json.loads(text)
+            print('jsonobj', jsonobj)
+            if "error_response" not in jsonobj.keys():
+                print("error_response...............首次获取失败，进入3次获取")
+                return jsonobj
+        return False
+
+    async def getResponse(self, public_parameter=None, data=None, timeout=30):
         # =======================================================================
         # 获取response结果
         # =======================================================================
@@ -270,18 +285,20 @@ class RestApi(object):
 
         public_parameter = self.get_other_parameter(public_parameter, data)
         public_parameter["sign"] = self.get_Taobao_Sign(public_parameter)
-        print('public_parameter', public_parameter)
-        response = requests.post('http://gw.api.taobao.com/router/rest', params=public_parameter)
-        print(response.headers)
-        print(response.text)
-        if response.status_code is not 200:
-            raise RequestException('invalid http status ' + str(response.status_code) + ',detail body:' + response.text)
+        response = await requests.post('http://gw.api.taobao.com/router/rest', params=public_parameter)
+        text = await response.text()
+        if response.status is not 200:
+            raise RequestException('invalid http status ' + str(response.status) + ',detail body:' + text)
         # result = response.read()
-        jsonobj = json.loads(response.text)
-        print('jsonobj', jsonobj)
+        # for a in text:
+        #     print(99,a)
+        jsonobj = json.loads(text)
+        print('jsonobj',jsonobj)
         if "error_response" in jsonobj.keys():
-            return False
-
+            print("error_response...............首次获取失败，进入3次获取")
+            res = await self.repeat_try(data,public_parameter)
+            return res
+        print('jsonobj',jsonobj)
         return jsonobj
 
     def getApplicationParameters(self):
