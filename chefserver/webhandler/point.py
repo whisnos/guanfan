@@ -369,7 +369,7 @@ class AddressDetailHandler(BaseHandler):
     ''' 获取省市区 '''
 
     # @check_login
-    async def get(self):
+    async def post(self):
         result = []
         pid = self.get_body_argument('pid', None)  # '省id'
         cid = self.get_body_argument('cid', None)  # '市id'
