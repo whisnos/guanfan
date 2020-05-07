@@ -421,7 +421,7 @@ class MyAddressHandler(BaseHandler):
     on t3.id = ?'''
                 address_result = await dbins.select(sql_, (ad.province_id, ad.city_id, ad.area_id))
                 if address_result is None:
-                    return False, 3003, '获取收货地址失败,请重试', None
+                    return self.send_message(False, 3003, '获取收货地址失败,请重试', None)
                 else:
                     address_detail = address_result[0]
                     detail_dict = {}
@@ -580,9 +580,11 @@ class MyAddressDetailHandler(BaseHandler):
                on t2.id = ?
                inner join Area as t3
                on t3.id = ?'''
+                # 日志
                 address_result = await dbins.select(sql_, (ad.province_id, ad.city_id, ad.area_id))
+                log.info('地址:{}-{}-{}-{}'.format(ad.province_id, ad.city_id, ad.area_id,address_result))
                 if address_result is None:
-                    return False, 3003, '获取收货地址失败,请重试', None
+                    return self.send_message(False, 3003, '获取收货地址失败,请重试', None)
                 else:
                     address_detail = address_result[0]
                     detail_dict = {}
