@@ -3,7 +3,7 @@ from chefserver.webhandler.point import MyPointHandler, MyPointBillHandler, MyPo
     ProductPointDetailHandler, MyPointMyExchangeHandler, MyExchangeDetailHandler, AddressDetailHandler, \
     MyAddressHandler, MyAddressDetailHandler, MyPointPorderHandler, MyPointCmOrderHandler
 from chefserver.webhandler.taobaoke import TaoIndexSearchHandler, TaoIndexChannelInfoAllHandler, \
-    TaoIndexMaterialSearchAllHandler, TaoIndexItemInfoAllHandler
+    TaoIndexMaterialSearchAllHandler, TaoIndexItemInfoAllHandler, TaoFootPrintAllHandler
 from chefserver.webhandler.user import LoginHandler,SendSmsHandler,RestPasswordHandler
 from chefserver.webhandler.user import ModifyPhonedHandler,LogoutHandler,PersonInfoHandler
 from chefserver.webhandler.user import ModifyInfoHandler, SubmitAdvancedHandler,RegisterHandler
@@ -15,7 +15,8 @@ from chefserver.webhandler.myspace import FollowHandler, UnFollowHandler, MyDong
 from chefserver.webhandler.myspace import MessageListHandler, MessageDelHandler, CaipuTempListHandler, PurchaListHandler
 from chefserver.webhandler.myspace import AddPurchaHandler, DelPurchaHandler,SetPurchaBuyHandler
 
-from chefserver.webhandler.detail import DongtaiDetailHandler, RecipeDetailHandler, RecipeEditDetailHandler
+from chefserver.webhandler.detail import DongtaiDetailHandler, RecipeDetailHandler, RecipeEditDetailHandler, \
+    GetReplyDidDetailHandler
 from chefserver.webhandler.detail import RecipeShowlistHandler, ReplylistHandler
 
 from chefserver.webhandler.publish import PushRecipeHandler, PushDongtaiHandler, PushVideoDongtaiHandler, \
@@ -106,6 +107,7 @@ def make_app():
         (r"/detail/editrecipe", RecipeEditDetailHandler),        # 用户编辑菜谱详情
         (r"/detail/showlist", RecipeShowlistHandler),            # 菜谱作品秀(全部)
         (r"/detail/replylist", ReplylistHandler),                # 评论列表
+        (r"/detail/replydid", GetReplyDidDetailHandler),         # 评论列表-传did获取单个详情
         (r"/detail/propoint", ProductPointDetailHandler),        # 积分 - 商品详情
         (r"/detail/exchange", MyExchangeDetailHandler),          # 积分 - 兑换订单详情
         (r"/subject/topiclist", SubjectListHandler),             # 主题列表
@@ -172,6 +174,7 @@ def make_app():
         (r"/tbk/channel", TaoIndexChannelInfoAllHandler),        # tbk-频道获取
         (r"/tbk/materials", TaoIndexMaterialSearchAllHandler),   # tbk-物料搜索
         (r"/tbk/iteminfo", TaoIndexItemInfoAllHandler),          # tbk-商品详情
+        (r"/tbk/footprint", TaoFootPrintAllHandler),             # tbk-足迹
         (r"/test", TestHandler),                                 # 测试接口
         ],
         # cookie_secret = 'cb56YAgMjpevlWBNqgrv5g==',

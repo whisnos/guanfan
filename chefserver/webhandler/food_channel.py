@@ -23,6 +23,7 @@ async def search_food_channel(id, pagenum, epage=10):
     SELECT
 	id as channel_id,
 	title,
+	faceImg,
     IFNULL(mainInfoUrl,'') as mainImg,
     visitCount
 FROM

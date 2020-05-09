@@ -179,7 +179,7 @@ class RestApi(object):
     # Rest api的基类
     # ===========================================================================
 
-    def __init__(self, domain='http://gw.api.taobao.com/router/rest', port=80):
+    def __init__(self, domain='http://gw.api.taobao.com/router/rest', port=80,KEY=None,SECRET=None):
         # =======================================================================
         # 初始化基类
         # Args @param domain: 请求的域名或者ip
@@ -188,8 +188,8 @@ class RestApi(object):
         self.__domain = domain
         self.__port = port
         self.__httpmethod = "POST"
-        self.__app_key = TAO_APP_KEY
-        self.__secret = TAO_APP_SECRET
+        self.__app_key = KEY
+        self.__secret = SECRET
         # if (top.getDefaultAppInfo()):
         #     self.__app_key = top.getDefaultAppInfo().appkey
         #     self.__secret = top.getDefaultAppInfo().secret
@@ -284,7 +284,9 @@ class RestApi(object):
         public_parameter = self.get_public_parameter()
 
         public_parameter = self.get_other_parameter(public_parameter, data)
+        print('public_parameter',public_parameter)
         public_parameter["sign"] = self.get_Taobao_Sign(public_parameter)
+        print(111,public_parameter)
         response = await requests.post('http://gw.api.taobao.com/router/rest', params=public_parameter)
         text = await response.text()
         if response.status is not 200:

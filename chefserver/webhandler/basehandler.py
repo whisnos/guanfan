@@ -49,6 +49,17 @@ class BaseHandler(tornado.web.RequestHandler):
         tornado.web.Finish()
         # return self.finish()
 
+    def send_msg(self, success, code, msg='ok', result=None):
+        '''send error message'''
+        responsedict = {}
+        responsedict.setdefault('success', success)
+        responsedict.setdefault('code', code)
+        responsedict.setdefault('message', msg)
+        responsedict.setdefault('result', result)
+        self.write(responsedict)
+        # tornado.web.Finish()
+        return self.finish()
+
     def set_default_headers(self):
         ''' 设置header头部解决跨域 '''
         self.set_header("Access-Control-Allow-Origin", "*")  # 这个地方可以写域名
@@ -146,15 +157,23 @@ class BaseHandler(tornado.web.RequestHandler):
     def verify_arg_num(self, value, description, **kwargs):
         ''' 校验参数是否合法 '''
         value = value.strip()
+        if kwargs.get('ucklist'):
+            # 列表内容校验
+            if value not in kwargs.get('user_check_list'):
+                return self.send_msg(False, 1996, '操作失败! {} 内容不合法'.format(description))
+
         if kwargs.get('is_num'):
             # 判断是否是纯数字
             try:
                 if isinstance(value, str):
                     return int(value)
                 else:
-                    return self.send_message(False, 1995, '操作失败! {} 不是数字'.format(description))
+                    return self.send_msg(False, 1995, '操作失败! {} 不是数字'.format(description))
             except ValueError as e:
-                return self.send_message(False, 1997, '操作失败! {} 不是数字'.format(description))
+                return self.send_msg(False, 1997, '操作失败! {} 不是数字'.format(description))
+
+
+
 
     def get_session(self):
         # 返回用户的会话

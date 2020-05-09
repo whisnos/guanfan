@@ -1,3 +1,8 @@
+from playhouse.shortcuts import model_to_dict
+
+from chefserver.config import TAO_APP_KEY, TAO_APP_SECRET, TAO_APP_KEY_ANDROID, TAO_APP_SECRET_ANDROID, PAGE_SIZE
+from chefserver.models.tbk import Tao_Promote_Info, Tao_Collect_Info
+from chefserver.top.api.TbkCouponGetRequest import TbkCouponGetRequest
 from chefserver.top.api.TbkDgMaterialOptionalRequest import TbkDgMaterialOptionalRequest
 from chefserver.top.api.TbkDgOptimusMaterialRequest import TbkDgOptimusMaterialRequest
 from chefserver.top.api.TbkItemInfoGetRequest import TbkItemInfoGetRequest
@@ -11,7 +16,7 @@ dbins = DbOperate.instance()
 
 
 class TaoIndexSearchHandler(BaseHandler):
-    ''' 我的积分 '''
+    ''' 淘宝客搜索 '''
 
     # @check_login
     async def post(self, *args, **kwargs):
@@ -21,34 +26,57 @@ class TaoIndexSearchHandler(BaseHandler):
         价格："price_des","price_asc",
         返利："tk_rate_des","tk_rate_asc"
         '''
-        result = []
-        # userid = self.get_session().get('id', 0)
         q = self.verify_arg_legal(self.get_body_argument('q'), '查询词', is_sensword=True)
-        page = self.verify_arg_legal(self.get_body_argument('page'), '页数', False, is_num=True)
-        sort = self.verify_arg_legal(self.get_body_argument('sort',''), '排序', False)
-        tbk_req = TbkDgMaterialOptionalRequest()
+        page = self.verify_arg_num(self.get_body_argument('page'), '页数', is_num=True)
+        sort = self.verify_arg_legal(self.get_body_argument('sort', ''), '排序', False)
+        client = self.verify_arg_num(self.get_body_argument('client'), '客户端类型', is_num=True, ucklist=True,
+                                   user_check_list=['0', '1'])
+        # type = self.verify_arg_num(self.get_body_argument('type'), '足迹 or 收藏', is_num=True, ucklist=True,
+        #                            user_check_list=['0', '1'])
+        # 获取推广位
+        status, adzone_id, tbk_req = await check_tbk_promote(self, client, TbkDgMaterialOptionalRequest, True,)
+        if not status:
+            return self.send_msg('fail', 400, '推广位获取失败，请重试.', '')
         data = {
-            "adzone_id": "110317900471",
+            "adzone_id": adzone_id,
             "q": q,
-            "page_no": page,
+            "page_no": str(page),
             "sort": sort
         }
         res = await tbk_req.getResponse(data=data)
-        # if res is False:
-        #     print('无结果 尝试3')
-        #     res=await tbk_req.repeat_try(data=data)
-        # for i in range(1,4):
-        #     res = await tbk_req.getResponse(data=data)
-        #     if res:
-        #         break
-
         if not res:
-            return self.send_message('fail', 400, '获取失败，请重试.', res)
+            return self.send_msg('fail', 400, '商品获取失败，请重试.', res)
         result = res['tbk_dg_material_optional_response']['result_list']['map_data']
-        return self.send_message('success', 0, '获取成功', result)
+        return self.send_msg('success', 0, '获取成功', result)
+
+
+async def check_tbk_promote(self,client, TbkRequest, is_promote,):
+    '''获取tbk推广位'''
+    adzone_id = ''
+    if is_promote:
+        promote_query = Tao_Promote_Info.select().where(Tao_Promote_Info.type == client).order_by(
+            Tao_Promote_Info.id.desc()).limit(1)
+        exchanges_warpper = await self.application.objects.execute(promote_query)
+        if exchanges_warpper:
+            for ex in exchanges_warpper:
+                adzone_id = ex.promoteID
+                print('adzone_id',adzone_id)
+        else:
+            return False, '', ''
+
+    if client == 0:
+        tbk_req = TbkRequest(KEY=TAO_APP_KEY, SECRET=TAO_APP_SECRET)
+    elif client == 1:
+        tbk_req = TbkRequest(KEY=TAO_APP_KEY_ANDROID, SECRET=TAO_APP_SECRET_ANDROID)
+    else:
+        return False, '', ''
+
+    return True, adzone_id, tbk_req
+
 
 class TaoIndexChannelInfoAllHandler(BaseHandler):
     ''' 返回所有分类 '''
+
     async def get(self):
         success, code, message, result = await get_all_channel()
         return self.send_message(success, code, message, result)
@@ -57,7 +85,7 @@ class TaoIndexChannelInfoAllHandler(BaseHandler):
 async def get_all_channel():
     ''' 获取所有分类 '''
     classinfo_sql = '''
-select id,name,type,iconImg,pid_id,materialId,sort
+select id,name,level,iconImg,pid_id,materialId,sort
 from tao_channel_info
 order by sort desc
 '''
@@ -71,7 +99,7 @@ order by sort desc
 
     for info1 in classinfo_result:
         # 一级分类
-        if info1.get('type') == 1:
+        if info1.get('level') == 1:
             # print(info1)
             info_1_tmp = dict()
             info_1_tmp = info1.copy()
@@ -81,7 +109,7 @@ order by sort desc
     result_tp02 = []
     for info2 in classinfo_result:
         # 二级分类
-        if info2.get('type') == 2:
+        if info2.get('level') == 2:
             info_2_tmp = dict()
             info_2_tmp = info2.copy()
             info_2_tmp.setdefault('childlist', [])
@@ -90,7 +118,7 @@ order by sort desc
 
     for info3 in classinfo_result:
         # 三级分类,添加到2级分类子目录
-        if info3.get('type') == 3:
+        if info3.get('level') == 3:
             for rtp2 in result_tp02:
                 if rtp2.get('id') == info3.get('pid_id'):
                     # info_3_tmp = dict()
@@ -114,9 +142,16 @@ class TaoIndexMaterialSearchAllHandler(BaseHandler):
         mid = self.verify_arg_legal(self.get_body_argument('mid'), '物料id', is_sensword=True)
         page = self.verify_arg_legal(self.get_body_argument('page'), '页数', False, is_num=True)
         # sort = self.verify_arg_legal(self.get_body_argument('sort',''), '排序', False)
-        tbk_req = TbkDgOptimusMaterialRequest()
+        client = self.verify_arg_num(self.get_body_argument('client'), '客户端类型', is_num=True, ucklist=True,
+                                   user_check_list=['0', '1'])
+        # 获取推广位
+
+        status, adzone_id, tbk_req = await check_tbk_promote(self, client, TbkDgOptimusMaterialRequest,True)
+        if not status:
+            return self.send_msg('fail', 400, '推广位获取失败，请重试.', '')
+
         data = {
-            "adzone_id": "110317900471",
+            "adzone_id": adzone_id,
             "material_id": mid,
             "page_no": page,
         }
@@ -125,7 +160,6 @@ class TaoIndexMaterialSearchAllHandler(BaseHandler):
             return self.send_message('fail', 400, '获取失败，请重试.', res)
         result = res['tbk_dg_optimus_material_response']['result_list']['map_data']
         return self.send_message('success', 0, '获取成功', result)
-
 
 
 class TaoIndexItemInfoAllHandler(BaseHandler):
@@ -143,4 +177,92 @@ class TaoIndexItemInfoAllHandler(BaseHandler):
         if not res:
             return self.send_message('fail', 400, '获取失败，请重试.', res)
         result = res['tbk_item_info_get_response']['results']['n_tbk_item']
+        tbk_coupon_req = TbkCouponGetRequest()
+        data1 = {
+            "item_id": itemid,
+            # "me":'giH3mq9EcIOjmZ7U4RgGFXeM9yGNF6KAXUML6bImjAWW5fft0zJPvhS9BWurN9lCiq3nJybq329ssTiAJ6qTjpM8HzIryGxc1U7LypH9IemyKazIKfzoh9y7PUDQgHNf3',
+            "activity_id": "2d2ae6fbe1af4869ac7f1d79ca9fb9e7"
+        }
+        coupon_res = await tbk_coupon_req.getResponse(data=data1)
+        result.appent()
         return self.send_message('success', 0, '获取成功', result)
+
+
+class TaoFootPrintAllHandler(BaseHandler):
+    '''足迹'''
+
+    @check_login
+    async def get(self):
+        userid = self.get_session().get('id', 0)
+        page = self.verify_arg_num(self.get_body_argument('page'), '页数', is_num=True)
+        type = self.verify_arg_num(self.get_body_argument('type'), '足迹 or 收藏', is_num=True, ucklist=True,
+                                   user_check_list=['0', '1'])
+        client = self.verify_arg_num(self.get_body_argument('client'), '客户端类型', is_num=True, ucklist=True,
+                                     user_check_list=['0', '1'])
+        collect_query = Tao_Collect_Info.select().where(Tao_Collect_Info.user_id==userid, Tao_Collect_Info.type==type,Tao_Collect_Info.status==0).paginate(int(page), PAGE_SIZE)
+        collects_wrappers = await self.application.objects.execute(collect_query)
+        if not collects_wrappers:
+            return self.send_msg('fail', 400, '没有产品.', '')
+        item_list = []
+        for wrap in collects_wrappers:
+            item_list.append(wrap.itemId)
+        new_str = ','.join(item_list)
+        # 进行批量请求淘宝数据
+        status, adzone_id, tbk_req = await check_tbk_promote(self, client, TbkItemInfoGetRequest,False)
+        if not status:
+            return self.send_msg('fail', 400, '获取失败，请重试.', '')
+
+        data = {
+            "num_iids": new_str,
+        }
+        res = await tbk_req.getResponse(data=data)
+        if not res:
+            return self.send_message('fail', 400, '获取失败，请重试.', res)
+        result = res['tbk_item_info_get_response']['results']['n_tbk_item']
+        return self.send_message('success', 0, '操作成功', result)
+
+    @check_login
+    async def post(self):
+        result = []
+        userid = self.get_session().get('id', 0)
+        itemid = self.verify_arg_legal(self.get_body_argument('itemid'), '商品id', False, )
+        type = self.verify_arg_num(self.get_body_argument('type'), '足迹 or 收藏', is_num=True, ucklist=True,
+                                   user_check_list=['0', '1'])
+        data_dict = {
+            "user_id": userid,
+            "itemId": itemid,
+            "type": type,
+        }
+        try:
+            collect_obj = await self.application.objects.get(Tao_Collect_Info, user_id=userid, itemId=itemid,
+                                                                type=type, status=0)
+            await self.application.objects.delete(collect_obj)
+        except Tao_Collect_Info.DoesNotExist:
+            pass
+        await self.application.objects.create(Tao_Collect_Info, **data_dict)
+
+        return self.send_message('success', 0, '操作成功', result)
+
+    @check_login
+    async def delete(self, *args, **kwargs):
+        result = []
+        userid = self.get_session().get('id', 0)
+        did = self.get_body_argument('did','')
+        alldelete = self.get_body_argument('alldelete','')
+        type = self.get_body_argument('type','')
+        if did:
+            try:
+                collect_obj = await self.application.objects.get(Tao_Collect_Info, id=did, status=0)
+                collect_obj.status = -1
+                await self.application.objects.update(collect_obj)
+            except Tao_Collect_Info.DoesNotExist:
+                return self.send_message('fail', 404, '操作对象不存在', result)
+        if alldelete and type:
+            collect_query = Tao_Collect_Info.select().where(Tao_Collect_Info.user_id == userid,
+                                                            Tao_Collect_Info.type == int(type),
+                                                            Tao_Collect_Info.status == 0)
+            collects_wrappers = await self.application.objects.execute(collect_query)
+            for wrap in collects_wrappers:
+                wrap.status = -1
+                await self.application.objects.update(wrap)
+        return self.send_message('success', 0, '操作成功', result)
