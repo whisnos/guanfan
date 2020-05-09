@@ -3,8 +3,8 @@ from chefserver.top.api.base import RestApi
 
 class TbkDgMaterialOptionalRequest(RestApi):
     '''淘宝客-推广者-物料搜索 https://open.taobao.com/api.htm?docId=35896&docType=2'''
-    def __init__(self, domain='gw.api.taobao.com', port=80):
-        RestApi.__init__(self, domain, port)
+    def __init__(self, domain='gw.api.taobao.com', port=80,KEY=None,SECRET=None):
+        RestApi.__init__(self, domain, port,KEY,SECRET)
         self.adzone_id = None
         self.cat = None
         self.device_encrypt = None
