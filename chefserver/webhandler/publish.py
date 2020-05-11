@@ -5,6 +5,7 @@ from chefserver.models.point import Express_Info, Point_Info, Point_Setting, Use
 from chefserver.tool.dbpool import DbOperate
 from chefserver.tool import applog
 from chefserver.top.api.TbkSpreadGetRequest import TbkSpreadGetRequest
+from chefserver.top.api.TbkTpwdCreateRequest import TbkTpwdCreateRequest
 from chefserver.webhandler.basehandler import BaseHandler, check_login
 from chefserver.webhandler.cacheoperate import CacheUserinfo, CacheUserPointinfo
 from chefserver.webhandler.myspace import get_relationship_status
@@ -846,7 +847,7 @@ async def channel_moment_add(id,chlist):
     # # else:
     # return 0, "添加成功", None
 
-
+import urllib.parse
 class TestHandler(BaseHandler):
     ''' test API '''
     async def post(self):
@@ -861,13 +862,25 @@ class TestHandler(BaseHandler):
         #     "type": type,
         # }
         # 进行批量请求淘宝数据
-        status, adzone_id, tbk_req = await check_tbk_promote(self, 0, TbkSpreadGetRequest, False)
+        status, adzone_id, tbk_req = await check_tbk_promote(self, 0, TbkTpwdCreateRequest, False)
         if not status:
             return self.send_msg('fail', 400, '获取失败，请重试.', '')
+        # tbk_req.requests="http://s.click.taobao.com/t?e=m%3D2%26s%3Dy%2FjDwum013lw4vFB6t2Z2ueEDrYVVa64juWlisr3dOdyINtkUhsv0AedWY4zNelKrxXXzX96Xo8jJak%2FxDK3oubDjaHkFCCQUOsWNBVUduNObpBFYLEEHo8kVIapoWxoUyNpxLfgKr0jWpzpm6nECxgQY8W5zfLQzDJ3E9Y8T0Hy3VTNhamACgXNbd6coOLJE%2FMT3fBTecCFNl8CxJ2hQ8Yl7w3%2FA2kb&scm=1007.15348.115058.0_28026&pvid=3ec0b705-de04-43a6-afc2-d0f22e3623e6&app_pvid=59590_11.132.118.146_719_1589168902158&ptl=floorId:28026;originalFloorId:28026;pvid:3ec0b705-de04-43a6-afc2-d0f22e3623e6;app_pvid:59590_11.132.118.146_719_1589168902158&union_lens=lensId%3AMAPI%401589168902%403ec0b705-de04-43a6-afc2-d0f22e3623e6_524033322365%401",
 
+        # data = {
+        #     "requests":[
+        #         "http://s.click.taobao.com/t?e=m%3D2%26s%3Dy%2FjDwum013lw4vFB6t2Z2ueEDrYVVa64juWlisr3dOdyINtkUhsv0AedWY4zNelKrxXXzX96Xo8jJak%2FxDK3oubDjaHkFCCQUOsWNBVUduNObpBFYLEEHo8kVIapoWxoUyNpxLfgKr0jWpzpm6nECxgQY8W5zfLQzDJ3E9Y8T0Hy3VTNhamACgXNbd6coOLJE%2FMT3fBTecCFNl8CxJ2hQ8Yl7w3%2FA2kb&scm=1007.15348.115058.0_28026&pvid=3ec0b705-de04-43a6-afc2-d0f22e3623e6&app_pvid=59590_11.132.118.146_719_1589168902158&ptl=floorId:28026;originalFloorId:28026;pvid:3ec0b705-de04-43a6-afc2-d0f22e3623e6;app_pvid:59590_11.132.118.146_719_1589168902158&union_lens=lensId%3AMAPI%401589168902%403ec0b705-de04-43a6-afc2-d0f22e3623e6_524033322365%401",
+        #
+        #     ]
+        # }
+        s = urllib.parse.unquote("https://s.click.taobao.com/t?e=m%3D2%26s%3DqrC2UjD6AS9w4vFB6t2Z2ueEDrYVVa64Dne87AjQPk9yINtkUhsv0AedWY4zNelKrxXXzX96Xo8jJak%2FxDK3oubDjaHkFCCQUOsWNBVUduNObpBFYLEEHo8kVIapoWxoUyNpxLfgKr0jWpzpm6nEC7YVf%2FNg5yFhST4WBV1q2vRcfm37xb4PJcI62K4v%2B%2F1US5Y5sNTyPtFzT%2BVGcr%2ByGnEqY%2Bakgpmw&scm=1007.15348.115058.0_28026&pvid=3ec0b705-de04-43a6-afc2-d0f22e3623e6&app_pvid=59590_11.132.118.146_719_1589168902158&ptl=floorId:28026;originalFloorId:28026;pvid:3ec0b705-de04-43a6-afc2-d0f22e3623e6;app_pvid:59590_11.132.118.146_719_1589168902158&union_lens=lensId%3AMAPI%401589168902%403ec0b705-de04-43a6-afc2-d0f22e3623e6_618360583172%401")
+        print(s)
         data = {
-            "url": "https://detail.tmall.com/item.htm?id=617456272198",
+            "text": "文案包装组装用于传播",
+            # "url":"https://uland.taobao.com/"
+            "url":s
         }
+
         res = await tbk_req.getResponse(data=data)
         if not res:
             return self.send_message('fail', 400, '获取失败，请重试.', res)
