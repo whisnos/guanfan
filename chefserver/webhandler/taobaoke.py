@@ -36,7 +36,7 @@ class TaoIndexSearchHandler(BaseHandler):
         # 获取推广位
         status, adzone_id, tbk_req = await check_tbk_promote(self, client, TbkDgMaterialOptionalRequest, True,)
         if not status:
-            return self.send_msg('fail', 400, '推广位获取失败，请重试.', '')
+            return self.send_msg(False, 400, '推广位获取失败，请重试.', '')
         data = {
             "adzone_id": adzone_id,
             "q": q,
@@ -45,7 +45,7 @@ class TaoIndexSearchHandler(BaseHandler):
         }
         res = await tbk_req.getResponse(data=data)
         if not res:
-            return self.send_msg('fail', 400, '商品获取失败，请重试.', res)
+            return self.send_msg(False, 400, '商品获取失败，请重试.', res)
         result = res['tbk_dg_material_optional_response']['result_list']['map_data']
         return self.send_msg('success', 0, '获取成功', result)
 
@@ -91,7 +91,7 @@ order by sort desc
 '''
     classinfo_result = await dbins.select(classinfo_sql, ())
     if classinfo_result is None:
-        return False, 3001, '获取列表错误,错误的内容', None
+        return False, 404, '列表数据为空', None
 
     # print(classinfo_result[:5])
 
@@ -148,7 +148,7 @@ class TaoIndexMaterialSearchAllHandler(BaseHandler):
 
         status, adzone_id, tbk_req = await check_tbk_promote(self, client, TbkDgOptimusMaterialRequest,True)
         if not status:
-            return self.send_msg('fail', 400, '推广位获取失败，请重试.', '')
+            return self.send_msg(False, 400, '推广位获取失败，请重试.', '')
 
         data = {
             "adzone_id": adzone_id,
@@ -157,9 +157,9 @@ class TaoIndexMaterialSearchAllHandler(BaseHandler):
         }
         res = await tbk_req.getResponse(data=data)
         if not res:
-            return self.send_message('fail', 400, '获取失败，请重试.', res)
+            return self.send_message(False, 400, '获取失败，请重试.', res)
         result = res['tbk_dg_optimus_material_response']['result_list']['map_data']
-        return self.send_message('success', 0, '获取成功', result)
+        return self.send_message(True, 0, '获取成功', result)
 
 
 class TaoIndexItemInfoAllHandler(BaseHandler):
@@ -175,7 +175,7 @@ class TaoIndexItemInfoAllHandler(BaseHandler):
         }
         res = await tbk_req.getResponse(data=data)
         if not res:
-            return self.send_message('fail', 400, '获取失败，请重试.', res)
+            return self.send_message(False, 400, '获取失败，请重试.', res)
         result = res['tbk_item_info_get_response']['results']['n_tbk_item']
         tbk_coupon_req = TbkCouponGetRequest()
         data1 = {
@@ -185,7 +185,7 @@ class TaoIndexItemInfoAllHandler(BaseHandler):
         }
         coupon_res = await tbk_coupon_req.getResponse(data=data1)
         result.appent()
-        return self.send_message('success', 0, '获取成功', result)
+        return self.send_message(True, 0, '获取成功', result)
 
 
 class TaoFootPrintAllHandler(BaseHandler):
@@ -194,15 +194,15 @@ class TaoFootPrintAllHandler(BaseHandler):
     @check_login
     async def get(self):
         userid = self.get_session().get('id', 0)
-        page = self.verify_arg_num(self.get_body_argument('page'), '页数', is_num=True)
-        type = self.verify_arg_num(self.get_body_argument('type'), '足迹 or 收藏', is_num=True, ucklist=True,
+        page = self.verify_arg_num(self.get_argument('page'), '页数', is_num=True)
+        type = self.verify_arg_num(self.get_argument('type'), '足迹 or 收藏', is_num=True, ucklist=True,
                                    user_check_list=['0', '1'])
-        client = self.verify_arg_num(self.get_body_argument('client'), '客户端类型', is_num=True, ucklist=True,
+        client = self.verify_arg_num(self.get_argument('client'), '客户端类型', is_num=True, ucklist=True,
                                      user_check_list=['0', '1'])
         collect_query = Tao_Collect_Info.select().where(Tao_Collect_Info.user_id==userid, Tao_Collect_Info.type==type,Tao_Collect_Info.status==0).paginate(int(page), PAGE_SIZE)
         collects_wrappers = await self.application.objects.execute(collect_query)
         if not collects_wrappers:
-            return self.send_msg('fail', 400, '没有产品.', '')
+            return self.send_msg(False, 400, '没有产品.', '')
         item_list = []
         for wrap in collects_wrappers:
             item_list.append(wrap.itemId)
@@ -210,16 +210,16 @@ class TaoFootPrintAllHandler(BaseHandler):
         # 进行批量请求淘宝数据
         status, adzone_id, tbk_req = await check_tbk_promote(self, client, TbkItemInfoGetRequest,False)
         if not status:
-            return self.send_msg('fail', 400, '获取失败，请重试.', '')
+            return self.send_msg(False, 400, '获取失败，请重试.', '')
 
         data = {
             "num_iids": new_str,
         }
         res = await tbk_req.getResponse(data=data)
         if not res:
-            return self.send_message('fail', 400, '获取失败，请重试.', res)
+            return self.send_message(False, 400, '获取失败，请重试.', False)
         result = res['tbk_item_info_get_response']['results']['n_tbk_item']
-        return self.send_message('success', 0, '操作成功', result)
+        return self.send_message(True, 0, '操作成功', result)
 
     @check_login
     async def post(self):
@@ -241,7 +241,7 @@ class TaoFootPrintAllHandler(BaseHandler):
             pass
         await self.application.objects.create(Tao_Collect_Info, **data_dict)
 
-        return self.send_message('success', 0, '操作成功', result)
+        return self.send_message(True, 0, '操作成功', result)
 
     @check_login
     async def delete(self, *args, **kwargs):
@@ -256,7 +256,7 @@ class TaoFootPrintAllHandler(BaseHandler):
                 collect_obj.status = -1
                 await self.application.objects.update(collect_obj)
             except Tao_Collect_Info.DoesNotExist:
-                return self.send_message('fail', 404, '操作对象不存在', result)
+                return self.send_message(False, 404, '操作对象不存在', result)
         if alldelete and type:
             collect_query = Tao_Collect_Info.select().where(Tao_Collect_Info.user_id == userid,
                                                             Tao_Collect_Info.type == int(type),
@@ -265,4 +265,4 @@ class TaoFootPrintAllHandler(BaseHandler):
             for wrap in collects_wrappers:
                 wrap.status = -1
                 await self.application.objects.update(wrap)
-        return self.send_message('success', 0, '操作成功', result)
+        return self.send_message(True, 0, '操作成功', result)
