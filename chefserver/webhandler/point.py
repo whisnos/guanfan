@@ -172,6 +172,9 @@ class MyPointPorderHandler(BaseHandler):
             province_id = address_obj.province_id
             city_id = address_obj.city_id
             area_id = address_obj.area_id
+            name = address_obj.name,
+            mobile = address_obj.mobile
+            address=address_obj.address
             product_obj = await self.application.objects.get(Product_Point, id=product_id)
 
             if product_obj.sku_no < num:
@@ -217,12 +220,12 @@ class MyPointPorderHandler(BaseHandler):
                     history_data = {
                         "user_id":userid,
                         # "exchangeorder_id":1,
-                        "name":address_obj.name,
-                        "mobile":address_obj.mobile,
+                        "name":name,
+                        "mobile":mobile,
                         "province":address_res['p_name'],
                         "city": address_res['c_name'],
                         "area": address_res['a_name'],
-                        "address": address_obj.address,
+                        "address": address,
                         # "exchangeorder":t
 
                     }
