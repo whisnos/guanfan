@@ -132,7 +132,7 @@ class ProductPointDetailHandler(BaseHandler):
         #     result.append(dict_img)
         # return self.send_message(False, 404, '商品部存在', dict_obj)
 
-async def process_the_history(name, mobile, province, city, area, address):
+async def process_the_history(province, city, area):
     sql_ = '''
         SELECT
         t1.name as p_name,
@@ -169,6 +169,9 @@ class MyPointPorderHandler(BaseHandler):
         # 验证地址
         try:
             address_obj = await self.application.objects.get(My_Address, id=address_id, user_id=userid, is_delete=False)
+            province_id = address_obj.province_id
+            city_id = address_obj.city_id
+            area_id = address_obj.area_id
             product_obj = await self.application.objects.get(Product_Point, id=product_id)
 
             if product_obj.sku_no < num:
@@ -180,11 +183,7 @@ class MyPointPorderHandler(BaseHandler):
             user_point_obj = await self.application.objects.get(User_Point, user_id=userid)
             if user_point_obj.point < total:
                 return self.send_message(False, 400, '积分不足', result)
-            address_data = {
-            }
-            log.info(1212)
-            log.info(3,address_obj.province_id, address_obj.city_id, address_obj.area_id)
-            status,address_res = await process_the_history(address_obj.name, address_obj.mobile, address_obj.province_id, address_obj.city_id, address_obj.area_id, address_obj.address)
+            status,address_res = await process_the_history(province_id, city_id, area_id)
 
             if status is False:
                 return self.send_message(False, 400, '用户地址参数错误', result)
@@ -249,6 +248,9 @@ class MyPointPorderHandler(BaseHandler):
             return self.send_message(False, 404, '商品不存在', result)
         except User_Point.DoesNotExist:
             return self.send_message(False, 404, '用户积分不存在', result)
+        except Exception as e:
+            log.info(11111111111,e)
+            return self.send_message(False, 404, 'fuwuq', result)
 
 
 
