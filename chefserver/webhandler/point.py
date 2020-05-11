@@ -132,7 +132,7 @@ class ProductPointDetailHandler(BaseHandler):
         #     result.append(dict_img)
         # return self.send_message(False, 404, '商品部存在', dict_obj)
 
-async def process_the_history(province, city, area):
+async def process_the_history(name, mobile, province, city, area, address):
     sql_ = '''
         SELECT
         t1.name as p_name,
@@ -169,12 +169,6 @@ class MyPointPorderHandler(BaseHandler):
         # 验证地址
         try:
             address_obj = await self.application.objects.get(My_Address, id=address_id, user_id=userid, is_delete=False)
-            province_id = address_obj.province_id
-            city_id = address_obj.city_id
-            area_id = address_obj.area_id
-            name = address_obj.name,
-            mobile = address_obj.mobile
-            address=address_obj.address
             product_obj = await self.application.objects.get(Product_Point, id=product_id)
 
             if product_obj.sku_no < num:
@@ -186,7 +180,10 @@ class MyPointPorderHandler(BaseHandler):
             user_point_obj = await self.application.objects.get(User_Point, user_id=userid)
             if user_point_obj.point < total:
                 return self.send_message(False, 400, '积分不足', result)
-            status,address_res = await process_the_history(province_id, city_id, area_id)
+            address_data = {
+            }
+
+            status,address_res = await process_the_history(address_obj.name, address_obj.mobile, address_obj.province_id, address_obj.city_id, address_obj.area_id, address_obj.address)
 
             if status is False:
                 return self.send_message(False, 400, '用户地址参数错误', result)
@@ -220,12 +217,12 @@ class MyPointPorderHandler(BaseHandler):
                     history_data = {
                         "user_id":userid,
                         # "exchangeorder_id":1,
-                        "name":name,
-                        "mobile":mobile,
+                        "name":address_obj.name,
+                        "mobile":address_obj.mobile,
                         "province":address_res['p_name'],
                         "city": address_res['c_name'],
                         "area": address_res['a_name'],
-                        "address": address,
+                        "address": address_obj.address,
                         # "exchangeorder":t
 
                     }
@@ -251,9 +248,6 @@ class MyPointPorderHandler(BaseHandler):
             return self.send_message(False, 404, '商品不存在', result)
         except User_Point.DoesNotExist:
             return self.send_message(False, 404, '用户积分不存在', result)
-        except Exception as e:
-            log.info(11111111111,e)
-            return self.send_message(False, 404, 'fuwuq', result)
 
 
 
