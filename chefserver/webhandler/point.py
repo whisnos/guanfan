@@ -182,7 +182,8 @@ class MyPointPorderHandler(BaseHandler):
                 return self.send_message(False, 400, '积分不足', result)
             address_data = {
             }
-
+            log.info(1212)
+            log.info(3,address_obj.province_id, address_obj.city_id, address_obj.area_id)
             status,address_res = await process_the_history(address_obj.name, address_obj.mobile, address_obj.province_id, address_obj.city_id, address_obj.area_id, address_obj.address)
 
             if status is False:
