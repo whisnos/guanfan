@@ -45,6 +45,10 @@ WHERE
     channel_base_result.setdefault('hotCount', count_num[0]['count']+channel_base_result['visitCount'])
     content_list = await get_channel_content_list(id, page, epage)
     channel_base_result.setdefault('content', content_list)
+    channel_insert_sql = '''
+        UPDATE channel_info set visitCount=visitCount+1  WHERE id=?;
+        '''
+    await dbins.execute(channel_insert_sql, (id))
     return channel_base_result
 
 
