@@ -4,11 +4,13 @@ from chefserver.config import DATABASE
 from chefserver.models.point import Express_Info, Point_Info, Point_Setting, User_Point, User_PointBill
 from chefserver.tool.dbpool import DbOperate
 from chefserver.tool import applog
+from chefserver.top.api.TbkSpreadGetRequest import TbkSpreadGetRequest
 from chefserver.webhandler.basehandler import BaseHandler, check_login
 from chefserver.webhandler.cacheoperate import CacheUserinfo, CacheUserPointinfo
 from chefserver.webhandler.myspace import get_relationship_status
 from chefserver.webhandler.search import get_similar_recipe_tagkey
 from chefserver.webhandler.campaign.campaignjoin import recipe_campaign_join, moment_campaign_join
+from chefserver.webhandler.taobaoke import check_tbk_promote
 from chefserver.webhandler.video.aliyunmediaapi import get_video_history, update_video_history
 log = applog.get_log('webhandler.publish')
 dbins = DbOperate.instance()
@@ -847,7 +849,30 @@ async def channel_moment_add(id,chlist):
 
 class TestHandler(BaseHandler):
     ''' test API '''
+    async def post(self):
+        result = []
+        # userid = self.get_session().get('id', 0)
+        # itemid = self.verify_arg_legal(self.get_body_argument('itemid'), '商品id', False, )
+        # type = self.verify_arg_num(self.get_body_argument('type'), '足迹 or 收藏', is_num=True, ucklist=True,
+        #                            user_check_list=['0', '1'])
+        # data_dict = {
+        #     "user_id": userid,
+        #     "itemId": itemid,
+        #     "type": type,
+        # }
+        # 进行批量请求淘宝数据
+        status, adzone_id, tbk_req = await check_tbk_promote(self, 0, TbkSpreadGetRequest, False)
+        if not status:
+            return self.send_msg('fail', 400, '获取失败，请重试.', '')
 
+        data = {
+            "url": "https://detail.tmall.com/item.htm?id=617456272198",
+        }
+        res = await tbk_req.getResponse(data=data)
+        if not res:
+            return self.send_message('fail', 400, '获取失败，请重试.', res)
+        result = res['tbk_item_info_get_response']['results']['n_tbk_item']
+        return self.send_message('success', 0, '操作成功', result)
     # @DATABASE.transaction()
     async def get(self):
         try:

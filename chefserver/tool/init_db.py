@@ -14,8 +14,8 @@ def init():
     #     Area, My_Address,
     # ])
     # DATABASE.create_tables([Area,My_Address])
-    # DATABASE.create_tables([Tao_Channel_Info])
-    DATABASE.create_tables([Tao_Promote_Info,Tao_Banner_Info,Tao_Recommend_Info,Tao_Collect_Info])
+    DATABASE.create_tables([Tao_Channel_Info])
+    # DATABASE.create_tables([Tao_Promote_Info,Tao_Banner_Info,Tao_Recommend_Info,Tao_Collect_Info])
 
 
 if __name__ == "__main__":
