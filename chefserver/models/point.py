@@ -169,7 +169,7 @@ class My_History_Address(BaseModel):
     mobile = CharField(max_length=20, verbose_name="手机号")
     province = CharField(max_length=20, verbose_name="省")
     city = CharField(max_length=20, verbose_name="市")
-    country = CharField(max_length=20, verbose_name="区")
+    area = CharField(max_length=20, verbose_name="区")
     address = CharField(max_length=30, verbose_name="详细地址")
 
 

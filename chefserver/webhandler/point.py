@@ -221,7 +221,7 @@ class MyPointPorderHandler(BaseHandler):
                         "mobile":address_obj.mobile,
                         "province":address_res['p_name'],
                         "city": address_res['c_name'],
-                        "country": address_res['a_name'],
+                        "area": address_res['a_name'],
                         "address": address_obj.address,
                         # "exchangeorder":t
 
@@ -344,6 +344,7 @@ class MyExchangeDetailHandler(BaseHandler):
                         address_dict['mobile'] = ad.mobile
                         address_dict['province'] = ad.province
                         address_dict['city'] = ad.city
+                        address_dict['area'] = ad.area
                         address_dict['address'] = ad.address
                 else:
                     pass
