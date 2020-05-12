@@ -58,7 +58,7 @@ async def get_channel_content_list(channel_id, page, epage):
     '''
     sql = '''
     select
-channel_la.*,
+channel_la.momentId as id,
 moments_info.momentsImgUrl as dtimg,
 moments_info.momentsDescription as description,
 moments_info.likeCount as likecount,
@@ -70,7 +70,7 @@ us.userName as nickname
 from(
 select
 momentId
-from channel_moment_relation where channelId = ? LIMIT ?,?
+from channel_moment_relation where channelId = ? ORDER BY id DESC LIMIT ?,?
 ) as channel_la
 inner join moments_info
 on moments_info.id = channel_la.momentId and moments_info.`status`=0
