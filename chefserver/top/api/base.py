@@ -228,6 +228,7 @@ class RestApi(object):
         dict = sorted(paramets.items(), key=lambda d: d[0])
         # 遍历出排序好的数据
         string = ""
+        print(6666666)
         for i in range(len(dict)):
             for j in range(len(dict[i])):
                 # 把排序好的数据遍历出并拼接在一起
@@ -235,6 +236,7 @@ class RestApi(object):
         pinjie = app_secret + string + app_secret
         # 为拼接好的字符串加密形成sign签名
         sign = ''
+
         # 把拼接的字符串通过MD5加密
         md = hashlib.md5()
         md.update(pinjie.encode())
@@ -284,9 +286,12 @@ class RestApi(object):
         public_parameter = self.get_public_parameter()
 
         public_parameter = self.get_other_parameter(public_parameter, data)
-        print('public_parameter',public_parameter)
-        public_parameter["sign"] = self.get_Taobao_Sign(public_parameter)
-        print(111,public_parameter)
+        application_parameter = self.getApplicationParameters()
+
+        sign_parameter = public_parameter.copy()
+        sign_parameter.update(application_parameter)
+
+        public_parameter["sign"] = self.get_Taobao_Sign(sign_parameter)
         response = await requests.post('http://gw.api.taobao.com/router/rest', params=public_parameter)
         text = await response.text()
         if response.status is not 200:
@@ -295,7 +300,6 @@ class RestApi(object):
         # for a in text:
         #     print(99,a)
         jsonobj = json.loads(text)
-        print('jsonobj',jsonobj)
         if "error_response" in jsonobj.keys():
             print("error_response...............首次获取失败，进入3次获取")
             res = await self.repeat_try(data,public_parameter)

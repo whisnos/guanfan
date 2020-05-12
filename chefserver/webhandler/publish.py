@@ -862,10 +862,9 @@ class TestHandler(BaseHandler):
         #     "type": type,
         # }
         # 进行批量请求淘宝数据
-        status, adzone_id, tbk_req = await check_tbk_promote(self, 0, TbkTpwdCreateRequest, False)
+        status, adzone_id, tbk_req = await check_tbk_promote(self, 0, TbkSpreadGetRequest, False)
         if not status:
             return self.send_msg('fail', 400, '获取失败，请重试.', '')
-        # tbk_req.requests="http://s.click.taobao.com/t?e=m%3D2%26s%3Dy%2FjDwum013lw4vFB6t2Z2ueEDrYVVa64juWlisr3dOdyINtkUhsv0AedWY4zNelKrxXXzX96Xo8jJak%2FxDK3oubDjaHkFCCQUOsWNBVUduNObpBFYLEEHo8kVIapoWxoUyNpxLfgKr0jWpzpm6nECxgQY8W5zfLQzDJ3E9Y8T0Hy3VTNhamACgXNbd6coOLJE%2FMT3fBTecCFNl8CxJ2hQ8Yl7w3%2FA2kb&scm=1007.15348.115058.0_28026&pvid=3ec0b705-de04-43a6-afc2-d0f22e3623e6&app_pvid=59590_11.132.118.146_719_1589168902158&ptl=floorId:28026;originalFloorId:28026;pvid:3ec0b705-de04-43a6-afc2-d0f22e3623e6;app_pvid:59590_11.132.118.146_719_1589168902158&union_lens=lensId%3AMAPI%401589168902%403ec0b705-de04-43a6-afc2-d0f22e3623e6_524033322365%401",
 
         # data = {
         #     "requests":[
@@ -873,15 +872,21 @@ class TestHandler(BaseHandler):
         #
         #     ]
         # }
-        s = urllib.parse.unquote("https://s.click.taobao.com/t?e=m%3D2%26s%3DqrC2UjD6AS9w4vFB6t2Z2ueEDrYVVa64Dne87AjQPk9yINtkUhsv0AedWY4zNelKrxXXzX96Xo8jJak%2FxDK3oubDjaHkFCCQUOsWNBVUduNObpBFYLEEHo8kVIapoWxoUyNpxLfgKr0jWpzpm6nEC7YVf%2FNg5yFhST4WBV1q2vRcfm37xb4PJcI62K4v%2B%2F1US5Y5sNTyPtFzT%2BVGcr%2ByGnEqY%2Bakgpmw&scm=1007.15348.115058.0_28026&pvid=3ec0b705-de04-43a6-afc2-d0f22e3623e6&app_pvid=59590_11.132.118.146_719_1589168902158&ptl=floorId:28026;originalFloorId:28026;pvid:3ec0b705-de04-43a6-afc2-d0f22e3623e6;app_pvid:59590_11.132.118.146_719_1589168902158&union_lens=lensId%3AMAPI%401589168902%403ec0b705-de04-43a6-afc2-d0f22e3623e6_618360583172%401")
-        print(s)
-        data = {
-            "text": "文案包装组装用于传播",
-            # "url":"https://uland.taobao.com/"
-            "url":s
-        }
+        url = "uland.taobao.com/coupon/edetail?e=JV2Y0ZktJSUNfLV8niU3R5TgU2jJNKOfNNtsjZw%2F%2FoIw9Zr3DFxVKZRX3vCs%2BaF8QG4di62Nihn%2FmLUfsPFXDemFKyIN1bVX65OH1WfUm95Uf2TiFOebeyYDR8v5oakv3MFHnbHKe%2BlN3oTDEKyj7lsso02HvoLhu0rfqkXItARVy2%2BQXZAHCr%2BFtwscjnStXh%2FukpQBSdFwc2n3OSzhfA%3D%3D&&app_pvid=59590_11.132.118.147_1053_1589268963691&ptl=floorId:28026;app_pvid:59590_11.132.118.147_1053_1589268963691;tpp_pvid:50279dd8-b235-4d74-9c66-a642f71ea855&union_lens=lensId%3AMAPI%401589268963%4050279dd8-b235-4d74-9c66-a642f71ea855_618329599076%401"
 
-        res = await tbk_req.getResponse(data=data)
+        s = urllib.parse.unquote(url)
+        print(s)
+
+
+        data = {
+            # "text": "文案包装组装用于传播",
+            # "url1":s
+            # "requests":
+            #     s
+
+        }
+        # tbk_req.requests=["http://ai.taobao.com"]
+        res = await tbk_req.getResponse()
         if not res:
             return self.send_message('fail', 400, '获取失败，请重试.', res)
         result = res['tbk_item_info_get_response']['results']['n_tbk_item']
