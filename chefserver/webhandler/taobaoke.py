@@ -31,6 +31,7 @@ class TaoIndexSearchHandler(BaseHandler):
         sort = self.verify_arg_legal(self.get_body_argument('sort', ''), '排序', False)
         client = self.verify_arg_num(self.get_body_argument('client'), '客户端类型', is_num=True, ucklist=True,
                                    user_check_list=['0', '1'])
+
         # type = self.verify_arg_num(self.get_body_argument('type'), '足迹 or 收藏', is_num=True, ucklist=True,
         #                            user_check_list=['0', '1'])
         # 获取推广位
@@ -41,7 +42,8 @@ class TaoIndexSearchHandler(BaseHandler):
             "adzone_id": adzone_id,
             "q": q,
             "page_no": str(page),
-            "sort": sort
+            "sort": sort,
+            "has_coupon": "true",
         }
         res = await tbk_req.getResponse(data=data)
         if not res:
