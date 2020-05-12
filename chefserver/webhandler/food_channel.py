@@ -59,13 +59,14 @@ async def get_channel_content_list(channel_id, page, epage):
     sql = '''
     select
 channel_la.*,
-moments_info.momentsImgUrl as mmimg,
-moments_info.momentsDescription as title,
-moments_info.likeCount as likeCount,
+moments_info.momentsImgUrl as dtimg,
+moments_info.momentsDescription as description,
+moments_info.likeCount as likecount,
 moments_info.userid,
+moments_info.isvideo,
 moments_info.createtime,
-us.headImg as userfaceimg,
-us.userName as nickName
+us.headImg as faceimg,
+us.userName as nickname
 from(
 select
 momentId

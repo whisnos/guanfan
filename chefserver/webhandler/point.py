@@ -158,7 +158,7 @@ class MyPointPorderHandler(BaseHandler):
 
     @check_login
     async def post(self):
-        result = {}
+        result = []
         userid = self.get_session().get('id', 0)
         address_id = self.verify_arg_num(self.get_body_argument('address_id'), '地址id', is_num=True)
         product_id = self.verify_arg_num(self.get_body_argument('product_id'), '商品id', is_num=True)
