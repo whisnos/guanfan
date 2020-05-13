@@ -1,7 +1,7 @@
 from playhouse.shortcuts import model_to_dict
 
 from chefserver.config import TAO_APP_KEY, TAO_APP_SECRET, TAO_APP_KEY_ANDROID, TAO_APP_SECRET_ANDROID, PAGE_SIZE
-from chefserver.models.tbk import Tao_Promote_Info, Tao_Collect_Info
+from chefserver.models.tbk import Tao_Promote_Info, Tao_Collect_Info, Tao_Banner_Info
 from chefserver.top.api.TbkCouponGetRequest import TbkCouponGetRequest
 from chefserver.top.api.TbkDgMaterialOptionalRequest import TbkDgMaterialOptionalRequest
 from chefserver.top.api.TbkDgOptimusMaterialRequest import TbkDgOptimusMaterialRequest
@@ -206,8 +206,10 @@ class TaoFootPrintAllHandler(BaseHandler):
         if not collects_wrappers:
             return self.send_msg(False, 400, '没有产品.', '')
         item_list = []
+        item_dict ={}
         for wrap in collects_wrappers:
             item_list.append(wrap.itemId)
+            item_dict[wrap.itemId]=wrap.createTime.strftime('%Y-%m-%d %H:%M:%S')
         new_str = ','.join(item_list)
         # 进行批量请求淘宝数据
         status, adzone_id, tbk_req = await check_tbk_promote(self, client, TbkItemInfoGetRequest,False)
@@ -221,6 +223,9 @@ class TaoFootPrintAllHandler(BaseHandler):
         if not res:
             return self.send_message(False, 400, '获取失败，请重试.', False)
         result = res['tbk_item_info_get_response']['results']['n_tbk_item']
+        for item in result:
+            item_time = item_dict[str(item['num_iid'])]
+            item['createTime']=item_time
         return self.send_message(True, 0, '操作成功', result)
 
     @check_login
@@ -268,3 +273,21 @@ class TaoFootPrintAllHandler(BaseHandler):
                 wrap.status = -1
                 await self.application.objects.update(wrap)
         return self.send_message(True, 0, '操作成功', result)
+
+
+class TaoBannerAllHandler(BaseHandler):
+    '''轮播图'''
+
+    async def get(self):
+        banner_query = Tao_Banner_Info.select().order_by(Tao_Banner_Info.sort.desc()).where(Tao_Banner_Info.status==0)
+        banners_wrappers = await self.application.objects.execute(banner_query)
+        if not banners_wrappers:
+            return self.send_msg(False, 400, '没有轮播图', False)
+        result = []
+        for wrap in banners_wrappers:
+            banner_dict = model_to_dict(wrap)
+            ct = banner_dict.get('createTime', None)
+            if ct:
+                banner_dict['createTime'] = ct.strftime('%Y-%m-%d %H:%M:%S')
+            result.append(banner_dict)
+        return self.send_message(True, 0, '获取成功', result)

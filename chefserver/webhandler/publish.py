@@ -872,8 +872,8 @@ class TestHandler(BaseHandler):
         #
         #     ]
         # }
-        url = "uland.taobao.com/coupon/edetail?e=JV2Y0ZktJSUNfLV8niU3R5TgU2jJNKOfNNtsjZw%2F%2FoIw9Zr3DFxVKZRX3vCs%2BaF8QG4di62Nihn%2FmLUfsPFXDemFKyIN1bVX65OH1WfUm95Uf2TiFOebeyYDR8v5oakv3MFHnbHKe%2BlN3oTDEKyj7lsso02HvoLhu0rfqkXItARVy2%2BQXZAHCr%2BFtwscjnStXh%2FukpQBSdFwc2n3OSzhfA%3D%3D&&app_pvid=59590_11.132.118.147_1053_1589268963691&ptl=floorId:28026;app_pvid:59590_11.132.118.147_1053_1589268963691;tpp_pvid:50279dd8-b235-4d74-9c66-a642f71ea855&union_lens=lensId%3AMAPI%401589268963%4050279dd8-b235-4d74-9c66-a642f71ea855_618329599076%401"
-
+        url = "http://uland.taobao.com/coupon/edetail?e=JV2Y0ZktJSUNfLV8niU3R5TgU2jJNKOfNNtsjZw%2F%2FoIw9Zr3DFxVKZRX3vCs%2BaF8QG4di62Nihn%2FmLUfsPFXDemFKyIN1bVX65OH1WfUm95Uf2TiFOebeyYDR8v5oakv3MFHnbHKe%2BlN3oTDEKyj7lsso02HvoLhu0rfqkXItARVy2%2BQXZAHCr%2BFtwscjnStXh%2FukpQBSdFwc2n3OSzhfA%3D%3D&&app_pvid=59590_11.132.118.147_1053_1589268963691&ptl=floorId:28026;app_pvid:59590_11.132.118.147_1053_1589268963691;tpp_pvid:50279dd8-b235-4d74-9c66-a642f71ea855&union_lens=lensId%3AMAPI%401589268963%4050279dd8-b235-4d74-9c66-a642f71ea855_618329599076%401"
+        # url= "http://temai.taobao.com"
         s = urllib.parse.unquote(url)
         print(s)
 
@@ -881,11 +881,11 @@ class TestHandler(BaseHandler):
         data = {
             # "text": "文案包装组装用于传播",
             # "url1":s
-            # "requests":
-            #     s
+            "requests":
+                s
 
         }
-        # tbk_req.requests=["http://ai.taobao.com"]
+        # tbk_req.requests=s
         res = await tbk_req.getResponse()
         if not res:
             return self.send_message('fail', 400, '获取失败，请重试.', res)
