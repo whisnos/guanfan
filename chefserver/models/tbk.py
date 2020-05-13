@@ -41,7 +41,7 @@ class Tao_Banner_Info(BaseModel):
     content = CharField(max_length=200, verbose_name="转链")
     img = CharField(max_length=200, verbose_name="封面图")
     sort = IntegerField(default=0, verbose_name='排序')
-
+    status = SmallIntegerField(default=0, verbose_name='状态')
 
 class Tao_Recommend_Info(BaseModel):
     name = CharField(verbose_name="名称")

@@ -3,7 +3,7 @@ from chefserver.webhandler.point import MyPointHandler, MyPointBillHandler, MyPo
     ProductPointDetailHandler, MyPointMyExchangeHandler, MyExchangeDetailHandler, AddressDetailHandler, \
     MyAddressHandler, MyAddressDetailHandler, MyPointPorderHandler, MyPointCmOrderHandler
 from chefserver.webhandler.taobaoke import TaoIndexSearchHandler, TaoIndexChannelInfoAllHandler, \
-    TaoIndexMaterialSearchAllHandler, TaoIndexItemInfoAllHandler, TaoFootPrintAllHandler
+    TaoIndexMaterialSearchAllHandler, TaoIndexItemInfoAllHandler, TaoFootPrintAllHandler, TaoBannerAllHandler
 from chefserver.webhandler.user import LoginHandler,SendSmsHandler,RestPasswordHandler
 from chefserver.webhandler.user import ModifyPhonedHandler,LogoutHandler,PersonInfoHandler
 from chefserver.webhandler.user import ModifyInfoHandler, SubmitAdvancedHandler,RegisterHandler
@@ -175,6 +175,7 @@ def make_app():
         (r"/tbk/materials", TaoIndexMaterialSearchAllHandler),   # tbk-物料搜索
         (r"/tbk/iteminfo", TaoIndexItemInfoAllHandler),          # tbk-商品详情
         (r"/tbk/footprint", TaoFootPrintAllHandler),             # tbk-足迹
+        (r"/tbk/banner", TaoBannerAllHandler),                   # tbk-首页轮播图
         (r"/test", TestHandler),                                 # 测试接口
         ],
         # cookie_secret = 'cb56YAgMjpevlWBNqgrv5g==',
