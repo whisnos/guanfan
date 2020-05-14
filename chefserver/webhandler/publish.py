@@ -1,15 +1,108 @@
 import tornado.web
+
+from chefserver.config import DATABASE
+from chefserver.models.point import Express_Info, Point_Info, Point_Setting, User_Point, User_PointBill
 from chefserver.tool.dbpool import DbOperate
 from chefserver.tool import applog
+from chefserver.top.api.TbkSpreadGetRequest import TbkSpreadGetRequest
+from chefserver.top.api.TbkTpwdCreateRequest import TbkTpwdCreateRequest
 from chefserver.webhandler.basehandler import BaseHandler, check_login
-from chefserver.webhandler.cacheoperate import CacheUserinfo
+from chefserver.webhandler.cacheoperate import CacheUserinfo, CacheUserPointinfo
 from chefserver.webhandler.myspace import get_relationship_status
 from chefserver.webhandler.search import get_similar_recipe_tagkey
 from chefserver.webhandler.campaign.campaignjoin import recipe_campaign_join, moment_campaign_join
+from chefserver.webhandler.taobaoke import check_tbk_promote
 from chefserver.webhandler.video.aliyunmediaapi import get_video_history, update_video_history
 log = applog.get_log('webhandler.publish')
 dbins = DbOperate.instance()
 
+async def update_sp_point(self,userid,point_type,bill_type):
+    ''' 处理发布食谱积分联动'''
+    try:
+        point_info_obj = await self.application.objects.get(Point_Info, point_type=point_type, status=True)
+        # 发布动态获取的积分数
+        grade_no = point_info_obj.grade_no
+        point_setting_obj = await self.application.objects.get(Point_Setting, pointinfo=point_info_obj.id)
+        # 获取设置的类型 options_type 1, 'every_day 每天N次' 3, 'no_limit 没有限制'
+        if point_setting_obj.options_type == 1:
+
+            # redis
+            cacheojb = CacheUserPointinfo(userid)
+            cres = await cacheojb.createCache()
+            if cres is False:
+                log.error("用户{}-积分缓存创建失败。".format(userid))
+            # 获取用户今天已发布的数量
+            num_dt = await cacheojb.get_shipu()
+            # 获取count
+            count = point_setting_obj.count
+            # 如果redis中的数量 >= count
+            if int(num_dt) >= count:
+                # 不增加积分
+                pass
+            else:
+                # 处理积分 账单
+                try:
+                    user_point_obj = await self.application.objects.get(User_Point, user_id=userid)
+                except User_Point.DoesNotExist:
+                    user_point_obj = await self.application.objects.create(User_Point, user_id=userid)
+                async with await DATABASE.transaction() as transaction:
+                    # 过滤刷积分
+                    if num_dt == await cacheojb.get_shipu():
+                        # 增加积分
+                        query_sql = (User_Point.use(transaction).update({User_Point.point: User_Point.point + grade_no})
+                                 .where(User_Point.id == user_point_obj.id))
+                        await query_sql.execute()
+
+                        # 增加积分账单
+                        await User_PointBill.use(transaction).create(user_id=userid, bill_type=bill_type, bill_status=0, grade_no=grade_no)
+
+                        await cacheojb.set_shipu(1)
+
+        elif point_setting_obj.options_type == 2:
+            try:
+                # 2为一次性奖励 若存在 即不在参与活动
+                user_bill_obj = await self.application.objects.get(User_PointBill, user_id=userid, bill_type=bill_type)
+            except User_PointBill.DoesNotExist:
+                # 处理积分 账单
+                try:
+                    user_point_obj = await self.application.objects.get(User_Point, user_id=userid)
+                except User_Point.DoesNotExist:
+                    user_point_obj = await self.application.objects.create(User_Point, user_id=userid)
+                async with await DATABASE.transaction() as transaction:
+                    # 增加积分
+                    query_sql = (User_Point.use(transaction).update({User_Point.point: User_Point.point + grade_no})
+                                 .where(User_Point.id == user_point_obj.id))
+                    await query_sql.execute()
+
+                    # 增加积分账单
+                    await User_PointBill.use(transaction).create(user_id=userid, bill_type=bill_type, bill_status=bill_type,
+                                                                 grade_no=grade_no)
+        elif point_setting_obj.options_type == 3:
+            # 处理积分 账单
+            try:
+                user_point_obj = await self.application.objects.get(User_Point, user_id=userid)
+            except User_Point.DoesNotExist:
+                user_point_obj = await self.application.objects.create(User_Point, user_id=userid)
+            async with await DATABASE.transaction() as transaction:
+                # 增加积分
+                query_sql = (User_Point.use(transaction).update({User_Point.point: User_Point.point + grade_no})
+                             .where(User_Point.id == user_point_obj.id))
+                await query_sql.execute()
+
+                # 增加积分账单
+                await User_PointBill.use(transaction).create(user_id=userid, bill_type=bill_type, bill_status=0,
+                                                             grade_no=grade_no)
+
+    except Point_Info.DoesNotExist:
+        log.error("用户{}发布动态，积分奖励关闭，无需奖励积分".format(userid,))
+        return False
+    except Point_Setting.DoesNotExist:
+        log.error("用户{}发布动态，积分奖励设置未开启，无奖励积分".format(userid, ))
+        return False
+    except Exception as e:
+        log.error("用户{}发布食谱，更新积分失败 异常{}".format(userid,e))
+        return False
+    return True
 
 class PushRecipeHandler(BaseHandler):
     ''' 发布菜谱 '''
@@ -91,6 +184,8 @@ class PushRecipeHandler(BaseHandler):
                 await recipe_campaign_join(userid, campaignid, ins_id)
             return self.send_message(sucess, code, '保存草稿成功')
 
+        # 处理积分联动
+        await update_sp_point(self, userid, 1, 2)
         await CacheUserinfo(userid).set_shipu(1)  # 食谱缓存数量+1
         if ispushdt == '0':
             # 不生成动态
@@ -199,6 +294,95 @@ class EditRecipesubmitHandler(BaseHandler):
                 return self.send_message(True, 0, '发布菜谱成功, 动态生成异常, 请重新发布动态')
 
 
+async def update_dt_point(self,userid,point_type,bill_type):
+    ''' 处理发布动态积分联动'''
+    try:
+        point_info_obj = await self.application.objects.get(Point_Info, point_type=point_type, status=True)
+        # 发布动态获取的积分数
+        grade_no = point_info_obj.grade_no
+        point_setting_obj = await self.application.objects.get(Point_Setting, pointinfo=point_info_obj.id)
+        # 获取设置的类型 options_type 1, 'every_day 每天N次' 3, 'no_limit 没有限制'
+        if point_setting_obj.options_type == 1:
+
+            # redis
+            cacheojb = CacheUserPointinfo(userid)
+            cres = await cacheojb.createCache()
+            if cres is False:
+                log.error("用户{}-积分缓存创建失败。".format(userid))
+            # 获取用户今天已发布的数量
+            num_dt = await cacheojb.get_dongtai()
+
+            # 获取count
+            count = point_setting_obj.count
+            # 如果redis中的数量 >= count
+            if int(num_dt) >= count:
+                # 不增加积分
+                pass
+            else:
+                # 处理积分 账单
+                try:
+                    user_point_obj = await self.application.objects.get(User_Point, user_id=userid)
+                except User_Point.DoesNotExist:
+                    user_point_obj = await self.application.objects.create(User_Point, user_id=userid)
+                async with await DATABASE.transaction() as transaction:
+                    # 过滤刷积分
+                    if num_dt == await cacheojb.get_dongtai():
+                        # 增加积分
+                        query_sql = (User_Point.use(transaction).update({User_Point.point: User_Point.point + grade_no})
+                                 .where(User_Point.id == user_point_obj.id))
+                        await query_sql.execute()
+
+                        # 增加积分账单
+                        await User_PointBill.use(transaction).create(user_id=userid, bill_type=bill_type, bill_status=0, grade_no=grade_no)
+
+                        await cacheojb.set_dongtai(1)
+
+        elif point_setting_obj.options_type == 2:
+            try:
+                # 2为一次性奖励 若存在 即不在参与活动
+                user_bill_obj = await self.application.objects.get(User_PointBill, user_id=userid, bill_type=bill_type)
+            except User_PointBill.DoesNotExist:
+                # 处理积分 账单
+                try:
+                    user_point_obj = await self.application.objects.get(User_Point, user_id=userid)
+                except User_Point.DoesNotExist:
+                    user_point_obj = await self.application.objects.create(User_Point, user_id=userid)
+                async with await DATABASE.transaction() as transaction:
+                    # 增加积分
+                    query_sql = (User_Point.use(transaction).update({User_Point.point: User_Point.point + grade_no})
+                                 .where(User_Point.id == user_point_obj.id))
+                    await query_sql.execute()
+
+                    # 增加积分账单
+                    await User_PointBill.use(transaction).create(user_id=userid, bill_type=bill_type, bill_status=bill_type,
+                                                                 grade_no=grade_no)
+        elif point_setting_obj.options_type == 3:
+            # 处理积分 账单
+            try:
+                user_point_obj = await self.application.objects.get(User_Point, user_id=userid)
+            except User_Point.DoesNotExist:
+                user_point_obj = await self.application.objects.create(User_Point, user_id=userid)
+            async with await DATABASE.transaction() as transaction:
+                # 增加积分
+                query_sql = (User_Point.use(transaction).update({User_Point.point: User_Point.point + grade_no})
+                             .where(User_Point.id == user_point_obj.id))
+                await query_sql.execute()
+
+                # 增加积分账单
+                await User_PointBill.use(transaction).create(user_id=userid, bill_type=bill_type, bill_status=0,
+                                                             grade_no=grade_no)
+
+    except Point_Info.DoesNotExist:
+        log.error("用户{}发布动态，积分奖励关闭，无需奖励积分".format(userid,))
+        return False
+    except Point_Setting.DoesNotExist:
+        log.error("用户{}发布动态，积分奖励设置未开启，无奖励积分".format(userid, ))
+        return False
+    except Exception as e:
+        log.error("用户{}发布动态，更新积分失败 异常{}".format(userid,e))
+        return False
+    return True
+
 class PushDongtaiHandler(BaseHandler):
     ''' 发布动态(图片) '''
     @check_login
@@ -233,6 +417,16 @@ class PushDongtaiHandler(BaseHandler):
 
         success, code, message, insert_dt_id = await publish_dongtai(userid, description, dt_type, itemid, dtimgall, videourl)
         if success:
+            # 处理积分
+            await update_dt_point(self, userid, point_type=0, bill_type=1)
+
+            # 更新频道动态关系
+            try:
+                chlist = self.verify_arg_legal(self.get_body_argument('chlist'), '所选频道列表', False, is_len=True, olen=50)
+                code1, msg, result = await channel_moment_add(insert_dt_id, chlist)
+            except tornado.web.MissingArgumentError as mise:
+                log.error(mise)
+
             if campaignid is not None:
                 # 参与活动
                 self.send_message(*await moment_campaign_join(userid, campaignid, insert_dt_id))
@@ -264,6 +458,16 @@ class PushVideoDongtaiHandler(BaseHandler):
 
         success, code, message, insert_dt_id = await publish_video_dongtai(userid, description, videoid, dt_type, itemid)
         if success:
+            # 处理积分
+            await update_dt_point(self, userid, point_type=0, bill_type=1)
+
+            # 更新频道动态关系
+            try:
+                chlist = self.verify_arg_legal(self.get_body_argument('chlist'), '所选频道列表', False, is_len=True, olen=50)
+                code1, msg, result = await channel_moment_add(insert_dt_id, chlist)
+            except tornado.web.MissingArgumentError as mise:
+                log.error(mise)
+
             if campaignid is not None:
                 # 参与活动
                 print(success, code, message, insert_dt_id)
@@ -278,9 +482,9 @@ async def publish_video_dongtai(userid, dtinfo, videoid, dt_type=0, itemid=0):
         return False, 1014, '视频ID不存在', 0
 
     insert_dt_sql = '''INSERT INTO moments_info 
-    (`userId`, `momentsDescription`, `type`, `itemId`, `likeCount`, `status`, `isvideo`)
+    (`userId`, `momentsDescription`, `type`, `itemId`, `likeCount`, `status`, `visitCount`, `isvideo`)
     VALUES 
-    (?,        ?,                     ?,      ?,         ?,         ?, 1)
+    (?,        ?,                     ?,      ?,         ?,         ?, 0, 1)
     '''
 
     sqllist = []
@@ -352,17 +556,16 @@ async def delete_dongtai(userid, dtid):
 async def publish_dongtai(userid, dtinfo, dt_type=0, itemid=0, imgliststr=None, videourl=None):
     ''' 发布动态 '''
     insert_dt_sql = '''INSERT INTO moments_info 
-    (`userId`, `momentsDescription`, `momentsImgUrl`, `momentsVideoUrl`, `type`, `itemId`, `likeCount`, `status`)
+    (`userId`, `momentsDescription`, `momentsImgUrl`, `momentsVideoUrl`, `type`, `itemId`, `likeCount`, `status`,`visitCount`)
     VALUES 
-    (?,        ?,                     ?,               ?,                  ?,      ?,         ?,         ?)
+    (?,        ?,                     ?,               ?,                  ?,      ?,         ?,         ?,         ?)
     '''
     # print(userid, dtinfo, imgliststr, videourl, dt_type, itemid, 0)
 
     sqllist = []
     sqllist.append(
-        (insert_dt_sql, (userid, dtinfo, imgliststr, videourl, dt_type, itemid, 0, 0)))
+        (insert_dt_sql, (userid, dtinfo, imgliststr, videourl, dt_type, itemid, 0, 0, 0)))
     sqllist.append(('select last_insert_id()', ()))
-
     result = await dbins.execute_many(sqllist)
 
     # result = await dbins.execute(insert_dt_sql, (userid, dtinfo, imgliststr, videourl, dt_type, itemid, 0, 0))
@@ -580,6 +783,114 @@ where id = ? and userid = ? and status!=-1
         return False, 3001, '菜谱保存失败,请重试'
 
     return True, 0, '更新成功'
+
+
+async def channel_moment_add(id,chlist):
+    ''' 添加关联频道 '''
+    slist = chlist.split(',')
+    # 查询频道是否存在SQL
+    channel_exists_sql = '''
+    select COUNT(id) as amount from channel_info where id=?;
+    '''
+    # 添加频道关联动态SQL
+    insert_channel_moment_sql = '''
+    INSERT INTO channel_moment_relation
+    (`channelId`, `momentId`)
+       VALUES
+       (?,?);
+    '''
+    # 一次遍历 2次hit数据库 后期可考虑优化
+    for channel_id in slist:
+        t_exists = await dbins.selectone(channel_exists_sql, (channel_id,))
+        amount = t_exists.get('amount')
+        if amount is 0:
+            log.error('频道动态关联失败,频道不存在,sql:{},{}'.format(channel_exists_sql,
+                                                  (channel_id)))
+        else:
+            the_tuple = (channel_id, id)
+            await dbins.execute(insert_channel_moment_sql, (the_tuple))
+    return 0, "添加成功", None
+    # insert_channel_moment_sql= '''
+    # INSERT INTO channel_moment_relation
+    # (`channelId`, `momentId`)
+    #    VALUES
+    #    ?;
+    # '''
+    # print(9999999999,id,slist)
+    # the_str=''
+    # for i in slist:
+    #     the_tuple=(i,id)
+    #     the_str = the_str+str(the_tuple)
+    #
+    # the_sql_str = the_str.replace(')(','),(')
+    # print('the_sql_str',type(the_sql_str),the_sql_str)
+    # insert_result = await dbins.execute(insert_channel_moment_sql, (the_sql_str))
+    # print('insert_result',insert_result)
+    # if insert_result is None:
+    #     return 3001 , "添加失败", None
+    # else:
+    #     return 0, "添加成功", None
+
+    # insert_channel_moment_sql = '''
+    #     INSERT INTO channel_moment_relation
+    #     (`channelId`, `momentId`)
+    #        VALUES
+    #        (?,?);
+    #     '''
+    # for i in slist:
+    #     the_tuple = (i, id)
+    #     insert_result = await dbins.execute(insert_channel_moment_sql, (the_tuple))
+    #     if insert_result is None:
+    #         log.error('频道动态关联失败,sql:{},{}'.format(insert_channel_moment_sql,
+    #                                               (the_tuple)))
+    #         # return 3001, "添加失败", None
+    # # else:
+    # return 0, "添加成功", None
+
+import urllib.parse
+class TestHandler(BaseHandler):
+    ''' test API '''
+    async def post(self):
+        result = []
+        # userid = self.get_session().get('id', 0)
+        # itemid = self.verify_arg_legal(self.get_body_argument('itemid'), '商品id', False, )
+        # type = self.verify_arg_num(self.get_body_argument('type'), '足迹 or 收藏', is_num=True, ucklist=True,
+        #                            user_check_list=['0', '1'])
+        # data_dict = {
+        #     "user_id": userid,
+        #     "itemId": itemid,
+        #     "type": type,
+        # }
+        # 进行批量请求淘宝数据
+        status, adzone_id, tbk_req = await check_tbk_promote(self, 0, TbkSpreadGetRequest, False)
+        if not status:
+            return self.send_msg('fail', 400, '获取失败，请重试.', '')
+        url = "http://uland.taobao.com/coupon/edetail?e=JV2Y0ZktJSUNfLV8niU3R5TgU2jJNKOfNNtsjZw%2F%2FoIw9Zr3DFxVKZRX3vCs%2BaF8QG4di62Nihn%2FmLUfsPFXDemFKyIN1bVX65OH1WfUm95Uf2TiFOebeyYDR8v5oakv3MFHnbHKe%2BlN3oTDEKyj7lsso02HvoLhu0rfqkXItARVy2%2BQXZAHCr%2BFtwscjnStXh%2FukpQBSdFwc2n3OSzhfA%3D%3D&&app_pvid=59590_11.132.118.147_1053_1589268963691&ptl=floorId:28026;app_pvid:59590_11.132.118.147_1053_1589268963691;tpp_pvid:50279dd8-b235-4d74-9c66-a642f71ea855&union_lens=lensId%3AMAPI%401589268963%4050279dd8-b235-4d74-9c66-a642f71ea855_618329599076%401"
+        url= "https://detail.tmall.com/item.htm?id=618329599076"
+        s = urllib.parse.unquote(url)
+        tbk_req.requests = [{"url":s}]
+        res = await tbk_req.getResponse()
+        if not res:
+            return self.send_message('fail', 400, '获取失败，请重试.', res)
+        result = res['tbk_spread_get_response']['results']
+        return self.send_message('success', 0, '操作成功', result)
+
+
+
+    # @DATABASE.transaction()
+    async def get(self):
+        try:
+            async with await DATABASE.transaction() as transaction:
+                query = (Express_Info.use(transaction).update({Express_Info.num: Express_Info.num + 1})
+                         .where(Express_Info.id == 1))
+
+                # await self.application.objects.execute(query)
+                await query.execute()
+                # ddd
+
+        except Exception as e:
+            print(111,e)
+        return self.send_message('OK', 200, 'SUCCESS')
 
 if __name__ == '__main__':
     # async def test_publish_dongtai():

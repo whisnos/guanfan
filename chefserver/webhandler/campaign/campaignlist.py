@@ -160,6 +160,8 @@ SELECT
     sort,
     starttime,
     endtime,
+    sel_starttime,
+    sel_endtime,
     createtime as pushtime
 FROM
     campaign_info 
@@ -170,27 +172,91 @@ ORDER BY createtime desc LIMIT ?,?
     result = await dbins.select(sql, (page, epage))
     if result is None:
         return False, 3002, '获取数据错误', None
-
     now = curDatetimeObj()
     for b in result:
-        if now > b.get('endtime'):
-            # 已结束
-            b.setdefault('status', 2)
-        elif now <= b.get('starttime'):
-            # 未开始
-            b.setdefault('status', 0)
+        if not b.get('sel_endtime') or not b.get('sel_starttime'):
+            if now > b.get('endtime'):
+                # 已结束
+                b.setdefault('status', 3)
+            elif now <= b.get('starttime'):
+                # 未开始
+                b.setdefault('status', 0)
+            else:
+                # 进行中
+                b.setdefault('status', 1)
+
+            st = b.get('starttime')
+            b['starttime'] = str(st)
+
+            et = b.get('endtime')
+            b['endtime'] = str(et)
+
+            pt = b.get('pushtime')
+            b['pushtime'] = str(pt)
+            b.pop('sel_starttime')
+            b.pop('sel_endtime')
         else:
-            # 进行中
-            b.setdefault('status', 1)
+            # 如果当前时间 大于 评选结束时间 则评选已结束
+            if now > b.get('sel_endtime'):
+                # 已结束
+                b.setdefault('status', 3)
+            # 如果当前时间 大等于评选开始时间 则评选中
+            elif now > b.get('endtime') or now >= b.get('sel_starttime'):
+                # 评选中
+                b.setdefault('status', 2)
+            # 如果当前时间 大于活动结束时间 小于 评选开始时间 则活动结束等待评选
+            # elif now > b.get('endtime'):
+            #     # 等待评选中
+            #     b.setdefault('status', 2)
+            # 如果当前时间 大于活动开始时间 则进行中
+            elif now >= b.get('starttime'):
+                # 进行中
+                b.setdefault('status', 1)
+            elif now < b.get('starttime'):
+                # 未开始
+                b.setdefault('status', 0)
+            else:
+                # 状态异常
+                b.setdefault('status', 3)
+            # if now > b.get('endtime'):
+            #     # 已结束
+            #     b.setdefault('status', 2)
+            # elif now <= b.get('starttime'):
+            #     # 未开始
+            #     b.setdefault('status', 0)
+            # else:
+            #     # 进行中
+            #     b.setdefault('status', 1)
 
-        st = b.get('starttime')
-        b['starttime'] = str(st)
+            st = b.get('starttime')
+            b['starttime'] = str(st)
 
-        et = b.get('endtime')
-        b['endtime'] = str(et)
-
-        pt = b.get('pushtime')
-        b['pushtime'] = str(pt)
+            et = b.get('endtime')
+            b['endtime'] = str(et)
+            pt = b.get('pushtime')
+            b['pushtime'] = str(pt)
+            b.pop('sel_starttime')
+            b.pop('sel_endtime')
+    # now = curDatetimeObj()
+    # for b in result:
+    #     if now > b.get('endtime'):
+    #         # 已结束
+    #         b.setdefault('status', 2)
+    #     elif now <= b.get('starttime'):
+    #         # 未开始
+    #         b.setdefault('status', 0)
+    #     else:
+    #         # 进行中
+    #         b.setdefault('status', 1)
+    #
+    #     st = b.get('starttime')
+    #     b['starttime'] = str(st)
+    #
+    #     et = b.get('endtime')
+    #     b['endtime'] = str(et)
+    #
+    #     pt = b.get('pushtime')
+    #     b['pushtime'] = str(pt)
     return True, 0, 'success', result
 
 async def get_campaign_list():
@@ -216,6 +282,8 @@ SELECT
     sort,
     starttime,
     endtime,
+    sel_starttime,
+    sel_endtime,
     createtime AS pushtime 
 FROM
     campaign_info 
@@ -228,27 +296,71 @@ ORDER BY
     result = await dbins.select(sql, ())
     if result is None:
         return False, 3002, '获取数据错误', None
-
     now = curDatetimeObj()
     for b in result:
-        if now > b.get('endtime'):
-            # 已结束
-            b.setdefault('status', 2)
-        elif now <= b.get('starttime'):
-            # 未开始
-            b.setdefault('status', 0)
+        if not b.get('sel_endtime') or not b.get('sel_starttime'):
+            if now > b.get('endtime'):
+                # 已结束
+                b.setdefault('status', 3)
+            elif now <= b.get('starttime'):
+                # 未开始
+                b.setdefault('status', 0)
+            else:
+                # 进行中
+                b.setdefault('status', 1)
+
+            st = b.get('starttime')
+            b['starttime'] = str(st)
+
+            et = b.get('endtime')
+            b['endtime'] = str(et)
+
+            pt = b.get('pushtime')
+            b['pushtime'] = str(pt)
+            b.pop('sel_starttime')
+            b.pop('sel_endtime')
         else:
-            # 进行中
-            b.setdefault('status', 1)
+            # 如果当前时间 大于 评选结束时间 则评选已结束
+            if now > b.get('sel_endtime'):
+                # 已结束
+                b.setdefault('status', 3)
+            # 如果当前时间 大等于评选开始时间 则评选中
+            elif now > b.get('endtime') or now >= b.get('sel_starttime'):
+                # 评选中
+                b.setdefault('status', 2)
+            # 如果当前时间 大于活动结束时间 小于 评选开始时间 则活动结束等待评选
+            # elif now > b.get('endtime'):
+            #     # 等待评选中
+            #     b.setdefault('status', 2)
+            # 如果当前时间 大于活动开始时间 则进行中
+            elif now >= b.get('starttime'):
+                # 进行中
+                b.setdefault('status', 1)
+            elif now < b.get('starttime'):
+                # 未开始
+                b.setdefault('status', 0)
+            else:
+                # 状态异常
+                b.setdefault('status', 3)
+            # if now > b.get('endtime'):
+            #     # 已结束
+            #     b.setdefault('status', 2)
+            # elif now <= b.get('starttime'):
+            #     # 未开始
+            #     b.setdefault('status', 0)
+            # else:
+            #     # 进行中
+            #     b.setdefault('status', 1)
 
-        st = b.get('starttime')
-        b['starttime'] = str(st)
+            st = b.get('starttime')
+            b['starttime'] = str(st)
 
-        et = b.get('endtime')
-        b['endtime'] = str(et)
-
-        pt = b.get('pushtime')
-        b['pushtime'] = str(pt)
+            et = b.get('endtime')
+            b['endtime'] = str(et)
+            pt = b.get('pushtime')
+            b['pushtime'] = str(pt)
+            b.pop('sel_starttime')
+            b.pop('sel_endtime')
     return True, 0, 'success', result
 
 

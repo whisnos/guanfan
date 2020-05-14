@@ -36,7 +36,8 @@ class DtPlazaHandler(BaseHandler):
                 await plaza_focus_process(myid, cache) # 增加是否关注
                 await plaza_like_process(myid, cache) # 增加是否点赞
                 if userblock is not None:
-                    self.send_message(True, 0, "success", [i for i in cache if i.get('userid') not in userblock])
+                    cache = [i for i in cache if i.get('userid') not in userblock]
+                    # self.send_message(True, 0, "success", [i for i in result if i.get('userid') not in userblock])
                 return self.send_message(True, 0, "success", cache)
             else:
                 # 返回缓存失败,写日志执行sql返回
@@ -50,7 +51,8 @@ class DtPlazaHandler(BaseHandler):
             await plaza_like_process(myid, result) # 增加是否点赞
             if userblock is not None:
                 # 黑名单过滤
-                self.send_message(True, 0, "success", [i for i in result if i.get('userid') not in userblock])
+                result = [i for i in result if i.get('userid') not in userblock]
+                # self.send_message(True, 0, "success", [i for i in result if i.get('userid') not in userblock])
         return self.send_message(success, code, message, result)
 
 

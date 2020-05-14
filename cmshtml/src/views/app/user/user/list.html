@@ -1,0 +1,90 @@
+  <title>用户列表</title>
+  
+  <div class="layui-card layadmin-header">
+    <div class="layui-breadcrumb" lay-filter="breadcrumb">
+      <a><cite>用户</cite></a>
+      <a><cite>列表</cite></a>
+    </div>
+  </div>
+  <div class="layui-fluid">
+    <div class="layui-card">
+        <div class="layui-form layui-card-header layuiadmin-card-header-auto" lay-filter="cms-user-search-list">
+            <div class="layui-form-item">
+                <div class="layui-inline">
+                    <label class="layui-form-label">用户ID</label>
+                    <div class="layui-input-inline">
+                      <script type="text/html" template>
+                        <input type="text" name="id" placeholder="请输入" autocomplete="off" class="layui-input" value="{{ layui.router().search.id || '' }}">
+                      </script>
+                    </div>
+                </div>
+                <div class="layui-inline">
+                  <label class="layui-form-label">手机</label>
+                  <div class="layui-input-inline">
+                      <input type="text" name="mobile" placeholder="请输入" autocomplete="off" class="layui-input">
+                  </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label">昵称</label>
+                    <div class="layui-input-inline">
+                        <input type="text" name="username" placeholder="请输入" autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label">状态</label>
+                    <div class="layui-input-inline">
+                        <select name="status">
+                        <option value="">请选择标签</option>
+                        <option value="0">正常</option>
+                        <option value="-1">禁用</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <button class="layui-btn layuiadmin-btn-list" lay-submit lay-filter="LAY-cms-user-search">
+                        <i class="layui-icon layui-icon-search layuiadmin-button-btn"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="layui-card-body">
+        <table id="LAY-cms-user-list" lay-filter="LAY-cms-user-list"></table>
+        <script type="text/html" id="user_img_ViewTpl">
+          <button class="layui-btn layui-btn-xs" style="background-color:#1e9fff" lay-event="checkbig">查看大图</button>
+        </script>
+        <script type="text/html" id="user_verify_status_Tpl">
+          {{# if(d.certificationstatus===1){ }}
+          <button class="layui-btn layui-btn-xs" style="background-color:#3dab58">提交认证</button>
+          {{#  } else if(d.certificationstatus===2) { }}
+          <button class="layui-btn layui-btn-xs">认证通过</button>
+          {{#  } else if(d.certificationstatus===3) { }}
+          <button class="layui-btn layui-btn-xs" style="background-color:#f11c1a">认证不通过</button>
+          {{#  } else { }}
+          <button class="layui-btn layui-btn-xs" style="background-color:#7f8685">未提交认证</button>
+          {{#  } }}
+        </script>
+        <script type="text/html" id="user_status_Tpl">
+          {{#  if(d.status==0){ }}
+            <button class="layui-btn layui-btn-xs">正常</button>
+          {{#  } else{ }}
+            <button class="layui-btn layui-btn-primary layui-btn-xs" style="color:#cebdbd">已删除</button>
+          {{#  } }}
+      </script>
+        <script type="text/html" id="user_sex_Tpl">
+            {{#  if(d.sex==1){ }}
+              <div class="layui-table-cell">男</div>
+            {{#  } else { }} 
+              <div class="layui-table-cell">女</div>
+            {{#  } }}
+        </script>
+        <script type="text/html" id="table-content-list">
+          <a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="checkverify"><i class="layui-icon layui-icon-edit"></i>审核</a>
+          <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="setstatus"><i class="layui-icon layui-btn-danger layui-icon-set"></i>设置</a>
+        </script>
+      </div>
+    </div>
+  </div>
+<script>
+  layui.use('user/userlist', layui.factory('user/userlist'));
+</script>

@@ -151,6 +151,86 @@ ORDER BY reply.id DESC
     return True, 0, 'success', result_list
 
 
+
+class GetReplyDidDetailHandler(BaseHandler):
+    ''' 获取评论详情列表 '''
+    async def post(self):
+        user_session = await self.get_login()
+        if user_session is False:
+            # 未登录
+            myid = 0
+        else:
+            # 获取用户ID
+            myid = user_session.get('id',0)
+        did = self.verify_arg_legal(self.get_body_argument('did'), '评论id', False, is_num=True)
+        success, code, message, result = await get_replydid_detail(myid, did)
+        return self.send_message(success, code, message, result)
+
+
+async def get_replydid_detail(myid, did):
+    ''' 评论列表 itemid 项目ID, itemtype 项目类型 1 动态 2 食谱 3 主题 '''
+    reply_list_sql = '''
+SELECT
+us.headImg AS faceimg,
+us.userName AS nickname,
+reply.id,
+reply.commentid,
+reply.userid,
+reply.beuserid,
+replyus.username AS bereplynickname,
+reply.message,
+reply.createtime AS pushtime
+FROM(
+SELECT
+id
+FROM reply_info
+where id=?) AS rei
+INNER JOIN reply_info AS reply
+ON reply.id = rei.id OR reply.commentid = rei.id AND reply.status=0
+INNER JOIN user AS us
+ON us.id = reply.userid AND us.`status` = 0
+LEFT JOIN user AS replyus
+ON reply.beuserid = replyus.id AND replyus.`status` = 0
+left join (SELECT BlockUserId FROM block_info WHERE userid=?) AS bli # 20191118 增加评论列表黑名单过滤
+ON bli.BlockUserId=reply.userid
+where bli.BlockUserId is null
+ORDER BY reply.id DESC
+'''
+
+    reply_list_result = await dbins.select(reply_list_sql, (did, myid))
+    if not reply_list_result:
+        return False, 3001, '获取评论列表错误,错误的内容', None
+    result_list = list()
+    for reply in reply_list_result:
+        # 添加主评论
+        pt = reply.get('pushtime').strftime('%Y-%m-%d %H:%M:%S')
+        reply.update(pushtime=pt)
+
+        if myid == reply.get('userid', -1):
+            # 是否是自己发布的内容
+            reply.setdefault('ismyid', True)
+        else:
+            reply.setdefault('ismyid', False)
+
+        if reply.get('commentid') == 0:
+            # 主评论
+            reply.setdefault('subreplylist',[])
+            result_list.append(reply)
+    if len(reply_list_result) != 1:
+        for mainreply in result_list:
+            # 给主评论添加子评论
+            for re in reply_list_result:
+                if mainreply.get('id') == re.get('commentid'):
+                    if re.get('beuserid') == mainreply.get('userid'):
+                        # 不是回复的,被回复人消息设置为0;
+                        re.update(bereplynickname=None)
+                    mainreply.get('subreplylist').append(re)
+        result_list = result_list[0]
+    else:
+        result_list = {}
+
+    return True, 0, 'success', result_list
+
 async def get_recipe_shows_list(recipeid, pagenum=1, epage=20):
     ''' 菜谱 厨艺秀 查看全部 动态列表 '''
     sucess, code, msg, show_base_list = await get_recipe_shows(recipeid, pagenum, epage)

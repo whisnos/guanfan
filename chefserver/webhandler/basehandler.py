@@ -46,8 +46,19 @@ class BaseHandler(tornado.web.RequestHandler):
         responsedict.setdefault('message', msg)
         responsedict.setdefault('result', result)
         self.write(responsedict)
-        raise tornado.web.Finish()
+        tornado.web.Finish()
         # return self.finish()
+
+    def send_msg(self, success, code, msg='ok', result=None):
+        '''send error message'''
+        responsedict = {}
+        responsedict.setdefault('success', success)
+        responsedict.setdefault('code', code)
+        responsedict.setdefault('message', msg)
+        responsedict.setdefault('result', result)
+        self.write(responsedict)
+        # tornado.web.Finish()
+        return self.finish()
 
     def set_default_headers(self):
         ''' 设置header头部解决跨域 '''
@@ -143,6 +154,27 @@ class BaseHandler(tornado.web.RequestHandler):
 
         return value
 
+    def verify_arg_num(self, value, description, **kwargs):
+        ''' 校验参数是否合法 '''
+        value = value.strip()
+        if kwargs.get('ucklist'):
+            # 列表内容校验
+            if value not in kwargs.get('user_check_list'):
+                return self.send_msg(False, 1996, '操作失败! {} 内容不合法'.format(description))
+
+        if kwargs.get('is_num'):
+            # 判断是否是纯数字
+            try:
+                if isinstance(value, str):
+                    return int(value)
+                else:
+                    return self.send_msg(False, 1995, '操作失败! {} 不是数字'.format(description))
+            except ValueError as e:
+                return self.send_msg(False, 1997, '操作失败! {} 不是数字'.format(description))
+
+
+
+
     def get_session(self):
         # 返回用户的会话
         if hasattr(self, 'token_session'):
@@ -208,6 +240,7 @@ def check_login(func):
     :param func:
     :return:
     """
+
     async def wrapper(self, *args, **kwargs):
         # if self.request.query_arguments.get('token',False) is False:
         #     self.send_message(False, 2001, '参数错误,请先登录')
@@ -229,4 +262,5 @@ def check_login(func):
             return await func(self, *args, **kwargs)
         else:
             self.send_message(False, 9999, '请先登录')
+
     return wrapper

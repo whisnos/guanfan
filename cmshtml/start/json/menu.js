@@ -66,9 +66,20 @@
     },
     {
       "name": "app/user/",
-      "title": "用户",
+      "title": "用户管理",
       "icon": "layui-icon-component",
-      "jump": "app/user/list"
+      "list": [
+        {
+          "name": "app.user.list",
+          "title": "用户详情",
+          "jump": "app/user/user/list"
+        },
+        {
+          "name": "app.master.list",
+          "title": "达人认证",
+          "jump": "app/user/master/list"
+        }
+      ]
     }
   ]
 }

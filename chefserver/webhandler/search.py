@@ -18,11 +18,11 @@ class SearchHandler(BaseHandler):
         else:
             myid = user_session.get('id',0)
 
-        keyword = self.verify_arg_legal(self.get_body_argument('key'), '食谱名', True, s_len=True, olen=80)
+        keyword = self.verify_arg_legal(self.get_body_argument('key'), '食谱名', True, s_len=True, olen=80, is_not_null=True)
         sort = self.verify_arg_legal(self.get_body_argument('sort'), '排序类型', False, is_num=True, uchecklist=True, user_check_list=['1','2','3'])
         page = self.verify_arg_legal(self.get_body_argument('page'), '页数', False, is_num=True)
-        if len(keyword)<2:
-            return self.send_message(False, 1002, '搜索的关键词过短', None)
+        # if len(keyword)<2:
+        #     return self.send_message(False, 1002, '搜索的关键词过短', None)
             
         await add_hotkeyword(keyword)
         await add_key_history(myid, keyword)
@@ -90,7 +90,7 @@ async def search_keyword_recipe(keyword, sort_type, pagenum, epage=10):
     (collectioncount + visitcount) as total,
     createtime
     from recipe_info
-    where MATCH (title, tagKey) AGAINST (? IN NATURAL LANGUAGE MODE) and `status` in (0,1) and isEnable=1
+    where MATCH (title, tagKey) AGAINST (? IN BOOLEAN MODE) and `status` in (0,1) and isEnable=1
     order by total desc,id desc limit ?, ?
     ) as search
     inner join user as us
@@ -110,7 +110,7 @@ async def search_keyword_recipe(keyword, sort_type, pagenum, epage=10):
     collectioncount as collections,
     createtime
     from recipe_info
-    where MATCH (title, tagKey) AGAINST (? IN NATURAL LANGUAGE MODE) and `status` in (0,1) and isEnable=1
+    where MATCH (title, tagKey) AGAINST (? IN BOOLEAN MODE) and `status` in (0,1) and isEnable=1
     order by collections desc,id desc limit ?, ?
     ) as search
     inner join user as us
@@ -130,14 +130,14 @@ async def search_keyword_recipe(keyword, sort_type, pagenum, epage=10):
     collectioncount as collections,
     createtime
     from recipe_info
-    where MATCH (title, tagKey) AGAINST (? IN NATURAL LANGUAGE MODE) and `status` in (0,1) and isEnable=1
+    where MATCH (title, tagKey) AGAINST (? IN BOOLEAN MODE) and `status` in (0,1) and isEnable=1
     order by createtime desc,id desc limit ?, ?
     ) as search
     inner join user as us
     on us.id = search.userid and us.`status`=0
     order by createtime desc
     '''
-    languate_result = await dbins.select(search_keywrod_language_mode, (keyword, page, epage))
+    languate_result = await dbins.select(search_keywrod_language_mode, ('*'+keyword+'*', page, epage))
     if languate_result is None:
         log.error('自然搜索执行错误:{} {} {}'.format(keyword, page, epage))
         return []
@@ -356,11 +356,11 @@ async def add_hotkeyword(keyword):
         # 新词
         ins_key_sql = '''
         INSERT INTO hot_keyword
-        (keyword, visitCount, updateTime, createTime)
+        (keyword, visitCount, updateTime, createTime, sort, status)
         VALUES
-        (?,         ?,          ?,          ?)
+        (?,         ?,          ?,          ?,          ?,          ?)
         '''
-        ins_res = await dbins.execute(ins_key_sql, (keyword, 1, curtime, curtime))
+        ins_res = await dbins.execute(ins_key_sql, (keyword, 1, curtime, curtime, 0, 0))
         if ins_res is None:
             return False, 3002, '添加搜索词异常,请重试', None
         else:
@@ -386,7 +386,7 @@ async def get_hotkeyword(pagenum=0, epage=10):
     page = 0 if pagenum-1 <= 0 else pagenum-1
     page = page*epage
     sql = '''
-    select keyword from hot_keyword order by visitCount desc limit ?,?
+    select keyword from hot_keyword where status=0 order by visitCount desc limit ?,?
     '''
     result = await dbins.select(sql, (page, epage))
     if result is None:
@@ -428,6 +428,115 @@ order by total desc limit 1
     else:
         return ''
 
+
+class SearchMomentHandler(BaseHandler):
+    ''' 搜索动态 '''
+
+    async def post(self):
+        myid = 0  # 0 未关注 1 已关注 2 互相关注
+        user_session = await self.get_login()
+        if user_session is False:
+            # 未登录
+            myid = 0
+        else:
+            myid = user_session.get('id', 0)
+
+        keyword = self.verify_arg_legal(self.get_body_argument('key'), '动态名', True, s_len=True, olen=80,
+                                        is_not_null=True)
+        sort = self.verify_arg_legal(self.get_body_argument('sort'), '排序类型', False, is_num=True, uchecklist=True,
+                                     user_check_list=['1', '2', '3'])
+        page = self.verify_arg_legal(self.get_body_argument('page'), '页数', False, is_num=True)
+
+        await add_hotkeyword(keyword)
+        await add_key_history(myid, keyword)
+        result = await search_keyword_moment(keyword, int(sort), int(page))
+        delrepeatlist = []
+        temp_list = []
+        for i in result:
+            sid = i.get('id')
+            if sid not in temp_list:
+                temp_list.append(sid)
+                delrepeatlist.append(i)
+        return self.send_message(True, 0, 'success', delrepeatlist)
+
+async def search_keyword_moment(keyword, sort_type, pagenum, epage=10):
+    ''' 搜索动态, sort_type 1 综合最佳(收藏数+浏览数) 2 最多点赞 3 最新发布：发布时间按最新到最旧 '''
+    page = 0 if pagenum-1 <= 0 else pagenum-1
+    page = page*epage
+
+    if sort_type == 1:
+            # 综合最佳
+        search_keywrod_language_mode = '''
+select
+us.userName as nickname,
+us.headImg as faceImg,
+search.*
+from
+(
+SELECT id, userId, momentsDescription, momentsImgUrl as mmimg, 
+likeCount as collections,
+(likeCount + visitcount) as total,
+createtime
+from moments_info
+where MATCH (momentsDescription) AGAINST (? in boolean mode) and `status`=0
+order by total desc,id desc limit ?, ?
+) as search
+inner join user as us
+on us.id = search.userId and us.`status`=0
+order by total desc
+        '''
+    if sort_type == 2:
+            # 最多点赞
+        search_keywrod_language_mode = '''
+    select
+us.userName as nickname,
+us.headImg as faceImg,
+search.*
+from
+(
+SELECT id, userId, momentsDescription, momentsImgUrl as mmimg, 
+likeCount as collections,
+(likeCount + visitcount) as total,
+createtime
+from moments_info
+where MATCH (momentsDescription) AGAINST (? in boolean mode) and `status`=0
+order by collections desc,id desc limit ?, ?
+) as search
+inner join user as us
+on us.id = search.userid and us.`status`=0
+order by collections desc
+        '''
+    if sort_type == 3:
+            # 最新发布
+        search_keywrod_language_mode = '''
+select
+us.userName as nickname,
+us.headImg as faceImg,
+search.*
+from
+(
+SELECT id, userId, momentsDescription, momentsImgUrl as mmimg, 
+likeCount as collections,
+(likeCount + visitcount) as total,
+createtime
+from moments_info
+where MATCH (momentsDescription) AGAINST (? in boolean mode) and `status`=0
+order by createtime desc,id desc limit ?, ?
+) as search
+inner join user as us
+on us.id = search.userid and us.`status`=0
+order by createtime desc
+    '''
+    languate_result = await dbins.select(search_keywrod_language_mode, ('*'+keyword+'*', page, epage))
+    if languate_result is None:
+        log.error('自然搜索执行错误:{} {} {}'.format(keyword, page, epage))
+        return []
+
+    for p in languate_result:
+        ct = p.get('createtime')
+        p['createtime'] = ct.strftime('%Y-%m-%d %H:%M:%S')
+
+    return languate_result
 
 if __name__ == '__main__':
     async def test_get_hotkeyword():

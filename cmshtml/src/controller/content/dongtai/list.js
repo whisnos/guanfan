@@ -82,17 +82,18 @@ layui.define(['table', 'form', 'layer'], function (exports) {
                 dongtai_del(data, index);
             });
         } else if  (obj.event === 'dongtaiset'){
-          if (parseInt(data.likecount) <= 8){
-            layer.msg('点赞数量不能小于8');
-            // layer.close(index);
-          }else{
+          // if (parseInt(data.likecount) <= 8){
+          //   layer.msg('点赞数量不能小于8');
+          //   // layer.close(index);
+          // }else{
+            {
             layer.prompt({title: '修改动态点赞数量', value:data.likecount,sort:'输入点赞数量', formType: 3}, function(pass, index){
-              if (parseInt(pass) > 8){
+              // if (parseInt(pass) > 8){
                 // console.log(parseInt(pass));
                 dongtai_set_likenum({'id':data.id,'likeCount':parseInt(pass)}, index);
-              }else{
-                layer.msg('点赞数量不能小于8');
-              }
+              // }else{
+              //   layer.msg('点赞数量不能小于8');
+              // }
               // layer.close(index);
           });
           }
