@@ -36,6 +36,7 @@ class Tao_Channel_Info(BaseModel):
     type = IntegerField(choices=CHANNEL_TYPE, default=0, verbose_name='频道类型')
     status = SmallIntegerField(default=0, verbose_name='状态')
     is_banner = BooleanField(default=False, verbose_name='是否轮播')
+    is_top = BooleanField(default=False, verbose_name='是否top')
     updateTime = DateTimeField(default=datetime.now, verbose_name="更新时间")
 
 
