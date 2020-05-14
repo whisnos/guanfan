@@ -88,7 +88,7 @@ class TaoIndexChannelInfoAllHandler(BaseHandler):
 async def get_all_channel():
     ''' 获取所有分类 '''
     classinfo_sql = '''
-select id,name,level,iconImg,pid_id,materialId,recommendId,is_banner,sort
+select id,name,level,iconImg,pid_id,materialId,recommendId,is_banner,is_top,sort
 from tao_channel_info
 where status=0 order by sort desc
 '''
