@@ -290,9 +290,11 @@ class RestApi(object):
 
         sign_parameter = public_parameter.copy()
         sign_parameter.update(application_parameter)
-
-        public_parameter["sign"] = self.get_Taobao_Sign(sign_parameter)
-        response = await requests.post('http://gw.api.taobao.com/router/rest', params=public_parameter)
+        print('sign_parameter', sign_parameter)
+        sign_parameter["sign"] = self.get_Taobao_Sign(sign_parameter)
+        # sign_parameter["sign"] =sign(TAO_APP_SECRET,sign_parameter)
+        print('sign_parameter',sign_parameter)
+        response = await requests.post('http://gw.api.taobao.com/router/rest', params=sign_parameter)
         text = await response.text()
         if response.status is not 200:
             raise RequestException('invalid http status ' + str(response.status) + ',detail body:' + text)
@@ -300,11 +302,11 @@ class RestApi(object):
         # for a in text:
         #     print(99,a)
         jsonobj = json.loads(text)
+        print('jsonobj',jsonobj)
         if "error_response" in jsonobj.keys():
             print("error_response...............首次获取失败，进入3次获取")
             res = await self.repeat_try(data,public_parameter)
             return res
-        print('jsonobj',jsonobj)
         return jsonobj
 
     def getApplicationParameters(self):
@@ -315,7 +317,7 @@ class RestApi(object):
                 if (key.startswith("_")):
                     application_parameter[key[1:]] = value
                 else:
-                    application_parameter[key] = value
+                    application_parameter[key] = str(value)
         # 查询翻译字典来规避一些关键字属性
         translate_parameter = self.getTranslateParas()
         for key, value in application_parameter.items():

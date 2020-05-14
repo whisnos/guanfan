@@ -6,6 +6,7 @@ from chefserver.top.api.TbkCouponGetRequest import TbkCouponGetRequest
 from chefserver.top.api.TbkDgMaterialOptionalRequest import TbkDgMaterialOptionalRequest
 from chefserver.top.api.TbkDgOptimusMaterialRequest import TbkDgOptimusMaterialRequest
 from chefserver.top.api.TbkItemInfoGetRequest import TbkItemInfoGetRequest
+from chefserver.top.api.TbkSpreadGetRequest import TbkSpreadGetRequest
 from chefserver.webhandler.basehandler import BaseHandler, check_login
 from chefserver.tool.tooltime import curDatetime
 from chefserver.tool.dbpool import DbOperate
@@ -87,12 +88,12 @@ class TaoIndexChannelInfoAllHandler(BaseHandler):
 async def get_all_channel():
     ''' 获取所有分类 '''
     classinfo_sql = '''
-select id,name,level,iconImg,pid_id,materialId,sort
+select id,name,level,iconImg,pid_id,materialId,recommendId,is_banner,sort
 from tao_channel_info
-order by sort desc
+where status=0 order by sort desc
 '''
     classinfo_result = await dbins.select(classinfo_sql, ())
-    if classinfo_result is None:
+    if not classinfo_result:
         return False, 404, '列表数据为空', None
 
     # print(classinfo_result[:5])
@@ -189,7 +190,7 @@ class TaoIndexItemInfoAllHandler(BaseHandler):
         result.appent()
         return self.send_message(True, 0, '获取成功', result)
 
-
+import urllib.parse
 class TaoFootPrintAllHandler(BaseHandler):
     '''足迹'''
 
@@ -210,6 +211,8 @@ class TaoFootPrintAllHandler(BaseHandler):
         for wrap in collects_wrappers:
             item_list.append(wrap.itemId)
             item_dict[wrap.itemId]=wrap.createTime.strftime('%Y-%m-%d %H:%M:%S')
+            item_dict[str(wrap.itemId)+"Id"] = wrap.id
+            item_dict[str(wrap.itemId) + "Content"] = wrap.content
         new_str = ','.join(item_list)
         # 进行批量请求淘宝数据
         status, adzone_id, tbk_req = await check_tbk_promote(self, client, TbkItemInfoGetRequest,False)
@@ -226,6 +229,8 @@ class TaoFootPrintAllHandler(BaseHandler):
         for item in result:
             item_time = item_dict[str(item['num_iid'])]
             item['createTime']=item_time
+            item['id'] = item_dict[str(item['num_iid'])+"Id"]
+            item['coupon_share_url'] = item_dict[str(item['num_iid']) + "Content"]
         return self.send_message(True, 0, '操作成功', result)
 
     @check_login
@@ -233,12 +238,14 @@ class TaoFootPrintAllHandler(BaseHandler):
         result = []
         userid = self.get_session().get('id', 0)
         itemid = self.verify_arg_legal(self.get_body_argument('itemid'), '商品id', False, )
+        coupon_share_url = self.verify_arg_legal(self.get_body_argument('coupon_share_url'), '商品二合一链接', False, )
         type = self.verify_arg_num(self.get_body_argument('type'), '足迹 or 收藏', is_num=True, ucklist=True,
                                    user_check_list=['0', '1'])
         data_dict = {
             "user_id": userid,
             "itemId": itemid,
             "type": type,
+            "content":""
         }
         try:
             collect_obj = await self.application.objects.get(Tao_Collect_Info, user_id=userid, itemId=itemid,
@@ -246,6 +253,21 @@ class TaoFootPrintAllHandler(BaseHandler):
             await self.application.objects.delete(collect_obj)
         except Tao_Collect_Info.DoesNotExist:
             pass
+        # 转链处理
+        tbk_req = TbkSpreadGetRequest(KEY=TAO_APP_KEY, SECRET=TAO_APP_SECRET)
+        url = "http:"+coupon_share_url
+        s = urllib.parse.unquote(url)
+        tbk_req.requests = [{"url": s}]
+        res = await tbk_req.getResponse()
+        if 'domain is not support' in str(res):
+            for i in range(1, 4):
+                res = await tbk_req.getResponse()
+                if 'domain is not support' not in str(res):
+                    data_dict['content']=res['tbk_spread_get_response']['results']['tbk_spread'][0]['content']
+        if 'domain is not support' not in str(res):
+            data_dict['content'] = res['tbk_spread_get_response']['results']['tbk_spread'][0]['content']
+        else:
+            data_dict["content"] = s
         await self.application.objects.create(Tao_Collect_Info, **data_dict)
 
         return self.send_message(True, 0, '操作成功', result)

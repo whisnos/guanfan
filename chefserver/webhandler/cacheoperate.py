@@ -50,7 +50,7 @@ class CacheRecommedDongtai(CacheBase):
     def __init__(self):
         super(CacheRecommedDongtai, self).__init__()
         self.basekey = "recommenddongtai"
-        self.exprie_time = 3600 * 12
+        self.exprie_time = 300
 
     async def exists(self):
         result = await self.redis.exists(self.basekey)

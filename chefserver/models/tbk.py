@@ -28,11 +28,14 @@ class Tao_Promote_Info(BaseModel):
 class Tao_Channel_Info(BaseModel):
     name = CharField(verbose_name="频道名称")
     iconImg = CharField(max_length=200, null=True, verbose_name="封面图")
-    materialId = CharField(verbose_name="物料id")
+    materialId = CharField(max_length=20, verbose_name="物料id")
+    recommendId = CharField(max_length=20, null=True, verbose_name="物料id")
     pid = ForeignKeyField('self', null=True, verbose_name="父级id", backref='channels')
     sort = IntegerField(default=0, verbose_name='排序')
     level = IntegerField(choices=CHANNEL_LEVEL, verbose_name='分类等级')
     type = IntegerField(choices=CHANNEL_TYPE, default=0, verbose_name='频道类型')
+    status = SmallIntegerField(default=0, verbose_name='状态')
+    is_banner = BooleanField(default=False, verbose_name='是否轮播')
     updateTime = DateTimeField(default=datetime.now, verbose_name="更新时间")
 
 
@@ -41,6 +44,7 @@ class Tao_Banner_Info(BaseModel):
     content = CharField(max_length=200, verbose_name="转链")
     img = CharField(max_length=200, verbose_name="封面图")
     sort = IntegerField(default=0, verbose_name='排序')
+    backColor = CharField(max_length=15, null=True, verbose_name="背景色")
     status = SmallIntegerField(default=0, verbose_name='状态')
 
 class Tao_Recommend_Info(BaseModel):
@@ -60,6 +64,7 @@ class Tao_Collect_Info(BaseModel):
     user = ForeignKeyField(User, verbose_name="所属用户", backref="user_collects")
     itemId = CharField(max_length=50, verbose_name="商品id")
     type = SmallIntegerField(choices=COLLECT_TYPE, verbose_name='类型')
+    content = CharField(max_length=700,null=True, verbose_name="转链")
     status = SmallIntegerField(default=0, verbose_name='状态')
     # is_delete = BooleanField(default=False, verbose_name="是否删除")
     updateTime = DateTimeField(default=datetime.now, verbose_name="更新时间")
