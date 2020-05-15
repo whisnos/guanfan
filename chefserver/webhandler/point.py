@@ -596,7 +596,7 @@ class MyAddressDetailSinHandler(BaseHandler):
                     detail_dict['is_default'] = ad.is_default
                     result.append(detail_dict)
             success, code, message, result = True, 0, '获取成功', result
-            return self.send_message(success, code, message, result)
+            return self.send_message(success, code, message, detail_dict)
         else:
             return self.send_message(False, 404, '地址为空', result)
 
