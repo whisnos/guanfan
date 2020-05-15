@@ -436,7 +436,7 @@ class MyAddressHandler(BaseHandler):
             success, code, message, result = True, 0, '获取成功', result
             return self.send_message(success, code, message, result)
         else:
-            return self.send_message(False, 404, '地址为空', result)
+            return self.send_message(True, 200, '地址为空', result)
 
     @check_login
     async def post(self):
@@ -598,7 +598,7 @@ class MyAddressDetailSinHandler(BaseHandler):
             success, code, message, result = True, 0, '获取成功', result
             return self.send_message(success, code, message, detail_dict)
         else:
-            return self.send_message(False, 404, '地址为空', result)
+            return self.send_message(True, 404, '地址为空', result)
 
 
 class MyAddressDeleteHandler(BaseHandler):
@@ -662,7 +662,7 @@ class MyAddressDetailHandler(BaseHandler):
             success, code, message, result = True, 0, '获取成功', result
             return self.send_message(success, code, message, result)
         else:
-            return self.send_message(False, 400, '没有默认地址', result)
+            return self.send_message(True, 400, '没有默认地址', result)
 
     @check_login
     async def post(self):
