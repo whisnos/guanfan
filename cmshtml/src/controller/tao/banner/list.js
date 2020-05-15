@@ -20,7 +20,7 @@ layui.define(['table', 'form'], function(exports){
     //删除海报
     admin.req({
       type: 'post',
-      url: '/api/banner/del', //海报编辑
+      url: '/api/taobanner/del', //海报编辑
       data: data,
       success: function (result) {
           if (result.success) {
@@ -39,7 +39,7 @@ layui.define(['table', 'form'], function(exports){
     console.log("banner")
     admin.req({
       type: 'post',
-      url: '/api/banner/edit', //海报编辑
+      url: '/api/taobanner/edit', //海报编辑
       data:data,
       success: function (result) {
           if (result.success) {
@@ -70,8 +70,9 @@ layui.define(['table', 'form'], function(exports){
       ,{field: 'content', title: '跳转链接', width: 100}
       // ,{field: 'type', title: '类型', templet: '#banner_type_Tpl', align: 'center'}
       ,{field: 'sort', title: '排序', width: 100, sort: true}
+      ,{field: 'backColor', title: '背景色', align: 'center'}
       ,{field: 'createTime', title: '上传时间', sort: true}
-      ,{field: 'status', title: '发布状态', templet: '#buttonTpl', minWidth: 80, width: 100, align: 'center'}
+      // ,{field: 'status', title: '发布状态', templet: '#buttonTpl', minWidth: 80, width: 100, align: 'center'}
       ,{title: '操作', minWidth: 150, align: 'center', fixed: 'right', toolbar: '#table-content-list'}
     ]]
     ,page: true
@@ -107,7 +108,7 @@ layui.define(['table', 'form'], function(exports){
         ,area: ['550px', '650px']
         ,id: 'LAY-popup-content-edit'
         ,success: function(layero, index){
-          view(this.id).render('app/recommend/banner/listform', data).done(function(){
+          view(this.id).render('app/tao/banner/listform', data).done(function(){
             form.render(null, 'layuiadmin-app-form-list');
             //监听提交
             form.on('submit(layuiadmin-app-form-submit)', function(data){

@@ -92,7 +92,7 @@
           ,area: ['550px', '650px']
           ,id: 'LAY-popup-content-add'
           ,success: function(layero, index){
-            view(this.id).render('app/recommend/banner/listform').done(function(){
+            view(this.id).render('app/tao/banner/listform').done(function(){
               form.render(null, 'layuiadmin-app-form-list');
               
               //监听提交
@@ -124,7 +124,7 @@
       //添加海报
       admin.req({
         type: 'post',
-        url: '/api/banner/add', //海报编辑
+        url: '/api/taobanner/add', //海报编辑
         data:data,
         success: function (result) {
             if (result.success) {
@@ -146,7 +146,7 @@
       //del
       admin.req({
         type: 'post',
-        url: '/api/banner/del', //海报编辑
+        url: '/api/taobanner/del', //海报编辑
         data: data,
         success: function (result) {
             if (result.success) {
