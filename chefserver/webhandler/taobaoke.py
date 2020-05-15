@@ -151,7 +151,7 @@ class TaoIndexMaterialSearchAllHandler(BaseHandler):
 
         status, adzone_id, tbk_req = await check_tbk_promote(self, client, TbkDgOptimusMaterialRequest,True)
         if not status:
-            return self.send_msg(False, 400, '推广位获取失败，请重试.', '')
+            return self.send_msg(False, 400, '推广位获取失败，请重试.', [])
 
         data = {
             "adzone_id": adzone_id,
@@ -160,7 +160,7 @@ class TaoIndexMaterialSearchAllHandler(BaseHandler):
         }
         res = await tbk_req.getResponse(data=data)
         if not res:
-            return self.send_message(False, 400, '获取失败，请重试.', res)
+            return self.send_message(False, 400, '获取失败，请重试.', [])
         result = res['tbk_dg_optimus_material_response']['result_list']['map_data']
         return self.send_message(True, 0, '获取成功', result)
 
@@ -209,16 +209,16 @@ class TaoFootPrintAllHandler(BaseHandler):
         item_list = []
         item_dict ={}
         for wrap in collects_wrappers:
-            item_list.append(wrap.itemId)
+            # item_list.append(wrap.itemId)
             item_list.insert(0, wrap.itemId)
-            item_dict[wrap.itemId]=wrap.createTime.strftime('%Y-%m-%d %H:%M:%S')
-            item_dict[str(wrap.itemId)+"Id"] = wrap.id
-            item_dict[str(wrap.itemId) + "Content"] = wrap.content
+            # item_dict[wrap.itemId]=wrap.createTime.strftime('%Y-%m-%d %H:%M:%S')
+            # item_dict[str(wrap.itemId)+"Id"] = wrap.id
+            # item_dict[str(wrap.itemId) + "Content"] = wrap.content
 
-        #     item_dict[wrap.itemId]={}
-        #     item_dict[wrap.itemId][str(wrap.itemId)+"Id"] = wrap.id
-        #     item_dict[wrap.itemId][str(wrap.itemId) + "Content"] = wrap.content
-        # print('item_dict',item_dict)
+            item_dict[wrap.itemId]={}
+            item_dict[wrap.itemId][str(wrap.itemId) + "Time"] = wrap.createTime.strftime('%Y-%m-%d %H:%M:%S')
+            item_dict[wrap.itemId][str(wrap.itemId)+"Id"] = wrap.id
+            item_dict[wrap.itemId][str(wrap.itemId) + "Content"] = wrap.content
         new_str = ','.join(item_list)
         # 进行批量请求淘宝数据
         status, adzone_id, tbk_req = await check_tbk_promote(self, client, TbkItemInfoGetRequest,False)
@@ -232,12 +232,21 @@ class TaoFootPrintAllHandler(BaseHandler):
         if not res:
             return self.send_message(False, 400, '获取失败，请重试.', False)
         result = res['tbk_item_info_get_response']['results']['n_tbk_item']
-        for item in result:
-            item_time = item_dict[str(item['num_iid'])]
-            item['createTime']=item_time
-            item['id'] = item_dict[str(item['num_iid'])+"Id"]
-            item['coupon_share_url'] = item_dict[str(item['num_iid']) + "Content"]
-        return self.send_message(True, 0, '操作成功', result)
+        new_r = []
+        for itemid in item_list:
+            for r in result:
+                if itemid == str(r["num_iid"]):
+                    item_time = item_dict[itemid][str(r['num_iid']) + "Time"]
+                    r['createTime']=item_time
+                    r['id'] = item_dict[itemid][str(r['num_iid'])+"Id"]
+                    r['coupon_share_url'] = item_dict[itemid][str(r['num_iid']) + "Content"]
+                    new_r.append(r)
+        # for item in result:
+        #     item_time = item_dict[str(item['num_iid'])]
+        #     item['createTime']=item_time
+        #     item['id'] = item_dict[str(item['num_iid'])+"Id"]
+        #     item['coupon_share_url'] = item_dict[str(item['num_iid']) + "Content"]
+        return self.send_message(True, 0, '操作成功', new_r)
 
     @check_login
     async def post(self):
