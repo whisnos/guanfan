@@ -210,6 +210,7 @@ class TaoFootPrintAllHandler(BaseHandler):
         item_dict ={}
         for wrap in collects_wrappers:
             item_list.append(wrap.itemId)
+            # item_list.insert(0, wrap.itemId)
             item_dict[wrap.itemId]=wrap.createTime.strftime('%Y-%m-%d %H:%M:%S')
             item_dict[str(wrap.itemId)+"Id"] = wrap.id
             item_dict[str(wrap.itemId) + "Content"] = wrap.content
@@ -257,6 +258,7 @@ class TaoFootPrintAllHandler(BaseHandler):
         tbk_req = TbkSpreadGetRequest(KEY=TAO_APP_KEY, SECRET=TAO_APP_SECRET)
         url = "http:"+coupon_share_url
         s = urllib.parse.unquote(url)
+        print('s',s)
         tbk_req.requests = [{"url": s}]
         res = await tbk_req.getResponse()
         if 'domain is not support' in str(res):
@@ -276,9 +278,9 @@ class TaoFootPrintAllHandler(BaseHandler):
     async def delete(self, *args, **kwargs):
         result = []
         userid = self.get_session().get('id', 0)
-        did = self.get_body_argument('did','')
-        alldelete = self.get_body_argument('alldelete','')
-        type = self.get_body_argument('type','')
+        did = self.verify_arg_num(self.get_body_argument('did','0'),'id', is_num=True)
+        alldelete = self.verify_arg_num(self.get_body_argument('alldelete','0'),'alldelete', is_num=True)
+        type = self.verify_arg_num(self.get_body_argument('type','0'),'type', is_num=True)
         if did:
             try:
                 collect_obj = await self.application.objects.get(Tao_Collect_Info, id=did, status=0)
@@ -286,7 +288,7 @@ class TaoFootPrintAllHandler(BaseHandler):
                 await self.application.objects.update(collect_obj)
             except Tao_Collect_Info.DoesNotExist:
                 return self.send_message(False, 404, '操作对象不存在', result)
-        if alldelete and type:
+        elif alldelete and type:
             collect_query = Tao_Collect_Info.select().where(Tao_Collect_Info.user_id == userid,
                                                             Tao_Collect_Info.type == int(type),
                                                             Tao_Collect_Info.status == 0)
@@ -294,6 +296,8 @@ class TaoFootPrintAllHandler(BaseHandler):
             for wrap in collects_wrappers:
                 wrap.status = -1
                 await self.application.objects.update(wrap)
+        else:
+            return self.send_message(False, 400, '参数错误', result)
         return self.send_message(True, 0, '操作成功', result)
 
 
