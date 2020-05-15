@@ -273,6 +273,7 @@ class RestApi(object):
             response = await requests.post('http://gw.api.taobao.com/router/rest', params=public_parameter)
             text = await response.text()
             jsonobj = json.loads(text)
+            # print('jsonobj', jsonobj)
             if "error_response" not in jsonobj.keys():
                 print("error_response...............首次获取失败，进入3次获取")
                 return jsonobj
@@ -302,6 +303,7 @@ class RestApi(object):
             print("error_response...............首次获取失败，进入3次获取")
             res = await self.repeat_try(data,public_parameter)
             return res
+        # print('jsonobj',jsonobj)
         return jsonobj
 
     def getApplicationParameters(self):
