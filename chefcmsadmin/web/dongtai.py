@@ -122,21 +122,30 @@ async def dongtai_list(arg_dict):
 
     dongtai_list_sql = '''
     SELECT
-    id,
-    userid,
-    momentsdescription,
-    momentsimgurl,
-    momentsvideourl,
-    isvideo,
-    type,
-    itemid,
-    likecount,
-    status,
-    updatetime,
-    createtime
+        mom.id,
+        mom.userid,
+        mom.momentsdescription,
+        total.heat,
+        mom.momentsimgurl,
+        mom.momentsvideourl,
+        total.title,
+        mom.isvideo,
+        mom.type,
+        mom.itemid,
+        mom.likecount,
+        mom.status,
+        mom.updatetime,
+        mom.createtime
     FROM
-    moments_info
+    moments_info AS mom
+    LEFT JOIN
+			(select chmore.momentId, GROUP_CONCAT(chin.title) as title, (IFNULL(any_value(chin.visitCount),0) + IFNULL(Count(chmore.channelId), 0)) as heat from channel_info chin
+			LEFT JOIN channel_moment_relation chmore
+			on chin.id = chmore.channelId
+			GROUP BY chmore.momentId) as total
+		on mom.id = total.momentId
     {}
+    ORDER BY mom.id
     limit ?,?
     '''.format(where_str)
     wvalue_list.append(page)
