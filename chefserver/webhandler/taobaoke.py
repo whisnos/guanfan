@@ -274,13 +274,42 @@ class TaoFootPrintAllHandler(BaseHandler):
 
         return self.send_message(True, 0, '操作成功', result)
 
+    # @check_login
+    # async def delete(self, *args, **kwargs):
+    #     result = []
+    #     userid = self.get_session().get('id', 0)
+    #     did = self.verify_arg_num(self.get_body_argument('did','0'),'id', is_num=True)
+    #     alldelete = self.verify_arg_num(self.get_body_argument('alldelete','0'),'alldelete', is_num=True)
+    #     type = self.verify_arg_num(self.get_body_argument('type','0'),'type', is_num=True)
+    #     if did:
+    #         try:
+    #             collect_obj = await self.application.objects.get(Tao_Collect_Info, id=did, status=0)
+    #             collect_obj.status = -1
+    #             await self.application.objects.update(collect_obj)
+    #         except Tao_Collect_Info.DoesNotExist:
+    #             return self.send_message(False, 404, '操作对象不存在', result)
+    #     elif alldelete and type:
+    #         collect_query = Tao_Collect_Info.select().where(Tao_Collect_Info.user_id == userid,
+    #                                                         Tao_Collect_Info.type == int(type),
+    #                                                         Tao_Collect_Info.status == 0)
+    #         collects_wrappers = await self.application.objects.execute(collect_query)
+    #         for wrap in collects_wrappers:
+    #             wrap.status = -1
+    #             await self.application.objects.update(wrap)
+    #     else:
+    #         return self.send_message(False, 400, '参数错误', result)
+    #     return self.send_message(True, 0, '操作成功', result)
+
+
+class TaoFootPDeleteAllHandler(BaseHandler):
+
     @check_login
-    async def delete(self, *args, **kwargs):
+    async def post(self, *args, **kwargs):
         result = []
         userid = self.get_session().get('id', 0)
-        did = self.verify_arg_num(self.get_body_argument('did','0'),'id', is_num=True)
-        alldelete = self.verify_arg_num(self.get_body_argument('alldelete','0'),'alldelete', is_num=True)
-        type = self.verify_arg_num(self.get_body_argument('type','0'),'type', is_num=True)
+        did = self.verify_arg_num(self.get_body_argument('did', '0'), 'id', is_num=True)
+        alldelete = self.verify_arg_num(self.get_body_argument('alldelete', '0'), 'alldelete', is_num=True)
+        type = self.verify_arg_num(self.get_body_argument('type', '0'), 'type', is_num=True)
         if did:
             try:
                 collect_obj = await self.application.objects.get(Tao_Collect_Info, id=did, status=0)
@@ -288,7 +317,7 @@ class TaoFootPrintAllHandler(BaseHandler):
                 await self.application.objects.update(collect_obj)
             except Tao_Collect_Info.DoesNotExist:
                 return self.send_message(False, 404, '操作对象不存在', result)
-        elif alldelete and type:
+        elif alldelete and str(type):
             collect_query = Tao_Collect_Info.select().where(Tao_Collect_Info.user_id == userid,
                                                             Tao_Collect_Info.type == int(type),
                                                             Tao_Collect_Info.status == 0)
@@ -299,7 +328,6 @@ class TaoFootPrintAllHandler(BaseHandler):
         else:
             return self.send_message(False, 400, '参数错误', result)
         return self.send_message(True, 0, '操作成功', result)
-
 
 class TaoBannerAllHandler(BaseHandler):
     '''轮播图'''
