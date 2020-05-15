@@ -16,3 +16,15 @@ backup/
 __main__.py
 
 
+cmshtml/start/layui/css/
+chefcmsadmin/callback_pub_key_v1.pem
+chefcmsadmin/web/osscallbackserver_newfail.py
+cmshtml/start/layui/lay/modules/
+cmshtml/src/style/dtree/
+cmshtml/start/json/
+cmshtml/start/layui/font/
+cmshtml/start/layui/lay/
+cmshtml/start/layui/layui.all.js
+cmshtml/start/layui/layui.js
+chefcmsadmin/web/backup_osscallbackserver.py
+chefcmsadmin/web/backup_osscallbackserver_newfail.py
