@@ -496,7 +496,7 @@ class MyAddressHandler(BaseHandler):
         pid = self.verify_arg_num(self.get_body_argument('pid'), '省id', is_num=True, )
         cid = self.verify_arg_num(self.get_body_argument('cid'), '市id', is_num=True, )
         aid = self.verify_arg_num(self.get_body_argument('aid'), '县区id', is_num=True, )
-        address = self.verify_arg_legal(self.get_body_argument('address'), '详细地址', False, is_len=50, )
+        address = self.verify_arg_legal(self.get_body_argument('address'), '详细地址', False, is_len=True, olen=50)
         is_default = self.verify_arg_num(self.get_body_argument('is_default'), '是否默认', is_num=True)
 
         try:

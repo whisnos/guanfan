@@ -46,8 +46,8 @@ class BaseHandler(tornado.web.RequestHandler):
         responsedict.setdefault('message', msg)
         responsedict.setdefault('result', result)
         self.write(responsedict)
-        tornado.web.Finish()
-        # return self.finish()
+        # tornado.web.Finish()
+        return self.finish()
 
     def send_msg(self, success, code, msg='ok', result=None):
         '''send error message'''
