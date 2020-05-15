@@ -555,6 +555,25 @@ class MyAddressHandler(BaseHandler):
         return self.send_message(success, code, message, result)
 
 
+
+class MyAddressDeleteHandler(BaseHandler):
+    ''' 删除 地址 '''
+    @check_login
+    async def post(self, *args, **kwargs):
+        result = []
+        userid = self.get_session().get('id', 0)
+        did = self.verify_arg_legal(self.get_body_argument('did'), '地址id', False, is_num=True)
+        # self.verify_arg_num(self.get_body_argument('is_delete'), '是否默认', is_num=True)
+        try:
+            add_obj = await self.application.objects.get(My_Address, id=did, is_delete=False, user_id=userid)
+        except My_Address.DoesNotExist:
+            return self.send_message(False, 404, '地址不存在', result)
+        add_obj.is_delete = True
+        await self.application.objects.update(add_obj)
+        success, code, message, result = True, 0, '删除成功', result
+        return self.send_message(success, code, message, result)
+
+
 class MyAddressDetailHandler(BaseHandler):
     ''' 创建 修改 删除 地址 '''
 

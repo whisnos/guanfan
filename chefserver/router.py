@@ -1,9 +1,10 @@
 ﻿from chefserver.webhandler.food_channel import ChannelListHandler
 from chefserver.webhandler.point import MyPointHandler, MyPointBillHandler, MyPointProductHandler, \
     ProductPointDetailHandler, MyPointMyExchangeHandler, MyExchangeDetailHandler, AddressDetailHandler, \
-    MyAddressHandler, MyAddressDetailHandler, MyPointPorderHandler, MyPointCmOrderHandler
+    MyAddressHandler, MyAddressDetailHandler, MyPointPorderHandler, MyPointCmOrderHandler, MyAddressDeleteHandler
 from chefserver.webhandler.taobaoke import TaoIndexSearchHandler, TaoIndexChannelInfoAllHandler, \
-    TaoIndexMaterialSearchAllHandler, TaoIndexItemInfoAllHandler, TaoFootPrintAllHandler, TaoBannerAllHandler
+    TaoIndexMaterialSearchAllHandler, TaoIndexItemInfoAllHandler, TaoFootPrintAllHandler, TaoBannerAllHandler, \
+    TaoFootPDeleteAllHandler
 from chefserver.webhandler.user import LoginHandler,SendSmsHandler,RestPasswordHandler
 from chefserver.webhandler.user import ModifyPhonedHandler,LogoutHandler,PersonInfoHandler
 from chefserver.webhandler.user import ModifyInfoHandler, SubmitAdvancedHandler,RegisterHandler
@@ -169,12 +170,14 @@ def make_app():
         (r"/mypoint/exchange", MyPointMyExchangeHandler),        # 积分-我的兑换
         (r"/address/detail", AddressDetailHandler),              # 地址-省市区获取
         (r"/my/address", MyAddressHandler),                      # 地址-省市区获取 get post put delete
+        (r"/my/adddel", MyAddressDeleteHandler),                 # 地址-  delete
         (r"/detail/address", MyAddressDetailHandler),            # 地址-获取默认地址
         (r"/tbk/search", TaoIndexSearchHandler),                 # tbk-首页搜索
         (r"/tbk/channel", TaoIndexChannelInfoAllHandler),        # tbk-频道获取
         (r"/tbk/materials", TaoIndexMaterialSearchAllHandler),   # tbk-物料搜索
         (r"/tbk/iteminfo", TaoIndexItemInfoAllHandler),          # tbk-商品详情
         (r"/tbk/footprint", TaoFootPrintAllHandler),             # tbk-足迹
+        (r"/tbk/footpdel", TaoFootPDeleteAllHandler),             # tbk-足迹
         (r"/tbk/banner", TaoBannerAllHandler),                   # tbk-首页轮播图
         (r"/test", TestHandler),                                 # 测试接口
         ],
