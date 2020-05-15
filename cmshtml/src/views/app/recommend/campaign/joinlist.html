@@ -17,11 +17,16 @@
                 </div>
             </div>
             <div class="layui-inline">
-                <button class="layui-btn layuiadmin-btn-list" lay-submit lay-filter="cms-recommend-campaign-join-search-submit">
+                    <button class="layui-btn layuiadmin-btn-list" lay-submit lay-filter="cms-recommend-campaign-join-search-submit">
                     <i class="layui-icon layui-icon-search layuiadmin-button-btn"></i>查询
                 </button>
             </div>
-        </div>
+<!--            <div class="layui-inline">-->
+<!--              <button lay-submi lay-filter="exportExcel" id="LAY-api-campaign-join-list" type="button" class="layui-btn layuiadmin-btn-list" >-->
+<!--                  <i class="layui-icon layui-icon-download-circle layuiadmin-button-btn"></i>Excel导出-->
+<!--              </button>-->
+<!--            </div>-->
+            </div>
         <div class="layui-card-body">
             <script type="text/html" template lay-done="layui.data.handler_recomend_campaign_join_table(d.params)">
                 <table id="LAY-cms-recommend-campaign-join-list" lay-filter="LAY-cms-recommend-campaign-join-list"></table>
@@ -51,5 +56,7 @@
         var form = layui.form;
         form.render(null, 'cms-campaign-content-search-form');
     });
-    layui.use('recommend/campaign/contentlist', layui.factory('recommend/campaign/contentlist'));
+    // layui.use('recommend/campaign/contentlist', layui.factory('recommend/campaign/contentlist'));
+    layui.use('recommend/campaign/joinlist', layui.factory('recommend/campaign/joinlist'));
+
 </script>
