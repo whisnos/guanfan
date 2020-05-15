@@ -50,7 +50,7 @@ class TaoIndexSearchHandler(BaseHandler):
         if not res:
             return self.send_msg(False, 400, '商品获取失败，请重试.', res)
         result = res['tbk_dg_material_optional_response']['result_list']['map_data']
-        return self.send_msg('success', 0, '获取成功', result)
+        return self.send_msg(True, 0, '获取成功', result)
 
 
 async def check_tbk_promote(self,client, TbkRequest, is_promote,):
@@ -94,7 +94,7 @@ where status=0 order by sort desc
 '''
     classinfo_result = await dbins.select(classinfo_sql, ())
     if not classinfo_result:
-        return False, 404, '列表数据为空', None
+        return True, 404, '列表数据为空', None
 
     # print(classinfo_result[:5])
 
@@ -205,7 +205,7 @@ class TaoFootPrintAllHandler(BaseHandler):
         collect_query = Tao_Collect_Info.select().where(Tao_Collect_Info.user_id==userid, Tao_Collect_Info.type==type,Tao_Collect_Info.status==0).paginate(int(page), PAGE_SIZE)
         collects_wrappers = await self.application.objects.execute(collect_query)
         if not collects_wrappers:
-            return self.send_msg(False, 400, '没有产品.', '')
+            return self.send_msg(True, 400, '没有产品.', '')
         item_list = []
         item_dict ={}
         for wrap in collects_wrappers:
@@ -341,7 +341,7 @@ class TaoBannerAllHandler(BaseHandler):
         banner_query = Tao_Banner_Info.select().order_by(Tao_Banner_Info.sort.desc()).where(Tao_Banner_Info.status==0)
         banners_wrappers = await self.application.objects.execute(banner_query)
         if not banners_wrappers:
-            return self.send_msg(False, 400, '没有轮播图', False)
+            return self.send_msg(True, 400, '没有轮播图', [])
         result = []
         for wrap in banners_wrappers:
             banner_dict = model_to_dict(wrap)
