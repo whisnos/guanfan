@@ -1,7 +1,8 @@
 ﻿from chefserver.webhandler.food_channel import ChannelListHandler
 from chefserver.webhandler.point import MyPointHandler, MyPointBillHandler, MyPointProductHandler, \
     ProductPointDetailHandler, MyPointMyExchangeHandler, MyExchangeDetailHandler, AddressDetailHandler, \
-    MyAddressHandler, MyAddressDetailHandler, MyPointPorderHandler, MyPointCmOrderHandler, MyAddressDeleteHandler
+    MyAddressHandler, MyAddressDetailHandler, MyPointPorderHandler, MyPointCmOrderHandler, MyAddressDeleteHandler, \
+    MyAddressDetailSinHandler
 from chefserver.webhandler.taobaoke import TaoIndexSearchHandler, TaoIndexChannelInfoAllHandler, \
     TaoIndexMaterialSearchAllHandler, TaoIndexItemInfoAllHandler, TaoFootPrintAllHandler, TaoBannerAllHandler, \
     TaoFootPDeleteAllHandler
@@ -171,6 +172,7 @@ def make_app():
         (r"/address/detail", AddressDetailHandler),              # 地址-省市区获取
         (r"/my/address", MyAddressHandler),                      # 地址-省市区获取 get post put delete
         (r"/my/adddel", MyAddressDeleteHandler),                 # 地址-  delete
+        (r"/my/adddetail", MyAddressDetailSinHandler),           # 地址-  获取某个地址
         (r"/detail/address", MyAddressDetailHandler),            # 地址-获取默认地址
         (r"/tbk/search", TaoIndexSearchHandler),                 # tbk-首页搜索
         (r"/tbk/channel", TaoIndexChannelInfoAllHandler),        # tbk-频道获取

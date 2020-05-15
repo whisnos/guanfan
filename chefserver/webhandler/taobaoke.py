@@ -210,10 +210,15 @@ class TaoFootPrintAllHandler(BaseHandler):
         item_dict ={}
         for wrap in collects_wrappers:
             item_list.append(wrap.itemId)
-            # item_list.insert(0, wrap.itemId)
+            item_list.insert(0, wrap.itemId)
             item_dict[wrap.itemId]=wrap.createTime.strftime('%Y-%m-%d %H:%M:%S')
             item_dict[str(wrap.itemId)+"Id"] = wrap.id
             item_dict[str(wrap.itemId) + "Content"] = wrap.content
+
+        #     item_dict[wrap.itemId]={}
+        #     item_dict[wrap.itemId][str(wrap.itemId)+"Id"] = wrap.id
+        #     item_dict[wrap.itemId][str(wrap.itemId) + "Content"] = wrap.content
+        # print('item_dict',item_dict)
         new_str = ','.join(item_list)
         # 进行批量请求淘宝数据
         status, adzone_id, tbk_req = await check_tbk_promote(self, client, TbkItemInfoGetRequest,False)
