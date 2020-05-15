@@ -563,7 +563,7 @@ class MyAddressDetailSinHandler(BaseHandler):
     async def get(self):
         result = []
         userid = self.get_session().get('id', 0)
-        did = self.verify_arg_legal(self.get_body_argument('did'), '地址id', False, is_num=True)
+        did = self.verify_arg_legal(self.get_argument('did'), '地址id', False, is_num=True)
         my_address_query = My_Address.select().order_by(My_Address.id.desc()).where(My_Address.user_id == userid,My_Address.id==did)
         address_wrappers = await self.application.objects.execute(my_address_query)
         if address_wrappers:
