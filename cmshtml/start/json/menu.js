@@ -51,6 +51,18 @@
           "jump": "app/content/dongtai/list"
         },
         {
+          "name": "app.dongtai.list",
+          "title": "频道管理",
+          "icon": "layui-icon-component",
+          "jump": "app/content/channel/list"
+        },
+        {
+          "name": "app.trending.list",
+          "title": "热搜管理",
+          "icon": "layui-icon-component",
+          "jump": "app/content/trending/list"
+        },
+        {
           "name": "app.report.list",
           "title": "举报管理",
           "icon": "layui-icon-component",
@@ -78,6 +90,50 @@
           "name": "app.master.list",
           "title": "达人认证",
           "jump": "app/user/master/list"
+        }
+      ]
+    },
+    {
+      "name": "app/opt/",
+      "title": "运营设置",
+      "icon": "layui-icon-component",
+      "list": [
+        {
+          "name": "app.point.list",
+          "title": "积分设置",
+          "jump": "app/opt/point/list"
+        },
+        {
+          "name": "app.award.list",
+          "title": "积分奖品设置",
+          "jump": "app/opt/award/list"
+        },
+        {
+          "name": "app.award.order",
+          "title": "奖品兑换订单",
+          "jump": "app/opt/order/list"
+        }
+      ]
+    },
+    {
+      "name": "app/tao/",
+      "title": "管淘系统",
+      "icon": "layui-icon-component",
+      "list": [
+        {
+          "name": "app.banner.list",
+          "title": "淘海报管理",
+          "jump": "app/tao/banner/list"
+        },
+        {
+          "name": "app.channel.list",
+          "title": "淘频道管理",
+          "jump": "app/tao/channel/list"
+        },
+        {
+          "name": "app.tao.classinfo",
+          "title": "淘频道分类",
+          "jump": "app/tao/classinfo/index"
         }
       ]
     }
