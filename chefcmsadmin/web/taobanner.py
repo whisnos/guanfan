@@ -49,22 +49,16 @@ class TaoBannerDeleteHandler(BaseHandler):
 async def taobanner_add(arg_dict):
     ''' 增加 '''
     insert_sql='''
-    INSERT INTO taobanner
+    INSERT INTO tao_banner_info
     (
     title,
-    taobannerimg,
-    linkurl,
-    recipeid,
-    type,
+    img,
+    backColor,
     sort,
-    channel,
     status
     )
     VALUES
     (
-    ?,
-    ?,
-    ?,
     ?,
     ?,
     ?,
@@ -74,12 +68,9 @@ async def taobanner_add(arg_dict):
     '''
     insert_result = await dbins.execute(insert_sql, (
         arg_dict.get('title'),
-        arg_dict.get('taobannerimg'),
-        arg_dict.get('linkurl'),
-        arg_dict.get('recipeid'),
-        arg_dict.get('type'),
+        arg_dict.get('img'),
+        arg_dict.get('backColor'),
         arg_dict.get('sort'),
-        arg_dict.get('channel'),
         1 if arg_dict.get('status') == "on" else 0,
         ))
     if insert_result is None:
@@ -90,26 +81,22 @@ async def taobanner_add(arg_dict):
 async def taobanner_edit(arg_dict):
     ''' 修改 '''
     edit_sql = '''
-    UPDATE taobanner
+    UPDATE tao_banner_info
     set
     title = ?,
-    taobannerimg = ?,
-    linkurl = ?,
-    recipeid = ?,
-    type = ?,
+    img = ?,
+    content = ?,
+    backColor = ?,
     sort = ?,
-    channel = ?,
     status = ?
     where id = ?
     '''
     up_result = await dbins.execute(edit_sql, (
         arg_dict.get('title'),
-        arg_dict.get('taobannerimg'),
-        arg_dict.get('linkurl'),
-        arg_dict.get('recipeid'),
-        arg_dict.get('type'),
+        arg_dict.get('img'),
+        arg_dict.get('content'),
+        arg_dict.get('backColor'),
         arg_dict.get('sort'),
-        arg_dict.get('channel'),
         1 if arg_dict.get('status') == "on" else 0,
         arg_dict.get('id')
         ))
@@ -121,7 +108,7 @@ async def taobanner_edit(arg_dict):
 async def taobanner_del(arg_dict):
     ''' 删除 '''
     del_sql = '''
-    UPDATE taobanner
+    UPDATE tao_banner_info
     SET status=-1
     where id = ?
     '''
@@ -182,7 +169,7 @@ async def taobanner_list(arg_dict):
         return 0, None
 
     taobanner_list_sql = '''
-    select id, title, img, content, sort, status, createTime
+    select id, title, img, content, sort, status, backColor, createTime
     from tao_banner_info
     where `status`!=-1
     order by id desc
