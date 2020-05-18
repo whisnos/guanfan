@@ -95,6 +95,7 @@ class Product_Point(BaseModel):
     grade_no = IntegerField(verbose_name='积分数')
     sku_no = IntegerField(verbose_name="库存数")
     front_image = CharField(max_length=200, verbose_name="封面图")
+    status = SmallIntegerField(default=0, verbose_name='状态')
     updatetime = DateTimeField(default=datetime.now, verbose_name="更新时间")
 
 

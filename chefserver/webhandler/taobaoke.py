@@ -133,7 +133,7 @@ where status=0 order by sort desc
         for rtp1 in result_tp01:
             if rtp1.get('id') == crtp2.get('pid_id'):
                 rtp1.get('childlist').append(crtp2)
-    return True, 0, 'success', result_tp01
+    return True, 0, '获取成功', result_tp01
 
 
 class TaoIndexMaterialSearchAllHandler(BaseHandler):
@@ -205,7 +205,7 @@ class TaoFootPrintAllHandler(BaseHandler):
         collect_query = Tao_Collect_Info.select().where(Tao_Collect_Info.user_id==userid, Tao_Collect_Info.type==type,Tao_Collect_Info.status==0).paginate(int(page), PAGE_SIZE)
         collects_wrappers = await self.application.objects.execute(collect_query)
         if not collects_wrappers:
-            return self.send_msg(True, 400, '没有产品.', '')
+            return self.send_msg(True, 400, '没有产品.', [])
         item_list = []
         item_dict ={}
         for wrap in collects_wrappers:

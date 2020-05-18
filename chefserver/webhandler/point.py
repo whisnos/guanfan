@@ -74,9 +74,8 @@ class MyPointProductHandler(BaseHandler):
         result = []
         page = self.verify_arg_legal(self.get_body_argument('page'), '页数', False, is_num=True)
         products_query = Product_Point.select(Product_Point.id, Product_Point.title, Product_Point.grade_no,
-                                              Product_Point.front_image, Product_Point.createTime).order_by(
+                                              Product_Point.front_image, Product_Point.createTime).where(Product_Point.status==0).order_by(
             Product_Point.id.desc()).paginate(int(page), PAGE_SIZE)
-        print('products_query', products_query)
         products = await self.application.objects.execute(products_query)
         for p in products:
             p_dict = model_to_dict(p)
@@ -252,7 +251,7 @@ class MyPointPorderHandler(BaseHandler):
 
 
 class MyPointCmOrderHandler(BaseHandler):
-    ''' 获取兑换订单详情 '''
+    ''' 确认收货 '''
 
     @check_login
     async def post(self):
@@ -263,7 +262,7 @@ class MyPointCmOrderHandler(BaseHandler):
             the_exchange_order = await self.application.objects.get(My_Exchange_Info, user_id=userid, id=did, express_status=1)
             the_exchange_order.express_status = 2
             await self.application.objects.update(the_exchange_order)
-            return self.send_message(False, 0, '收货成功', result)
+            return self.send_message(True, 0, '确认收货成功', result)
         except My_Exchange_Info.DoesNotExist:
             return self.send_message(False, 404, '订单不存在', result)
 
@@ -308,7 +307,7 @@ class MyPointMyExchangeHandler(BaseHandler):
             return self.send_message(success, code, message, result)
 
         else:
-            return self.send_message(False, 404, '订单不存在', result)
+            return self.send_message(True, 404, '订单不存在', result)
 
 
 class MyExchangeDetailHandler(BaseHandler):
