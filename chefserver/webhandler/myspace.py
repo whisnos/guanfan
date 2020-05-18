@@ -22,8 +22,34 @@ class MyspaceIndexHandler(BaseHandler):
         # 更新采购清单数量
         qingdan_num = await get_caipu_qingdan_num(userid)
         result.setdefault('qingdannum', qingdan_num)
+        # 更新积分
+        point_num = await get_use_point_num(userid)
+        result.setdefault('pointnum', point_num)
         return self.send_message(success, code, message, result)
 
+
+async def get_use_point_num(userid):
+    ''' 获取用户个人积分 '''
+    if userid == 0:
+        return 0
+    point_num_sql = '''
+    SELECT point
+    FROM 
+    user_point
+    WHERE user_id=?
+    '''
+    result = await db_ins.selectone(point_num_sql, (userid))
+    if result is None:
+        # 没有生成初始数据
+        insert_sql='''
+        INSERT INTO user_point
+        (point, user_id,createTime)
+        VALUES
+        (?,      ?,      ?)
+        '''
+        await db_ins.selectone(insert_sql, (0, userid, time.strftime('%Y-%m-%d %H:%M:%S')))
+        return 0
+    return result.get('point', 0)
 class FriendSpaceHandler(BaseHandler):
     ''' 好友空间首页 '''
     # @check_login
