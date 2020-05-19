@@ -10,7 +10,7 @@
                 <div class="layui-form" lay-filter="cms-taoclassinfo-edit-form" id="cms-taoclassinfo-edit-form"
                     style="padding: 20px 30px 0 0;">
                     <div class="layui-form-item">
-                        <label class="layui-form-label">分类id</label>
+                        <label class="layui-form-label">分类ID</label>
                         <div class="layui-input-inline">
                         <script type="text/html" template>
                             <label class="layui-form-label" style="text-align:left;">{{ d.params.nodeId || '' }}</label>
@@ -18,19 +18,19 @@
                         </div>
                     </div>
                     <div class="layui-form-item">
-                        <label class="layui-form-label">分类标题</label>
+                        <label class="layui-form-label">频道名称</label>
                         <div class="layui-input-inline">
                         <script type="text/html" template>
-                            <input type="text" name="title" value="{{ d.params.context || '' }}" lay-verify="required" placeholder="请输入标题" autocomplete="off" class="layui-input">
+                            <input type="text" name="name" value="{{ d.params.context || '' }}" lay-verify="required" placeholder="请输入频道名称" autocomplete="off" class="layui-input">
                         </script>
                         </div>
                     </div>
                     <div class="layui-form-item">
-                        <label class="layui-form-label">分类图标</label>
+                        <label class="layui-form-label">频道物料ID</label>
                         <div class="layui-input-inline">
-                            <script type="text/html" template>
-                                <input type="text" name="iconimg" value="{{ d.params.iconimg || '' }}" placeholder="图标(非必填)" autocomplete="off" class="layui-input">
-                            </script>
+                        <script type="text/html" template>
+                            <input type="text" name="materialId" value="{{ d.params.materialId || '' }}" lay-verify="required" placeholder="请输入频道物料ID" autocomplete="off" class="layui-input">
+                        </script>
                         </div>
                     </div>
                     <div class="layui-form-item">
@@ -41,11 +41,51 @@
                             </script>
                         </div>
                     </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">图标地址</label>
+                        <div class="layui-input-inline">
+                            <script type="text/html" template>
+                                <input type="text" name="iconImg" value="{{ d.params.iconImg || '' }}" placeholder="图标(非必填)" autocomplete="off" class="layui-input">
+                            </script>
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                      <label class="layui-form-label"></label>
+                      <div class="layui-input-inline">
+                        <script type="text/html" template>
+                          <button class="layui-btn" id="uploadfiletaochannel">上传频道图标</button>
+                        </script>
+                      </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">是否包含轮播</label>
+                        <div class="layui-input-inline">
+                            <script type="text/html" template>
+                                <input type="text" name="is_banner" value="{{ d.params.is_banner || '' }}" placeholder="轮播(非必填)" autocomplete="off" class="layui-input">
+                            </script>
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">热门推荐ID</label>
+                        <div class="layui-input-inline">
+                            <script type="text/html" template>
+                                <input type="text" name="recommendId" value="{{ d.params.recommendId || '' }}" placeholder="推荐(非必填)" autocomplete="off" class="layui-input">
+                            </script>
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">是否为TOP100</label>
+                        <div class="layui-input-inline">
+                            <script type="text/html" template>
+                                <input type="text" name="is_top" value="{{ d.params.is_top || '' }}" placeholder="TOP100(非必填)" autocomplete="off" class="layui-input">
+                            </script>
+                        </div>
+                    </div>
                     <script type="text/html" template>
-                        <input type="hidden" name="pid" value="{{ d.params.parentId || '0' }}">
+                        <input type="hidden" name="parentId" value="{{ d.params.parentId || '0' }}">
+                        <input type="hidden" name="pid_id" value="{{ d.params.nodeId || '1' }}">
                         <input type="hidden" name="id" value="{{ d.params.nodeId || '0' }}">
-                        
-                        <input type="hidden" name="type" value="{{ d.params.type || '0' }}">
+                        <input type="hidden" name="level" value="{{ d.params.level || '0' }}">
                     </script>
                     <div class="layui-form-item">
                         <label class="layui-form-label"></label>
@@ -60,7 +100,7 @@
                 <div class="layui-form" lay-filter="cms-taoclassinfo-add-form" id="cms-taoclassinfo-add-form"
                     style="padding: 20px 30px 0 0;">
                     <div class="layui-form-item">
-                        <label class="layui-form-label">分类id</label>
+                        <label class="layui-form-label">父类ID</label>
                         <div class="layui-input-inline">
                             <script type="text/html" template>
                                 <label class="layui-form-label" style="text-align:left;">{{ d.params.nodeId || '' }}</label>
@@ -68,7 +108,7 @@
                         </div>
                     </div>
                     <div class="layui-form-item">
-                        <label class="layui-form-label">分类标题</label>
+                        <label class="layui-form-label">父类标题</label>
                         <div class="layui-input-inline">
                             <script type="text/html" template>
                                 <label class="layui-form-label" style="text-align:left;">{{ d.params.context || '' }}</label>
@@ -76,18 +116,18 @@
                         </div>
                     </div>
                     <div class="layui-form-item">
-                        <label class="layui-form-label">子类标题</label>
+                        <label class="layui-form-label">子频道名称</label>
                         <div class="layui-input-inline">
                             <script type="text/html" template>
-                                <input type="text" name="title" value="" lay-verify="required" placeholder="请输入标题" autocomplete="off" class="layui-input">
+                                <input type="text" name="name" value="{{ d.params.context || '' }}" lay-verify="required" placeholder="请输入子频道名称" autocomplete="off" class="layui-input">
                             </script>
                         </div>
                     </div>
                     <div class="layui-form-item">
-                        <label class="layui-form-label">子类图标</label>
+                        <label class="layui-form-label">子频道物料ID</label>
                         <div class="layui-input-inline">
                             <script type="text/html" template>
-                                <input type="text" name="iconimg" value="{{ d.params.iconimg || '' }}" placeholder="图标(非必填)" autocomplete="off" class="layui-input">
+                                <input type="text" name="materialId" value="{{ d.params.materialId || '' }}" lay-verify="required" placeholder="请输入子频道物料ID" autocomplete="off" class="layui-input">
                             </script>
                         </div>
                     </div>
@@ -99,11 +139,28 @@
                             </script>
                         </div>
                     </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">图标地址</label>
+                        <div class="layui-input-inline">
+                            <script type="text/html" template>
+                                <input type="text" name="iconImg" value="{{ d.params.iconImg || '' }}" placeholder="图标地址" autocomplete="off" class="layui-input">
+                            </script>
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                      <label class="layui-form-label"></label>
+                      <div class="layui-input-inline">
+                        <script type="text/html" template>
+                          <button class="layui-btn" id="uploadfiletaosonchannel">上传子频道图标</button>
+                        </script>
+                      </div>
+                    </div>
 
                 <script type="text/html" template>
-                <input type="hidden" name="pid" value="{{ d.params.parentId || '0' }}">
+                <input type="hidden" name="pId" value="{{ d.params.nodeId || '1' }}">
+                <input type="hidden" name="pid_id" value="{{ d.params.nodeId || '1' }}">
                 <input type="hidden" name="id" value="{{ d.params.nodeId || '0' }}">
-                <input type="hidden" name="type" value="{{ d.params.type+1|| '' }}">
+                <input type="hidden" name="level" value="{{ d.params.level+1|| '' }}">
                 </script>
                     <div class="layui-form-item">
                         <label class="layui-form-label"></label>
@@ -121,7 +178,7 @@
                         <input type="hidden" name="id" value="{{ d.params.nodeId || '0' }}">
                     </script>
                     <div class="layui-form-item">
-                        <label class="layui-form-label">分类id</label>
+                        <label class="layui-form-label">分类ID</label>
                         <div class="layui-input-inline">
                             <script type="text/html" template>
                                 <label class="layui-form-label" style="text-align:left;">{{ d.params.nodeId || '' }}</label>
