@@ -53,9 +53,9 @@ async def taobanner_add(arg_dict):
     (
     title,
     img,
+    content,
     backColor,
-    sort,
-    status
+    sort
     )
     VALUES
     (
@@ -69,9 +69,10 @@ async def taobanner_add(arg_dict):
     insert_result = await dbins.execute(insert_sql, (
         arg_dict.get('title'),
         arg_dict.get('img'),
+        arg_dict.get('content'),
         arg_dict.get('backColor'),
         arg_dict.get('sort'),
-        1 if arg_dict.get('status') == "on" else 0,
+        # 1 if arg_dict.get('status') == "on" else 0,
         ))
     if insert_result is None:
         return 3001 , "添加失败"

@@ -15,6 +15,28 @@ layui.define(['table', 'form'], function(exports){
   ,table = layui.table
   ,form = layui.form;
 
+  $(document).on('click', '#uploadfiletaobanner', function(){
+      admin.popup({
+          title: '上传图片'
+          ,area: ['550px', '450px']
+          ,id: 'LAY-popup-content-oss-fileupload'
+          ,success: function(layero, index){
+              data = {'operate':2}; //上传图片类型,1 动态 2 商品 3 主题 4 海报 5 用户头像 6 高级认证 7 其它
+              view(this.id).render('app/common/ossupload', {'operate':2}).done(function(){
+                  form.render(null, 'layuiadmin-app-oss-fileupload');
+                  //文件上传,监听关闭
+                  form.on('submit(layuiadmin-app-oss-fileupload)', function(data){
+                      var field = data.field; //获取提交的字段
+                      // console.log(field)
+                      if(field.cmsupfiles != ''){
+                          document.getElementById('img').value = field.cmsupfiles.slice(0,-1); // 更新商品图片文件地址
+                      }
+                      layer.close(index); //执行关闭
+                  });
+              });
+          }
+      });
+  });
 
   function banner_del(data){
     //删除海报
@@ -63,14 +85,12 @@ layui.define(['table', 'form'], function(exports){
     ,url: '/api/taobanner/list' //模拟接口
     ,cols: [[
       {type: 'checkbox', fixed: 'left'}
-      ,{field: 'id', width: 100, title: 'id'}
+      ,{field: 'id', width: 100, title: 'ID'}
       ,{field: 'title', title: '海报标题', minWidth: 100}
       ,{field: 'img', title: '海报图片', templet: '#hbimgViewTpl', align: 'center', maxWidth:'100%', maxHeight:'100%'}
-      // ,{field: 'recipeid', title: '商品ID', width: 100}
-      ,{field: 'content', title: '跳转链接', width: 100}
-      // ,{field: 'type', title: '类型', templet: '#banner_type_Tpl', align: 'center'}
       ,{field: 'sort', title: '排序', width: 100, sort: true}
       ,{field: 'backColor', title: '背景色', align: 'center'}
+      ,{field: 'content', title: '跳转链接', width: 100}
       ,{field: 'createTime', title: '上传时间', sort: true}
       // ,{field: 'status', title: '发布状态', templet: '#buttonTpl', minWidth: 80, width: 100, align: 'center'}
       ,{title: '操作', minWidth: 150, align: 'center', fixed: 'right', toolbar: '#table-content-list'}
@@ -149,27 +169,6 @@ layui.define(['table', 'form'], function(exports){
     }
   });
 
-  $(document).on('click', '#uploadfilebanner', function(){
-      admin.popup({
-          title: '上传图片'
-          ,area: ['550px', '450px']
-          ,id: 'LAY-popup-content-oss-fileupload'
-          ,success: function(layero, index){
-              data = {'operate':2}; //上传图片类型,1 动态 2 商品 3 主题 4 海报 5 用户头像 6 高级认证 7 其它
-              view(this.id).render('app/common/ossupload', {'operate':2}).done(function(){
-                  form.render(null, 'layuiadmin-app-oss-fileupload');
-                  //文件上传,监听关闭
-                  form.on('submit(layuiadmin-app-oss-fileupload)', function(data){
-                      var field = data.field; //获取提交的字段
-                      // console.log(field)
-                      if(field.cmsupfiles != ''){
-                          document.getElementById('img').value = field.cmsupfiles.slice(0,-1); // 更新商品图片文件地址
-                      }
-                      layer.close(index); //执行关闭 
-                  });
-              });
-          }
-      });
-  });
+
   exports('/tao/banner/list', {})
 });
