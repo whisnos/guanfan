@@ -5,7 +5,7 @@ from chefserver.config import TOKEN_TIME
 from chefserver.tool.async_redis_pool import RedisOperate
 from chefserver.webhandler.basehandler import BaseHandler, check_login
 from chefserver.webhandler.cacheoperate import CacheUserinfo
-from chefserver.webhandler.publish import delete_dongtai, delete_recipe
+from chefserver.webhandler.publish import delete_dongtai, delete_recipe, update_all_point
 from chefserver.webhandler.common_action import is_my_id
 import time
 
@@ -56,6 +56,9 @@ class ReplyHandler(BaseHandler):
         replyuserid = self.verify_arg_legal(self.get_body_argument('replyuserid'), '被回复userID', False, is_num=True)
         message = self.verify_arg_legal(self.get_body_argument('message'), '评论内容', True, islen=True, olen=200)
         success, code, message, result = await add_reply(userid, itemid, int(itemtype), message, int(commentid), int(beuserid), int(replyid), int(replyuserid))
+        if success:
+            # 处理积分
+            await update_all_point(self, userid, point_type=2, bill_type=3, des='评论')
         return self.send_message(success, code, message, result)
 
 
@@ -559,6 +562,16 @@ async def item_exists(itemid, itemtype):
         if exists_res is None:
             return False
     return True
+
+
+class PointShareHandler(BaseHandler):
+    ''' 分享操作 '''
+    @check_login
+    async def post(self):
+        userid = self.get_session().get('id')
+        # 处理积分
+        await update_all_point(self, userid, point_type=4, bill_type=5, des='分享')
+        return self.send_message(True, 0, '分享成功', {})
 
 
 if __name__ == '__main__':
