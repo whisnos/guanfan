@@ -279,10 +279,11 @@ class MyPointMyExchangeHandler(BaseHandler):
         my_exchange_query = My_Exchange_Info.extend().where(My_Exchange_Info.user_id == userid)
         if sort:
             if sort != '0':
-                my_exchange_query = my_exchange_query.where(My_Exchange_Info.express_status == sort)
+                my_exchange_query = my_exchange_query.where(My_Exchange_Info.express_status == (int(sort)-1))
             else:
                 pass
         my_exchange_query = my_exchange_query.order_by(My_Exchange_Info.id.desc()).paginate(int(page), PAGE_SIZE)
+        print('my_exchange_query',my_exchange_query)
         exchanges_warpper = await self.application.objects.execute(my_exchange_query)
         if exchanges_warpper:
             for ex in exchanges_warpper:
