@@ -351,6 +351,30 @@ class CacheUserPointinfo(CacheBase):
         ''' 创建userinfocache'''
         return await self.updateBasicCache()
 
+    async def get_point_choice(self, type):
+        ''' 获取用户积分动态 发布次数值没有就更新到缓存 '''
+        # await self.createCache()
+        if type == 0:
+            return await self.get_dongtai()
+        elif type == 1:
+            return await self.get_shipu()
+        elif type == 2:
+            return await self.get_pinglun()
+        elif type == 4:
+            return await self.get_share()
+
+    async def set_point_choice(self, type):
+        ''' 设置用户积分动态 发布次数值没有就更新到缓存 '''
+        # await self.createCache()
+        if type == 0:
+            return await self.set_dongtai()
+        elif type == 1:
+            return await self.set_shipu()
+        elif type == 2:
+            return await self.set_pinglun()
+        elif type == 4:
+            return await self.set_share()
+
     async def get_shipu(self, force_update=False):
         ''' 获取用户积分食谱 发布次数值没有就更新到缓存 '''
         # await self.createCache()
@@ -395,10 +419,55 @@ class CacheUserPointinfo(CacheBase):
         ''' 设置动态发布次数+1 '''
         return await self.redis.hash_hincrby(self.key, 'num_dt', value)
 
+    async def get_pinglun(self, force_update=False):
+        ''' 获取用户积分评论 发布次数值没有就更新到缓存 '''
+        # await self.createCache()
+        result = await self.redis.hash_hexists(self.key, 'num_pgl')
+        if result == 1 and force_update is False:
+            # 已存在，返回值
+            return await self.get('num_pgl')
+        else:
+            # 不存在,从数据库中更新
+            result = await self.add(self.key, 'num_pgl', 0)
+            # 设置过期时间
+            rest_today = rest_of_day()
+            await self.exprie(rest_today)
+            if result == 'OK':
+                return 0
+            else:
+                return False
+
+    async def set_pinglun(self, value=1):
+        ''' pinglun+1 '''
+        return await self.redis.hash_hincrby(self.key, 'num_pgl', value)
+
+    async def get_share(self, force_update=False):
+        ''' 获取用户积分分享 发布次数值没有就更新到缓存 '''
+        # await self.createCache()
+        result = await self.redis.hash_hexists(self.key, 'num_she')
+        if result == 1 and force_update is False:
+            # 已存在，返回值
+            return await self.get('num_she')
+        else:
+            # 不存在,从数据库中更新
+            result = await self.add(self.key, 'num_she', 0)
+            # 设置过期时间
+            rest_today = rest_of_day()
+            await self.exprie(rest_today)
+            if result == 'OK':
+                return 0
+            else:
+                return False
+
+    async def set_share(self, value=1):
+        ''' num_she+1 '''
+        return await self.redis.hash_hincrby(self.key, 'num_she', value)
+
     async def updateBasicCache(self):
         ''' 创建 用户相关 hash 缓存'''
         await self.get_dongtai(force_update=True)
         await self.get_shipu(force_update=True)
+        await self.get_share(force_update=True)
         return True
 
 
