@@ -27,7 +27,7 @@
         <label class="layui-form-label">图标地址</label>
         <div class="layui-input-inline">
             <script type="text/html" template>
-                <input type="text" name="iconImg" value="{{ d.params.iconImg || '' }}" placeholder="图标(非必填)" autocomplete="off" class="layui-input">
+                <input type="text" id="iconImg" name="iconImg" value="{{ d.params.iconImg || '' }}" placeholder="图标(非必填)" autocomplete="off" class="layui-input">
             </script>
         </div>
     </div>
@@ -42,8 +42,7 @@
     <div class="layui-form-item">
         <label class="layui-form-label"></label>
         <div class="layui-input-inline">
-            <input type="hidden" name="pid_id" value="1">
-            <input type="hidden" name="pId" value="0">
+            <input type="hidden" name="pid_id" value="0">
             <input type="hidden" name="id" value="0">
             <input type="hidden" name="level" value="1">
         </div>

@@ -55,12 +55,10 @@ async def taoclassinfo_add(arg_dict):
     sort,
     iconImg,
     pid_id,
-    pId,
     `level`
     )
     VALUES
     (
-    ?,
     ?,
     ?,
     ?,
@@ -75,7 +73,6 @@ async def taoclassinfo_add(arg_dict):
         arg_dict.get('sort'),
         arg_dict.get('iconImg'),
         arg_dict.get('pid_id'),
-        arg_dict.get('pId'),
         int(arg_dict.get('level')),
     ))
     if insert_result is None:
@@ -102,11 +99,11 @@ async def taoclassinfo_edit(arg_dict):
     up_result = await dbins.execute(edit_sql, (
         arg_dict.get('name'),
         arg_dict.get('materialId'),
+        arg_dict.get('iconImg'),
+        arg_dict.get('sort'),
         arg_dict.get('is_banner'),
         arg_dict.get('recommendId'),
         arg_dict.get('is_top'),
-        arg_dict.get('iconImg'),
-        arg_dict.get('sort'),
         arg_dict.get('pid_id'),
         curDatetime(),
         arg_dict.get('id'),
@@ -159,7 +156,6 @@ async def taoclassinfo_list(arg_dict):
     recommendId,
     level,
     iconImg,
-    pId,
     pid_id,
     is_banner,
     recommendId,
@@ -178,10 +174,9 @@ async def taoclassinfo_list(arg_dict):
         # dtree格式：{"id":"001","title": "湖南省","checkArr": "0","pId": "0"},
         # 数据库格式：{'id': 1, 'name': '热门', 'level': 1, 'iconimg': None, 'pid_id': 0, 'sort': 999, 'status': 0}
         csub.setdefault("title",csub.pop('name'))
-        csub.setdefault("parentId",csub.pop('pId'))
+        csub.setdefault("parentId",csub.pop('pid_id'))
         csub.setdefault("basicData",{
             # "id": csub.pop('id'),
-            "pid_id": csub.pop('pid_id'),
             "sort": csub.pop('sort'),
             "materialId": csub.pop('materialId'),
             "is_banner": csub.pop('is_banner'),

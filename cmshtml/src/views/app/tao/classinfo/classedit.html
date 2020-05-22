@@ -41,11 +41,23 @@
                             </script>
                         </div>
                     </div>
+                    <script type="text/html" template>
+                      <div class="layui-form-item">
+                        <label class="layui-form-label">频道图</label>
+                        <div class="layui-input-inline">
+                            {{# if(d.params.propertyIsEnumerable('id')){ }}
+                            <img id="iconImg" src="{{ layui.setter.basehost + d.params.iconImg }}" class="cms-list-img" style="width:200px;height:auto;">
+                            {{# }else{ }}
+                            <img id="iconImg" src="" class="cms-list-img" style="width:200px;height:auto;">
+                            {{#  } }}
+                        </div>
+                      </div>
+                    </script>
                     <div class="layui-form-item">
                         <label class="layui-form-label">图标地址</label>
                         <div class="layui-input-inline">
                             <script type="text/html" template>
-                                <input type="text" name="iconImg" value="{{ d.params.iconImg || '' }}" placeholder="图标(非必填)" autocomplete="off" class="layui-input">
+                                <input type="text" id="iconImg" name="iconImg" value="{{ d.params.iconImg || '' }}" placeholder="图标(非必填)" autocomplete="off" class="layui-input">
                             </script>
                         </div>
                     </div>
@@ -61,7 +73,7 @@
                         <label class="layui-form-label">是否包含轮播</label>
                         <div class="layui-input-inline">
                             <script type="text/html" template>
-                                <input type="text" name="is_banner" value="{{ d.params.is_banner || '' }}" placeholder="轮播(非必填)" autocomplete="off" class="layui-input">
+                                <input type="text" name="is_banner" value="{{ d.params.is_banner || '0' }}" placeholder="轮播(非必填)" autocomplete="off" class="layui-input">
                             </script>
                         </div>
                     </div>
@@ -69,7 +81,7 @@
                         <label class="layui-form-label">热门推荐ID</label>
                         <div class="layui-input-inline">
                             <script type="text/html" template>
-                                <input type="text" name="recommendId" value="{{ d.params.recommendId || '' }}" placeholder="推荐(非必填)" autocomplete="off" class="layui-input">
+                                <input type="text" name="recommendId" value="{{ d.params.recommendId || '0' }}" placeholder="推荐(非必填)" autocomplete="off" class="layui-input">
                             </script>
                         </div>
                     </div>
@@ -77,13 +89,12 @@
                         <label class="layui-form-label">是否为TOP100</label>
                         <div class="layui-input-inline">
                             <script type="text/html" template>
-                                <input type="text" name="is_top" value="{{ d.params.is_top || '' }}" placeholder="TOP100(非必填)" autocomplete="off" class="layui-input">
+                                <input type="text" name="is_top" value="{{ d.params.is_top || '0' }}" placeholder="TOP100(非必填)" autocomplete="off" class="layui-input">
                             </script>
                         </div>
                     </div>
                     <script type="text/html" template>
-                        <input type="hidden" name="parentId" value="{{ d.params.parentId || '0' }}">
-                        <input type="hidden" name="pid_id" value="{{ d.params.nodeId || '1' }}">
+                        <input type="hidden" name="pid_id" value="{{ d.params.parentId || '1' }}">
                         <input type="hidden" name="id" value="{{ d.params.nodeId || '0' }}">
                         <input type="hidden" name="level" value="{{ d.params.level || '0' }}">
                     </script>
@@ -139,8 +150,20 @@
                             </script>
                         </div>
                     </div>
+                    <script type="text/html" template>
+                      <div class="layui-form-item">
+                        <label class="layui-form-label">子频道图</label>
+                        <div class="layui-input-inline">
+                            {{# if(d.params.propertyIsEnumerable('id')){ }}
+                            <img id="iconImg" src="{{ layui.setter.basehost + d.params.iconImg }}" class="cms-list-img" style="width:200px;height:auto;">
+                            {{# }else{ }}
+                            <img id="iconImg" src="" class="cms-list-img" style="width:200px;height:auto;">
+                            {{#  } }}
+                        </div>
+                      </div>
+                    </script>
                     <div class="layui-form-item">
-                        <label class="layui-form-label">图标地址</label>
+                        <label class="layui-form-label">子图标地址</label>
                         <div class="layui-input-inline">
                             <script type="text/html" template>
                                 <input type="text" name="iconImg" value="{{ d.params.iconImg || '' }}" placeholder="图标地址" autocomplete="off" class="layui-input">
@@ -157,7 +180,6 @@
                     </div>
 
                 <script type="text/html" template>
-                <input type="hidden" name="pId" value="{{ d.params.nodeId || '1' }}">
                 <input type="hidden" name="pid_id" value="{{ d.params.nodeId || '1' }}">
                 <input type="hidden" name="id" value="{{ d.params.nodeId || '0' }}">
                 <input type="hidden" name="level" value="{{ d.params.level+1|| '' }}">
