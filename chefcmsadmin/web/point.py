@@ -173,31 +173,19 @@ async def point_add(arg_dict):
     insert_sql = '''
     INSERT INTO point_info
     (
-    userid,
-    title,
-    faceimg,
-    maininfourl,
-    introduction,
-    maininfotype,
-    isrecommend,
-    isenable,
+    point_type,
+    grade_no,
     status
     )
     VALUES
     (
-    ?,?,?,?,?,?,?,?,?
+    ?,?,?
     )
     '''
     insert_result = await dbins.execute(insert_sql, (
-        arg_dict.get('userid'),
-        arg_dict.get('title'),
-        arg_dict.get('faceimg'),
-        arg_dict.get('maininfourl'),
-        arg_dict.get('introduction'),
-        1,
-        0,
-        0,
-        0
+        arg_dict.get('point_type'),
+        arg_dict.get('grade_no'),
+        arg_dict.get('status'),
     ))
     if insert_result is None:
         return 3001, "添加失败"
@@ -212,18 +200,21 @@ async def point_edit(arg_dict):
     point_setting ps, 
     point_info pi
     set
+    pi.point_type = ?,
+    pi.grade_no = ?,
     ps.options_type = ?,
     ps.count = ?,
-    pi.`status` = ?,
+    pi.`status` = ?
     where 
-    ps.id = ? and pi.id= ?
+    pi.id= ? and ps.pointinfo_id = ?
     '''
     up_result = await dbins.execute(edit_sql, (
-        arg_dict.get('userid'),
-        arg_dict.get('title'),
-        arg_dict.get('faceimg'),
-        arg_dict.get('maininfourl'),
-        arg_dict.get('introduction'),
+        arg_dict.get('point_type'),
+        arg_dict.get('grade_no'),
+        arg_dict.get('options_type'),
+        arg_dict.get('count'),
+        arg_dict.get('status'),
+        arg_dict.get('id'),
         arg_dict.get('id'),
     ))
     if up_result is None:
@@ -360,6 +351,7 @@ async def point_list(arg_dict):
     point_info pi
     LEFT JOIN point_setting ps
     on ps.pointinfo_id=pi.id
+    where pi.`status` !=-1
     {}
     limit ?,?
     '''.format(where_str)

@@ -1,30 +1,50 @@
 <div class="layui-form" lay-filter="cms-taoclassinfo-node-add-form" id="cms-taoclassinfo-node-add-form" style="padding: 20px 30px 0 0;">
     <div class="layui-form-item">
-        <label class="layui-form-label">节点名称</label>
+        <label class="layui-form-label">频道名称</label>
         <div class="layui-input-inline">
-            <input type="text" name="title" value="" lay-verify="required" placeholder="请输入名称" autocomplete="off" class="layui-input">
+        <script type="text/html" template>
+            <input type="text" name="name" value="{{ d.params.context || '' }}" lay-verify="required" placeholder="请输入频道名称" autocomplete="off" class="layui-input">
+        </script>
         </div>
     </div>
     <div class="layui-form-item">
-        <label class="layui-form-label">子类图标</label>
+        <label class="layui-form-label">频道物料ID</label>
+        <div class="layui-input-inline">
+        <script type="text/html" template>
+            <input type="text" name="materialId" value="{{ d.params.materialId || '' }}" lay-verify="required" placeholder="请输入频道物料ID" autocomplete="off" class="layui-input">
+        </script>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">排序</label>
         <div class="layui-input-inline">
             <script type="text/html" template>
-            <input type="text" name="iconimg" value="{{ d.params.iconimg || '' }}" placeholder="图标(非必填)" autocomplete="off" class="layui-input">
+                <input type="text" name="sort" value="{{ d.params.sort || '0' }}" lay-verify="required" placeholder="请输入排序号" autocomplete="off" class="layui-input">
             </script>
         </div>
     </div>
     <div class="layui-form-item">
-        <label class="layui-form-label">序号</label>
+        <label class="layui-form-label">图标地址</label>
         <div class="layui-input-inline">
-            <input type="text" name="sort" value="999" lay-verify="required" placeholder="请输入排序号" autocomplete="off" class="layui-input">
+            <script type="text/html" template>
+                <input type="text" id="iconImg" name="iconImg" value="{{ d.params.iconImg || '' }}" placeholder="图标(非必填)" autocomplete="off" class="layui-input">
+            </script>
         </div>
+    </div>
+    <div class="layui-form-item">
+      <label class="layui-form-label"></label>
+      <div class="layui-input-inline">
+        <script type="text/html" template>
+          <button class="layui-btn" id="uploadfiletaochannel">上传频道图标</button>
+        </script>
+      </div>
     </div>
     <div class="layui-form-item">
         <label class="layui-form-label"></label>
         <div class="layui-input-inline">
-            <input type="hidden" name="pid" value="0">
+            <input type="hidden" name="pid_id" value="0">
             <input type="hidden" name="id" value="0">
-            <input type="hidden" name="type" value="1">
+            <input type="hidden" name="level" value="1">
         </div>
     </div>
     <div class="layui-form-item">

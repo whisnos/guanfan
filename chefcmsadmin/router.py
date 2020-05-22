@@ -20,7 +20,9 @@ from chefcmsadmin.web.trending import TrendingListHandler, TrendingAddHandler, T
 from chefcmsadmin.web.channel import ChannelAddHandler, ChannelDelHandler, ChannelListHandler, ChannelEditHandler
 from chefcmsadmin.web.point import PointListHandler, PointAddHandler, PointDeleteHandler, PointEditHandler, PointSetHandler
 from chefcmsadmin.web.award import AwardListHandler, AwardAddHandler, AwardDeleteHandler, AwardEditHandler, AwardSetHandler
-from chefcmsadmin.web.order import OrderListHandler, OrderAddHandler, OrderDeleteHandler, OrderEditHandler
+from chefcmsadmin.web.awarddetail import AwardDetailListHandler, AwardDetailAddHandler, AwardDetailDeleteHandler, \
+    AwardDetailEditHandler
+from chefcmsadmin.web.order import OrderListHandler, OrderAddHandler, OrderDeleteHandler, OrderEditHandler, OrderSetHandler
 from chefcmsadmin.web.taobanner import TaoBannerListHandler, TaoBannerAddHandler, TaoBannerDeleteHandler, TaoBannerEditHandler
 from chefcmsadmin.web.taoclassinfo import TaoClassInfoListHandler, TaoClassInfoAddHandler, TaoClassInfoDeleteHandler, TaoClassInfoEditHandler
 from chefcmsadmin.web.taochannel import TaoChannelListHandler, TaoChannelAddHandler, TaoChannelEditHandler, TaoChannelDelHandler
@@ -100,10 +102,15 @@ def make_app():
         (r"/api/award/del",             AwardDeleteHandler),                 # 积分奖品-删除
         (r"/api/award/edit",            AwardEditHandler),                   # 积分奖品-编辑
         (r"/api/award/set",             AwardSetHandler),                    # 积分奖品-设置
+        (r"/api/awarddetail/list",      AwardDetailListHandler),             # 积分奖品详情-列表
+        (r"/api/awarddetail/add",       AwardDetailAddHandler),              # 积分奖品详情-添加
+        (r"/api/awarddetail/del",       AwardDetailDeleteHandler),           # 积分奖品详情-删除
+        (r"/api/awarddetail/edit",      AwardDetailEditHandler),             # 积分奖品详情-编辑
         (r"/api/order/list",            OrderListHandler),                   # 积分奖品兑换订单列表
         (r"/api/order/add",             OrderAddHandler),                    # 积分奖品兑换订单添加
         (r"/api/order/del",             OrderDeleteHandler),                 # 积分奖品兑换订单删除
         (r"/api/order/edit",            OrderEditHandler),                   # 积分奖品兑换订单修改
+        (r"/api/order/set",             OrderSetHandler),                    # 积分奖品兑换订单设置
         (r"/api/channel/list",          ChannelListHandler),                 # 频道-列表
         (r"/api/channel/add",           ChannelAddHandler),                  # 频道-添加
         (r"/api/channel/edit",          ChannelEditHandler),                 # 频道-修改

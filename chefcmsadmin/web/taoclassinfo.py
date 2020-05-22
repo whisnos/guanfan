@@ -51,11 +51,11 @@ async def taoclassinfo_add(arg_dict):
     INSERT INTO tao_channel_info
     (
     name,
-    `type`,
-    pid_id,
-    iconimg,
+    materialId,
     sort,
-    status
+    iconImg,
+    pid_id,
+    `level`
     )
     VALUES
     (
@@ -68,13 +68,13 @@ async def taoclassinfo_add(arg_dict):
     )
     '''
     insert_result = await dbins.execute(insert_sql, (
-        arg_dict.get('title'),
-        int(arg_dict.get('type')),
-        arg_dict.get('id'),
-        arg_dict.get('iconimg'),
+        arg_dict.get('name'),
+        arg_dict.get('materialId'),
         arg_dict.get('sort'),
-        0,
-        ))
+        arg_dict.get('iconImg'),
+        arg_dict.get('pid_id'),
+        int(arg_dict.get('level')),
+    ))
     if insert_result is None:
         return 3001 , "添加失败"
     else:
@@ -86,15 +86,25 @@ async def taoclassinfo_edit(arg_dict):
     UPDATE tao_channel_info
     set
     name = ?,
-    iconimg = ?,
+    materialId = ?,
+    iconImg = ?,
     sort = ?,
+    is_banner = ?,
+    recommendId = ?,
+    is_top = ?,
+    pid_id = ?,
     updatetime = ?
     where id = ?
     '''
     up_result = await dbins.execute(edit_sql, (
-        arg_dict.get('title'),
-        arg_dict.get('iconimg'),
+        arg_dict.get('name'),
+        arg_dict.get('materialId'),
+        arg_dict.get('iconImg'),
         arg_dict.get('sort'),
+        arg_dict.get('is_banner'),
+        arg_dict.get('recommendId'),
+        arg_dict.get('is_top'),
+        arg_dict.get('pid_id'),
         curDatetime(),
         arg_dict.get('id'),
         ))
@@ -141,10 +151,15 @@ async def taoclassinfo_list(arg_dict):
     select 
     id,
     name,
-    type,
+    materialId,
+    is_banner,
+    recommendId,
+    level,
     iconImg,
-    parentId,
     pid_id,
+    is_banner,
+    recommendId,
+    is_top,
     sort,
     status
     from tao_channel_info
@@ -156,14 +171,19 @@ async def taoclassinfo_list(arg_dict):
 
     for csub in blist:
         # 数据格式转换成dtree格式
-        # dtree格式：{"id":"001","title": "湖南省","checkArr": "0","parentId": "0"},
-        # 数据库格式：{'id': 1, 'name': '热门', 'type': 1, 'iconimg': None, 'pid_id': 0, 'sort': 999, 'status': 0}
+        # dtree格式：{"id":"001","title": "湖南省","checkArr": "0","pId": "0"},
+        # 数据库格式：{'id': 1, 'name': '热门', 'level': 1, 'iconimg': None, 'pid_id': 0, 'sort': 999, 'status': 0}
         csub.setdefault("title",csub.pop('name'))
-        csub.setdefault("parentId",csub.pop('parentId'))
+        csub.setdefault("parentId",csub.pop('pid_id'))
         csub.setdefault("basicData",{
-            "sort":csub.pop('sort'),
-            "iconImg":csub.pop('iconImg'),
-            "type":csub.pop('type')
+            # "id": csub.pop('id'),
+            "sort": csub.pop('sort'),
+            "materialId": csub.pop('materialId'),
+            "is_banner": csub.pop('is_banner'),
+            "iconImg": csub.pop('iconImg'),
+            "recommendId": csub.pop('recommendId'),
+            "is_top": csub.pop('is_top'),
+            "level": csub.pop('level')
             })
 
     return blist

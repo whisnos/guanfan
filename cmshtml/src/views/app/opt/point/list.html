@@ -1,136 +1,55 @@
+<title>积分获取规则</title>
 
-
-  <title>积分设置</title>
-
-  <div class="layui-card layadmin-header">
+<div class="layui-card layadmin-header">
     <div class="layui-breadcrumb" lay-filter="breadcrumb">
-      <a>运营</a>
-      <a><cite>积分</cite></a>
-      <a><cite>列表</cite></a>
+        <a lay-href="app/opt/point/list">运营</a>
+        <a><cite>积分</cite></a>
+        <a><cite>列表</cite></a>
     </div>
-  </div>
-
-  <div class="layui-fluid">
+</div>
+<div class="layui-fluid">
     <div class="layui-card">
-      <div class="layui-card-body">
-        <div class="layui-form" lay-filter="cms-opt-point" id="cms-opt-point">
-      积分获取规则
-        <table id="LAY-cms-opt-point-table-list" lay-filter="LAY-cms-opt-point-table-list"></table>
-        <div class="layui-form-item">
-            <label class="layui-form-label">动态</label>
-              <div class="layui-input-inline">
-                <input type="text" name="grade_no" placeholder="请输入" autocomplete="off" class="layui-input" value="">
-              </div>
-          <label class="layui-form-label"></label>
-          <div class="layui-input-block">
-            <div class="layui-form-mid">
-              <input class="layui-input-inline" type="radio" name="options_type" value="1" title="">每天
+        <div class="layui-card-body">
+            <div style="padding-bottom: 10px;">
+                <button class="layui-btn layuiadmin-btn-list" data-type="point_type_add">添加积分获取规则</button>
             </div>
-            <div class="layui-input-inline" style="width: 100px;">
-              <input type="text" name="count" placeholder="待定" autocomplete="off" class="layui-input">
-            </div>
-            <div class="layui-form-mid">次</div>
-            <input type="radio" name="options_type" value="2" title="一次性" checked="">
-            <input type="radio" name="options_type" value="3" title="无限">
-            <button class="layui-btn layuiadmin-btn-list" data-type="point_batchclose">关闭</button>
-          </div>
+            <table id="LAY-cms-opt-point-list" lay-filter="LAY-cms-opt-point-list"></table>
+
+            <script type="text/html" id="opt_point_id_Tpl">
+                <a style="color:blue;" href="#/app/opt/point/list/id={{ d.pointId }}">{{ d.pointId }}</a>
+            </script>
+
+            <script type="text/html" id="opt_point_type_Tpl">
+                {{#  if(d.point_type===0){ }}
+                    <button class="layui-btn layui-btn-xs">动态</button>
+                {{#  }else if(d.point_type===1){ }}
+                    <button class="layui-btn layui-btn-warm layui-btn-xs">食谱</button>
+                {{#  }else if(d.point_type===2){ }}
+                    <button class="layui-btn layui-btn-primary layui-btn-xs" style="color:#cebdbd">评论</button>
+                {{#  }else if(d.point_type===3){ }}
+                    <button class="layui-btn layui-btn-primary layui-btn-xs" style="color:#cebdbd">打赏</button>
+                {{#  }else if(d.point_type===4){ }}
+                    <button class="layui-btn layui-btn-primary layui-btn-xs" style="color:#cebdbd">分享</button>
+                {{#  }else{ }}
+                    <div class="layui-table-cell">未知类型:{{d.point_type}}</div>
+                {{#  } }}
+            </script>
+                      <script type="text/html" id="opt_point_options_type_Tpl">
+                {{#  if(d.options_type===1){ }}
+                    <button class="layui-btn layui-btn-xs">每天 {{d.count}} 次</button>
+                {{#  }else if(d.options_type===3){ }}
+                    <button class="layui-btn layui-btn-primary layui-btn-xs" style="color:#cebdbd">无限</button>
+                {{#  }else{ }}
+                    <button class="layui-btn layui-btn-warm layui-btn-xs">一次性</button>
+                {{#  } }}
+            </script>
+            <script type="text/html" id="toolbar-point-type-opt-list">
+            <a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="point_type_edit"><i class="layui-icon layui-icon-edit"></i>编辑</a>
+            <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="point_type_del"><i class="layui-icon layui-icon-delete"></i>删除</a>
+            </script>
         </div>
-        <div class="layui-form-item">
-            <label class="layui-form-label">食谱</label>
-              <div class="layui-input-inline">
-                <input type="text" name="grade_no" placeholder="请输入" autocomplete="off" class="layui-input" value="">
-              </div>
-
-          <label class="layui-form-label"></label>
-          <div class="layui-input-block">
-            <div class="layui-form-mid">
-              <input class="layui-input-inline" type="radio" name="options_type" value="1" title="">每天
-            </div>
-            <div class="layui-input-inline" style="width: 100px;">
-              <input type="text" name="count" placeholder="待定" autocomplete="off" class="layui-input">
-            </div>
-            <div class="layui-form-mid">次</div>
-
-            <input type="radio" name="options_type" value="2" title="一次性" checked="">
-            <input type="radio" name="options_type" value="3" title="无限">
-            <button class="layui-btn layuiadmin-btn-list" data-type="point_batchclose">关闭</button>
-          </div>
-        </div>
-        <div class="layui-form-item">
-            <label class="layui-form-label">评论</label>
-              <div class="layui-input-inline">
-                <input type="text" name="grade_no" placeholder="请输入" autocomplete="off" class="layui-input" value="">
-              </div>
-
-          <label class="layui-form-label"></label>
-          <div class="layui-input-block">
-            <div class="layui-form-mid">
-              <input class="layui-input-inline" type="radio" name="options_type" value="1" title="">每天
-            </div>
-            <div class="layui-input-inline" style="width: 100px;">
-              <input type="text" name="count" placeholder="待定" autocomplete="off" class="layui-input">
-            </div>
-            <div class="layui-form-mid">次</div>
-
-            <input type="radio" name="options_type" value="2" title="一次性" checked="">
-            <input type="radio" name="options_type" value="3" title="无限">
-            <button class="layui-btn layuiadmin-btn-list" data-type="point_batchclose">关闭</button>
-          </div>
-        </div>
-        <div class="layui-form-item">
-            <label class="layui-form-label">打赏</label>
-              <div class="layui-input-inline">
-                <input type="text" name="grade_no" placeholder="请输入" autocomplete="off" class="layui-input" value="">
-              </div>
-
-          <label class="layui-form-label"></label>
-          <div class="layui-input-block">
-            <div class="layui-form-mid">
-              <input class="layui-input-inline" type="radio" name="options_type" value="1" title="">每天
-            </div>
-            <div class="layui-input-inline" style="width: 100px;">
-              <input type="text" name="count" placeholder="待定" autocomplete="off" class="layui-input">
-            </div>
-            <div class="layui-form-mid">次</div>
-
-            <input type="radio" name="options_type" value="2" title="一次性" checked="">
-            <input type="radio" name="options_type" value="3" title="无限">
-            <button class="layui-btn layuiadmin-btn-list" data-type="point_batchclose">关闭</button>
-          </div>
-        </div>
-        <div class="layui-form-item">
-            <label class="layui-form-label">分享</label>
-              <div class="layui-input-inline">
-                <input type="text" name="grade_no" placeholder="请输入" autocomplete="off" class="layui-input" value="">
-              </div>
-
-          <label class="layui-form-label"></label>
-          <div class="layui-input-block">
-            <div class="layui-form-mid">
-              <input class="layui-input-inline" type="radio" name="options_type" value="1" title="">每天
-            </div>
-            <div class="layui-input-inline" style="width: 100px;">
-              <input type="text" name="count" placeholder="待定" autocomplete="off" class="layui-input">
-            </div>
-            <div class="layui-form-mid">次</div>
-
-            <input type="radio" name="options_type" value="2" title="一次性" checked="">
-            <input type="radio" name="options_type" value="3" title="无限">
-            <button class="layui-btn layuiadmin-btn-list" data-type="point_batchclose">关闭</button>
-          </div>
-        </div>
-        </div>
-      </div>
-    <div class="layui-form-item">
-      <label class="layui-form-label"></label>
-      <div class="layui-input-inline">
-        <input type="button" lay-submit lay-filter="layuiadmin-app-form-submit" value="确认" class="layui-btn">
-      </div>
     </div>
-    </div>
-  </div>
-
-
+</div>
 <script>
-  layui.use('opt/point/point_list', layui.factory('opt/point/point_list'));
+    layui.use('opt/point/point_list', layui.factory('opt/point/point_list'));
 </script>

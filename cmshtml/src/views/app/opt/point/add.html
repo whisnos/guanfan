@@ -1,0 +1,39 @@
+<div class="layui-form" lay-filter="cms-recommend-recomtopic-edit-form" id="cms-recommend-recomtopic-edit-form"
+    style="padding: 20px 30px 0 0;">
+    <div class="layui-form-item">
+        <label class="layui-form-label">积分类型</label>
+        <div class="layui-input-inline">
+            <script type="text/html" template>
+              <input type="text" name="point_type" value="{{ d.params.point_type || '' }}" lay-verify="required|inputlength" placeholder="0:动态,1:食谱" autocomplete="off" class="layui-input">
+            </script>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">积分数量</label>
+        <div class="layui-input-inline">
+            <script type="text/html" template>
+                <input type="text" name="grade_no" value="{{ d.params.grade_no || '0' }}" lay-verify="required|number|sortnum" placeholder="请输入积分数量" autocomplete="off" class="layui-input">
+            </script>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">积分状态</label>
+        <div class="layui-input-inline">
+            <script type="text/html" template>
+                <input type="text" name="status" value="{{ d.params.status || '0' }}" lay-verify="required|number|sortnum" placeholder="请输入积分状态" autocomplete="off" class="layui-input">
+            </script>
+        </div>
+    </div>
+
+    <script type="text/html" template lay-done="layui.data.done(d.params);">
+        <input type="hidden" name="id" value="{{ d.params.id || '' }}">
+    </script>
+
+    <div class="layui-form-item">
+        <label class="layui-form-label"></label>
+        <div class="layui-input-inline">
+            <input type="button" lay-submit lay-filter="cms-opt-point-add-form-submit" value="确认"
+                class="layui-btn">
+        </div>
+    </div>
+</div>

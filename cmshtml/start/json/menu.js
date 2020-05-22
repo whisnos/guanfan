@@ -126,11 +126,6 @@
           "jump": "app/tao/banner/list"
         },
         {
-          "name": "app.channel.list",
-          "title": "淘频道管理",
-          "jump": "app/tao/channel/list"
-        },
-        {
           "name": "app.tao.classinfo",
           "title": "淘频道分类",
           "jump": "app/tao/classinfo/index"

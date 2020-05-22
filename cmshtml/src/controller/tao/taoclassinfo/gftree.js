@@ -5,86 +5,7 @@ layui.define(['index','form', 'dtree'], function(exports){
   ,index = layui.index
   ,form= layui.form
   ,dtree = layui.dtree;
-  // var DemoTree = null;
-  // var DemoTree = dtree.render({
-  //   elem: "#demoTree",
-  //   url: "/api/class/list",
-  //   method: "get",
-  //   initLevel: "1",
-  //   dataFormat: "list",  //配置data的风格为list
-  //   line:true,
-  //   toolbar:true,
-  //   toolbarStyle: {
-  //     title: "分类",
-  //     area: ["50%", "400px"]
-  //   },
-  //   toolbarShow:[], // 默认按钮制空
-  //   toolbarExt:[{toolbarId: "Addclassinfo",icon:"dtree-icon-wefill",title:"新增类型",handler: function(node,$div){
-  //       layer.msg(JSON.stringify(node));
-  //       // 你可以在此添加一个layer.open，里面天上你需要添加的表单元素，就跟你写新增页面是一样的
-  //       layer.open({
-  //         success: function(layero, index){
-  //           form.render();
-  //           form.on("submit(addNode_form)",function(data){// 假设form的filter为addNode_form
-  //             console.log(data.field);// 从form中取值，数据来源由你自己定
 
-  //             var json = {"id":data.field.addId,"title": data.field.addNodeName,"parentId": node.nodeId};
-  //             var arr = [{"id":data.field.addId,"title": data.field.addNodeName,"parentId": node.nodeId}];
-  //             //DTree5.partialRefreshAdd($div); // 省略第二个参数，则会加载url
-  //             //DTree5.partialRefreshAdd($div, json); // 如果是json对象，则会追加元素
-  //             //DTree5.partialRefreshAdd($div, arr); //如果是json数组，则会重载节点中的全部子节点
-
-  //             layer.close(index);
-  //             return false;
-  //           });
-  //         }
-  //       })
-  //     }
-  //   },
-  //   {
-  //     toolbarId: "testEdit",icon:"dtree-icon-bianji",title:"类型编辑",handler: function(node,$div){
-  //     var res_data = node;
-  //     var basicData = node.basicData;  // 取出
-  //     basicData = dtree.unescape(basicData); // 转义
-  //     var basicDataJSON = JSON.parse(basicData);  // 转成JSON格式 {"sort":999,"iconimg":"","type":1}
-
-  //     res_data.sort = basicDataJSON.sort;
-  //     res_data.iconimg = basicDataJSON.iconimg;
-  //     res_data.type = basicDataJSON.type;
-
-  //     console.log(res_data);
-  //     // console.log(basicDataJSON);
-  //     layer.open({
-  //       type: 1
-  //       //,skin: 'layui-layer-rim'
-  //       ,shadeClose: false
-  //       ,area: ['400px', '500px']
-  //       // ,content: eithtmlform
-  //       ,content: $("#info").html()
-  //       ,success: function(layero, index){
-  //         form.render();
-  //         form.on("submit(dtree_addNode_form)",function(data){// 假设form的filter为addNode_form
-  //           console.log(data.field);// 从form中取值，数据来源由你自己定
-
-  //           var json = {"id":data.field.addId,"title": data.field.addNodeName,"parentId": node.nodeId};
-  //           var arr = [{"id":data.field.addId,"title": data.field.addNodeName,"parentId": node.nodeId}];
-  //           //DTree5.partialRefreshAdd($div); // 省略第二个参数，则会加载url
-  //           //DTree5.partialRefreshAdd($div, json); // 如果是json对象，则会追加元素
-  //           //DTree5.partialRefreshAdd($div, arr); //如果是json数组，则会重载节点中的全部子节点
-
-  //           layer.close(index);
-  //           return false;
-  //         });
-  //       }
-  //     });
-  //     }
-  //   },
-  //   {toolbarId: "testDel",icon:"dtree-icon-roundclose",title:"自定义删除",handler: function(node,$div){
-  //       layer.msg(JSON.stringify(node));
-  //       DTree5.partialRefreshDel($div); // 这样即可删除节点
-  //     }
-  //   }]
-  // });
 
   function dtreeinit(){
     DemoTree = dtree.render({
@@ -101,6 +22,7 @@ layui.define(['index','form', 'dtree'], function(exports){
       url: '/api/taoclass/list', //获取数据接口
       formatter: {
         title: function(data) {  // 示例给有子集的节点返回节点统计
+          console.log(data);
           var s = data.title;
           if (data.basicData.sort){
             s += ' <span style=\'color:green\'>(' + data.basicData.sort + ')</span>';
@@ -123,24 +45,31 @@ layui.define(['index','form', 'dtree'], function(exports){
     basicData = dtree.unescape(basicData); // 转义
     var basicDataJSON = JSON.parse(basicData);  // 转成JSON格式 {"sort":999,"iconimg":"","type":1}
 
+
+    // res_data.name = basicData.name;
+    // res_data.parentId = basicData.parentId;
     res_data.sort = basicDataJSON.sort;
+    res_data.materialId = basicDataJSON.materialId;
+    res_data.is_banner = basicDataJSON.is_banner;
     res_data.iconImg = basicDataJSON.iconImg;
-    res_data.type = basicDataJSON.type;
+    res_data.recommendId = basicDataJSON.recommendId;
+    res_data.is_top = basicDataJSON.is_top;
+    res_data.level = basicDataJSON.level;
     admin.popup({
       title: '类型编辑'
       ,area: ['450px', '550px']
       ,id: 'LAY-popup-taoclassinfo-edit'
       ,success: function(layero, index){
           // view(this.id).render('app/taoclassinfo/classedit', obj.param)
-          view(this.id).render('app/classinfo/classedit', res_data).done(function(){
-            // form.render(null, 'cms-taoclassinfo-edit-form');
+          view(this.id).render('app/tao/classinfo/classedit', res_data).done(function(){
+            form.render(null, 'cms-taoclassinfo-edit-form');
             //监听编辑
             form.on('submit(cms-taoclassinfo-edit-form-submit)', function(data){
               var field = data.field;
               console.log(field)
               taoclassinfo_edit(field);
               dtreeinit();
-              layer.close(index); 
+              layer.close(index);
             });
             //监听添加
             // form.render(null, 'cms-taoclassinfo-add-form');
@@ -149,7 +78,7 @@ layui.define(['index','form', 'dtree'], function(exports){
               console.log(field)
               taoclassinfo_add(field);
               dtreeinit();
-              layer.close(index); //执行关闭 
+              layer.close(index); //执行关闭
             });
             //监听删除
             // form.render(null, 'cms-taoclassinfo-delete-form');
@@ -161,12 +90,12 @@ layui.define(['index','form', 'dtree'], function(exports){
               }, function(){
                 taoclassinfo_del(field);
                 dtreeinit();
-                layer.close(index); //执行关闭 
+                layer.close(index); //执行关闭
               }, function(){
                 // 取消删除
               });
               // dtreeinit();
-              // layer.close(index); //执行关闭 
+              // layer.close(index); //执行关闭
             });
           });
         }
@@ -181,7 +110,7 @@ layui.define(['index','form', 'dtree'], function(exports){
         ,area: ['450px', '400px']
         ,id: 'LAY-cms-content-add'
         ,success: function(layero, index){
-          view(this.id).render('app/classinfo/add').done(function(){
+          view(this.id).render('app/tao/classinfo/add').done(function(){
             form.render(null, 'cms-taoclassinfo-node-add-form');
             //监听提交
             // {"id":recipeid}
@@ -189,19 +118,19 @@ layui.define(['index','form', 'dtree'], function(exports){
               var field = data.field; //获取提交的字段
               taoclassinfo_add(field);
               dtreeinit();
-              layer.close(index); //执行关闭 
+              layer.close(index); //执行关闭
             });
           });
         }
       });
     }
-  }; 
-  
+  };
+
   $('.layui-btn.layuiadmin-btn-list').on('click', function(){
       var type = $(this).data('type');
       active[type] ? active[type].call(this) : '';
     });
-  
+
     function taoclassinfo_add(data){
       //增加分类
       admin.req({
@@ -239,7 +168,7 @@ layui.define(['index','form', 'dtree'], function(exports){
           }
       });
   }
-  
+
   function taoclassinfo_edit(data){
       //编辑分类
       admin.req({
@@ -259,6 +188,53 @@ layui.define(['index','form', 'dtree'], function(exports){
           }
       });
   }
+    $(document).on('click', '#uploadfiletaochannel', function(){
+        admin.popup({
+            title: '上传图片'
+            ,area: ['550px', '450px']
+            ,id: 'LAY-popup-content-oss-fileupload'
+            ,success: function(layero, index){
+                data = {'operate':2}; //上传图片类型,1 动态 2 食谱 3 主题 4 海报 5 用户头像 6 高级认证 7 其它
+                view(this.id).render('app/common/ossupload', {'operate':3}).done(function(){
+                    form.render(null, 'layuiadmin-app-oss-fileupload');
+                    //文件上传,监听关闭
+                    form.on('submit(layuiadmin-app-oss-fileupload)', function(data){
+                        var field = data.field; //获取提交的字段
+                        console.log(field)
+                        if(field.cmsupfiles != ''){
+                            document.getElementById('iconImg').value = field.cmsupfiles.slice(0,-1); // 更新上传图片文件地址
+                            document.getElementById('iconImg').src = layui.setter.basehost + field.cmsupfiles.slice(0,-1); // 更新上传图片文件地址
+                        }
+                        layer.close(index); //执行关闭
+                    });
+                });
+            }
+        });
+    });
+
+    $(document).on('click', '#uploadfiletaosonchannel', function(){
+        admin.popup({
+            title: '上传图片'
+            ,area: ['550px', '450px']
+            ,id: 'LAY-popup-content-oss-fileupload'
+            ,success: function(layero, index){
+                data = {'operate':2}; //上传图片类型,1 动态 2 食谱 3 主题 4 海报 5 用户头像 6 高级认证 7 其它
+                view(this.id).render('app/common/ossupload', {'operate':3}).done(function(){
+                    form.render(null, 'layuiadmin-app-oss-fileupload');
+                    //文件上传,监听关闭
+                    form.on('submit(layuiadmin-app-oss-fileupload)', function(data){
+                        var field = data.field; //获取提交的字段
+                        console.log(field)
+                        if(field.cmsupfiles != ''){
+                            document.getElementById('iconImg').value = field.cmsupfiles.slice(0,-1); // 更新上传图片文件地址
+                            document.getElementById('iconImg').src = layui.setter.basehost + field.cmsupfiles.slice(0,-1); // 更新上传图片文件地址
+                        }
+                        layer.close(index); //执行关闭
+                    });
+                });
+            }
+        });
+    });
 
   exports('/tao/taoclassinfo/gftree', {})
 });
