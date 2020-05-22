@@ -1,25 +1,34 @@
 <div class="layui-form" lay-filter="cms-opt-award-edit-form" id="cms-opt-award-edit-form" style="padding: 20px 30px 0 0;">
         <script type="text/html" template lay-done="layui.data.done(d.params);">
-            <input type="hidden" id="id" name="id" value="{{ d.params.id }}">
+            <input type="hidden" id="awardid" name="id" value="{{ d.params.id }}">
         </script>
         <div class="layui-form-item">
-            <label class="layui-form-label">奖品图片</label>
-            <div class="layui-input-inline">
-                <script type="text/html" template>
-                    {{# if(d.params.mainimg!==''){ }}
-                        <img id="mainimgshow" src="{{ layui.setter.basehost + d.params.mainimg }}" class="cms-list-img" style="width:400px;height:auto;">
-                    {{# }else{ }}
-                        <img id="mainimgshow" src="" class="cms-list-img" style="width:200px;height:auto;">
-                    {{#  } }}
-                    <input type="hidden" id="mainimg" name="mainimg" value="{{ d.params.mainimg }}">
-                </script>
-            </div>
+          <label class="layui-form-label">封面图</label>
+          <div class="layui-input-inline">
+            <script type="text/html" template>
+              <img id="front_imageshow" src="{{ layui.setter.basehost + d.params.front_image }}" class="cms-list-img" style="width:400px;height:auto;">
+            </script>
+          </div>
         </div>
+
+
         <div class="layui-form-item">
-            <label class="layui-form-label">上传奖品图片</label>
-            <div class="layui-input-inline">
-                <button class="layui-btn" id="uploadfile_mainimg">上传图片</button>
-            </div>
+          <label class="layui-form-label">频道图片地址</label>
+          <div class="layui-input-inline">
+            <script type="text/html" template>
+              <input type="text" id="front_image" name="front_image" value="{{ d.params.front_image || '' }}" style="width:700px" lay-verify="required" placeholder="点击上传图片" autocomplete="off" class="layui-input">
+            </script>
+          </div>
+        </div>
+
+
+        <div class="layui-form-item">
+          <label class="layui-form-label"></label>
+          <div class="layui-input-inline">
+            <script type="text/html" template>
+              <button class="layui-btn" id="uploadfileawardimg">上传图片</button>
+            </script>
+          </div>
         </div>
         <div class="layui-form-item">
             <label class="layui-form-label">奖品名称</label>
@@ -53,30 +62,13 @@
                 </script>
             </div>
         </div>
-        <div class="layui-form-item">
-            <label class="layui-form-label">上传奖品详情【可多张】</label>
-            <div class="layui-input-inline">
-                <script type="text/html" template>
-                    {{# if(d.params.joinimg!==''){ }}
-                        <img id="joinimgshow" src="{{ layui.setter.basehost + d.params.joinimg }}" class="cms-list-img" style="width:200px;height:auto;">
-                    {{# }else{ }}
-                        <img id="joinimgshow" src="" class="cms-list-img" style="width:200px;height:auto;">
-                    {{#  } }}
-                    <input type="hidden" id="joinimg" name="joinimg" value="{{ d.params.joinimg }}">
-                </script>
-                <div style="margin-top: 5px;">
-                    <button class="layui-btn" id="uploadfile_joinbutton">上传奖品详情</button>
-                </div>
-            </div>
 
-        </div>
-
-        <div class="layui-form-item">
-          <label class="layui-form-label"></label>
-          <div class="layui-input-inline">
-            <input type="button" lay-submit lay-filter="cms-opt-award-edit-form-submit" value="确认" class="layui-btn">
-          </div>
-        </div>
+    <div class="layui-form-item">
+      <label class="layui-form-label"></label>
+      <div class="layui-input-inline">
+        <input type="button" lay-submit lay-filter="cms-award-edit-submit" value="确认" class="layui-btn">
+      </div>
+    </div>
     </div>
 <script>
 /* 自定义验证规则 */

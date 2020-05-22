@@ -1,0 +1,38 @@
+
+  <title>奖品详情列表</title>
+  <div class="layui-card layadmin-header">
+    <div class="layui-breadcrumb" lay-filter="breadcrumb">
+      <a lay-href="app/opt/award/list"><span id="award_id"></a>
+      <a><cite><span id="award_name"></span></cite></a>
+      <a><cite>奖品详情列表</cite></a>
+    </div>
+  </div>
+  <div class="layui-fluid">
+    <div class="layui-card">
+      <div class="layui-card-body">
+        <div style="padding-bottom: 10px;">
+          <button class="layui-btn layuiadmin-btn-list" data-type="detail_batchdel">删除</button>
+          <button class="layui-btn layuiadmin-btn-list" data-type="detail_add">添加</button>
+        </div>
+        <script type="text/html" template lay-done="layui.data.handler_opt_award_list_table(d.params)">
+          <table id="LAY-cms-award-detail-list" lay-filter="LAY-cms-award-detail-list"></table>
+        </script>
+
+        <script type="text/html" id="award_detail_img_ViewTpl">
+          <button class="layui-btn layui-btn-xs" style="background-color:#1e9fff" lay-event="detail_checkbig">查看大图</button>
+        </script>
+        <script type="text/html" id="table-award-detail-opt-list">
+          <a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="award_detail_edit"><i class="layui-icon layui-icon-edit"></i>编辑</a>
+          <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="award_detail_del"><i class="layui-icon layui-icon-delete"></i>删除</a>
+        </script>
+      </div>
+    </div>
+  </div>
+  <script type="text/html" template>
+    <input type="hidden" id="award_for_detail_id" value="{{ d.params.id }}">
+    <input type="hidden" id="detailuserid" value="{{ d.params.image }}">
+
+  </script>
+<script>
+  layui.use('opt/award/award_detail_list', layui.factory('opt/award/award_detail_list'));
+</script>

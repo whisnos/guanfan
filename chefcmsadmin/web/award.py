@@ -61,23 +61,15 @@ async def award_add(arg_dict):
     insert_sql = '''
     INSERT INTO product_point
     (
-    name,
-    starttime,
-    endtime,
-    createtime,
-    updatetime
+    title
     )
     VALUES
     (
-    ?,?,?,?,?
+    ?
     )
     '''
     insert_result = await dbins.execute(insert_sql, (
-        arg_dict.get('name'),
-        nowDaysAfter(10),
-        nowDaysAfter(20),
-        curDatetime(),
-        curDatetime()
+        arg_dict.get('title'),
     ))
     if insert_result is None:
         return 3001, "添加失败"
@@ -90,19 +82,19 @@ async def award_edit(arg_dict):
     edit_sql = '''
     UPDATE product_point
     set
-    userid = ?,
+    front_image = ?,
     title = ?,
-    faceimg = ?,
-    maininfourl = ?,
-    introduction = ?
+    grade_no = ?,
+    sku_no = ?,
+    sort = ?
     where id = ?
     '''
     up_result = await dbins.execute(edit_sql, (
-        arg_dict.get('userid'),
+        arg_dict.get('front_image'),
         arg_dict.get('title'),
-        arg_dict.get('faceimg'),
-        arg_dict.get('maininfourl'),
-        arg_dict.get('introduction'),
+        arg_dict.get('grade_no'),
+        arg_dict.get('sku_no'),
+        arg_dict.get('sort'),
         arg_dict.get('id'),
     ))
     if up_result is None:
@@ -154,7 +146,7 @@ def award_set_string(arg_dict):
 
 
 async def award_set(arg_dict):
-    ''' 更新 '''
+    ''' 设置上下架 '''
     update_str, upvalue_list = award_set_string(arg_dict)
     up_sel = '''
     UPDATE product_point
