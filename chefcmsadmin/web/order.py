@@ -34,7 +34,15 @@ class OrderEditHandler(BaseHandler):
     async def post(self):
         ''' 修改兑换订单 '''
         arg_key = change_byte_to_dict(self.request.body, self.request.query)
-        # code, msg = await order_edit(arg_key)
+        code, msg = await order_edit(arg_key)
+
+        self.send_cms_msg(code, msg)
+
+class OrderSetHandler(BaseHandler):
+    @authenticated
+    async def post(self):
+        ''' 修改兑换订单 '''
+        arg_key = change_byte_to_dict(self.request.body, self.request.query)
         code, msg = await order_set(arg_key)
 
         self.send_cms_msg(code, msg)
@@ -51,79 +59,69 @@ class OrderDeleteHandler(BaseHandler):
 
 async def order_add(arg_dict):
     ''' 增加 '''
-    return 0, "空"
-    # insert_sql='''
-    # INSERT INTO banner
-    # (
-    # title,
-    # bannerimg,
-    # linkurl,
-    # orderid,
-    # type,
-    # sort,
-    # status
-    # )
-    # VALUES
-    # (
-    # ?,
-    # ?,
-    # ?,
-    # ?,
-    # ?,
-    # ?,
-    # ?
-    # )
-    # '''
-    # insert_result = await dbins.execute(insert_sql, (
-    #     arg_dict.get('title'),
-    #     arg_dict.get('bannerimg'),
-    #     arg_dict.get('linkurl'),
-    #     arg_dict.get('orderid'),
-    #     arg_dict.get('type'),
-    #     arg_dict.get('sort'),
-    #     1 if arg_dict.get('status') == "on" else 0,
-    #     ))
-    # if insert_result is None:
-    #     return 3001 , "添加失败"
-    # else:
-    #     return 0, "添加成功"
+    insert_sql1='''
+    INSERT INTO
+	my_express_info
+    (
+    express_no,
+    express_info_id,
+    exchange_id
+    )
+    values 
+    (
+    ?,
+    ?,
+    ?
+    )
+    '''
+    insert_result1 = await dbins.selectone(insert_sql1, (
+        arg_dict.get('express_no'),
+        arg_dict.get('express_info_id'),
+        arg_dict.get('id'),
+        ))
+
+    update_sql2='''
+    update
+	my_exchange_info mei
+	set
+    express_id = (
+    select id 
+    FROM my_express_info mpi 
+    where mpi.exchange_id = ?
+    )
+    where mei.id = ?
+    '''
+
+    insert_result2 = await dbins.execute(update_sql2, (
+        arg_dict.get('id'),
+        arg_dict.get('id'),
+    ))
+
+    if (insert_result1, insert_result2) is None:
+        return 3001 , "添加失败"
+    else:
+        return 0, "添加成功"
 
 
 async def order_edit(arg_dict):
     ''' 修改 '''
     edit_sql = '''
-    UPDATE my_exchange_info
-    set
-    userid = ?,
-    title = ?,
-    faceimg = ?,
-    story = ?,
-    tagKey = ?,
-    difficult = ?,
-    timeConsuming = ?,
-    ingredientsList = ?,
-    tips = ?,
-    isExclusive = ?,
-    isFeatured = ?,
-    isEnable = ?,
-    status = ?
-    where id = ?
+    update 
+	express_info ei,
+	my_express_info mpi
+    SET 
+	ei.name = ?,
+	mpi.express_no = ?
+    WHERE
+	ei.id = ? 
+	AND 
+	mpi.id = ?
     '''
     up_result = await dbins.execute(edit_sql, (
-        arg_dict.get("userid"),
-        arg_dict.get("title"),
-        arg_dict.get("faceimg"),
-        arg_dict.get("story"),
-        arg_dict.get("tagKey"),
-        arg_dict.get("difficult"),
-        arg_dict.get("timeConsuming"),
-        arg_dict.get("ingredientsList"),
-        arg_dict.get("tips"),
-        arg_dict.get("isExclusive"),
-        arg_dict.get("isFeatured"),
-        arg_dict.get("isEnable"),
-        arg_dict.get("status"),
-        arg_dict.get('id')
+        arg_dict.get("name"),
+        arg_dict.get("express_no"),
+        arg_dict.get("express_info_id"),
+        arg_dict.get('express_id')
     ))
     if up_result is None:
         return 3001, "更新失败"
@@ -135,7 +133,7 @@ async def order_del(arg_dict):
     ''' 删除 '''
     del_sql = '''
     UPDATE my_exchange_info
-    SET status=-1
+    SET express_status=-1
     where id = ?
     '''
     del_result = await dbins.execute(del_sql,
@@ -175,6 +173,7 @@ def order_search_string(arg_dict):
                 sql_where.append('{}=?'.format(k))
                 wvalue.append(v)
 
+    sql_where.append('total.status!=-1')
     if len(sql_where) > 0:
 
         return "where {}".format(" and ".join(sql_where)), wvalue
@@ -193,8 +192,8 @@ async def order_list(arg_dict):
     # log.warning("{},{}".format(where_str, wvalue_list))
     order_count_sql = '''select 
     count(1) as ctnum from my_history_address mha
-    LEFT JOIN my_exchange_info mei
-    on mha.exchangeorder_id = mei.id {}'''.format(where_str)
+    LEFT JOIN my_exchange_info total
+    on mha.exchangeorder_id = total.id {}'''.format(where_str)
     b_cnum = await dbins.selectone(order_count_sql, wvalue_list)
 
     if b_cnum is None:
@@ -212,37 +211,53 @@ async def order_list(arg_dict):
 
     # print(page, epage)
     order_list_sql = '''
-    SELECT 
-    mha.exchangeorder_id, 
+SELECT 
+    mha.exchangeorder_id as id, 
     mha.user_id, 
     CONCAT_WS('---', u.headImg,u.userName,u.mobile) AS ume, 
     total.front_image, 
     total.grade_no, 
     CONCAT_WS('-', mha.name, mha.mobile, mha.province, mha.city, mha.area, mha.address) AS deliveryAddress, 
+    total.express_info_id,
+    total.express_id,
+    total.ppid as ppid,
+    total.exchange_id,
     total.remark, 
-    total.createTime, 
+    total.createTime,
     total.express_status, 
-    total.logisticsInfo
+    CONCAT_WS('-', total.express_createTime, total.name, total.express_no) as logisticsInfo,
+    total.status,
+    total.`name`,
+    total.express_no
     FROM my_history_address mha 
         LEFT JOIN user u
         ON mha.user_id = u.id
     LEFT JOIN
         (SELECT 
-            mei.id, 
+            mei.id,
+            mei.express_id,
+            pp.id as ppid,
             pp.front_image, 
             pp.grade_no, 
             mei.remark, 
             mei.createTime, 
-            mei.express_status, 
-            CONCAT_WS('-', totalExp.createTime,totalExp.name, totalExp.express_no) as logisticsInfo
+            mei.express_status,
+            mei.status,
+            totalExp.exchange_id,
+            totalExp.express_info_id,
+            totalExp.`name`,
+            totalExp.express_no,
+            totalExp.createTime as express_createTime 
             FROM my_exchange_info mei
             LEFT JOIN product_point pp
             ON mei.product_point_id = pp.id
             LEFT JOIN 
                 (SELECT 
-                    mpi.id, 
+                    mpi.id,
+                    mpi.exchange_id,
                     ei.createTime, 
-                    ei.name, 
+                    ei.name,
+                    mpi.express_info_id, 
                     mpi.express_no from my_express_info mpi 
                     LEFT JOIN 
                     express_info ei ON
