@@ -10,7 +10,7 @@ layui.define(['table', 'form', 'layer'], function (exports) {
     //动态列表
     table.render({
       elem: '#LAY-cms-opt-point-list'
-      , url: '/api/award/list' //获取数据接口
+      , url: '/api/point/list' //获取数据接口
       , cols: [[
         // {type: 'checkbox', fixed: 'left'}
         { field: 'id', title: 'ID', minWidth: 80 }
