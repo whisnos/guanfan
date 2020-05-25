@@ -26,7 +26,8 @@ from chefserver.webhandler.publish import PushRecipeHandler, PushDongtaiHandler,
 
 from chefserver.webhandler.subject import SubjectListHandler, SubjectDetailHandler
 
-from chefserver.webhandler.action import ReplyHandler, DelReplyHandler, CollectionHandler, UnCollectionHandler
+from chefserver.webhandler.action import ReplyHandler, DelReplyHandler, CollectionHandler, UnCollectionHandler, \
+    PointShareHandler
 from chefserver.webhandler.action import LikeHandler, UnLikeHandler, MessageReadHandler
 from chefserver.webhandler.action import MessageNumHandler, DelRecipeHandler, DelDongtaiHandler
 from chefserver.webhandler.action import JubaoHandler, HeartBeatHandler
@@ -127,6 +128,7 @@ def make_app():
         (r"/action/report", JubaoHandler),                       # 举报
         (r"/action/heartbeat", HeartBeatHandler),                # 心跳
         (r"/action/timestamp", TimeStampHandler),                # 时间戳
+        (r"/action/pshare", PointShareHandler),                  # 分享操作- 积分联动
         (r"/dongtai/news", DtPlazaHandler),                      # 动态广场_最新最热动态
         (r"/dongtai/follownews", DtPlazafocusHandler),           # 动态广场_关注的最新动态
         (r"/dongtai/recommends", DtPlazaRecommendHandler),       # 动态广场_随机推荐动态
