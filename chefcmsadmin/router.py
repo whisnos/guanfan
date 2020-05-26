@@ -27,7 +27,7 @@ from chefcmsadmin.web.taobanner import TaoBannerListHandler, TaoBannerAddHandler
 from chefcmsadmin.web.taoclassinfo import TaoClassInfoListHandler, TaoClassInfoAddHandler, TaoClassInfoDeleteHandler, TaoClassInfoEditHandler
 from chefcmsadmin.web.taochannel import TaoChannelListHandler, TaoChannelAddHandler, TaoChannelEditHandler, TaoChannelDelHandler
 
-from chefcmsadmin.web.user import UserListHandler, UserDeleteHandler, UserCheckHandler, UserVerifyInfoHandler
+from chefcmsadmin.web.user import UserListHandler, UserDeleteHandler, UserCheckHandler, UserVerifyInfoHandler, UserPointEditListHandler, UserPointAddListHandler
 
 from chefcmsadmin.web.campaign.campaign import CampaignAddHandler, CampaignDeleteHandler, CampaignEditHandler, CampaignListHandler, CampaignSetHandler
 from chefcmsadmin.web.campaign.content import CampaignContentAddHandler, CampaignContentDeleteHandler, CampaignContentEditHandler, CampaignContentListHandler
@@ -68,6 +68,8 @@ def make_app():
         (r"/api/class/del",             ClassInfoDeleteHandler),             # 分类删除
         (r"/api/class/edit",            ClassInfoEditHandler),               # 分类修改
         (r"/api/user/list",             UserListHandler),                    # 用户列表
+        (r"/api/user/pointedit",        UserPointEditListHandler),           # 用户积分设置
+        (r"/api/user/pointadd",         UserPointAddListHandler),            # 用户积分新增
         (r"/api/user/del",              UserDeleteHandler),                  # 用户删除(禁用)
         (r"/api/user/checkverify",      UserCheckHandler),                   # 审核认证
         (r"/api/user/verifyinfo",       UserVerifyInfoHandler),              # 获取高级认证内容

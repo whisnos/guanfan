@@ -96,7 +96,6 @@ layui.define(['table', 'form', 'layer'], function (exports) {
         // 编辑和添加监听
         form.on('submit(cms-opt-point-edit-form-submit)', function (data) {
             var field = data.field;
-            console.log(field);
                 point_edit(field);
             layer.close(realindex); //执行关闭
         });

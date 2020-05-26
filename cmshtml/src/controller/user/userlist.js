@@ -18,6 +18,7 @@ layui.define(['table', 'form', 'layer'], function(exports){
         ,{field: 'headimg', title: '头像', templet:'#user_img_ViewTpl', width: 100, align: 'center'}
         ,{field: 'mobile', title: '手机号', width: 120}
         ,{field: 'sex', title: '性别', templet:'#user_sex_Tpl', width: 80, align: 'center'}
+        ,{field: 'point', title: '账户积分', width: 60}
         ,{field: 'birthday', title: '生日', width: 120}
         ,{field: 'tag', title: '标签', width: 100}
         ,{field: 'address', title: '地址', width: 100}
@@ -26,7 +27,7 @@ layui.define(['table', 'form', 'layer'], function(exports){
         ,{field: 'certificationstatus', title: '认证状态', templet: '#user_verify_status_Tpl', width: 100}
         ,{field: 'status', title: '状态', templet: '#user_status_Tpl', minWidth: 80, width: 80, align: 'center'}
         ,{field: 'createtime', title: '上传时间', sort: true,width: 150}
-        ,{title: '操作', minWidth: 150, align: 'center', fixed: 'right', toolbar: '#table-content-list'}
+        ,{title: '操作', width: 250, align: 'center', fixed: 'right', toolbar: '#table-content-list'}
       ]]
       ,initSort: {
         field: 'id' //排序字段，对应 cols 设定的各字段名
@@ -90,7 +91,17 @@ layui.define(['table', 'form', 'layer'], function(exports){
                 }
                   
           });
+        } else if (obj.event === 'pointedit'){
+          admin.popup({
+              title: '修改账户积分数量'
+              ,area: ['450px', '450px']
+              ,id: 'LAY-popup-user-edit-form'
+              ,success: function(layero, index){
+                  view(this.id).render('app/user/user/pointedit', data);
+                    form.render();   //表单渲染，得渲染才会有效果显示出来
+                }
 
+          });
         } else if(obj.event === 'checkbig'){
           var imgurl = '';
           var origin_faceimg = obj.data.headimg;
@@ -130,5 +141,49 @@ layui.define(['table', 'form', 'layer'], function(exports){
         }
     });
   }
+
+  function user_set_point(data,index){
+      // 添加动态
+      admin.req({
+          type: 'post',
+          url: '/api/user/pointedit', //添加
+          data: data,
+          success: function (result) {
+              if (result.success) {
+                  // layer.msg('成功')
+              } else {
+                  layer.msg(result.msg)
+              }
+          },
+          complete:function (result) {
+              layer.close(index);
+              table.reload('LAY-cms-user-list');
+          },
+          error: function (error) {
+          }
+      });
+    };
+
+  function user_add_point(data,index){
+      // 添加动态
+      admin.req({
+          type: 'post',
+          url: '/api/user/pointadd', //添加
+          data: data,
+          success: function (result) {
+              if (result.success) {
+                  // layer.msg('成功')
+              } else {
+                  layer.msg(result.msg)
+              }
+          },
+          complete:function (result) {
+              layer.close(index);
+              table.reload('LAY-cms-user-list');
+          },
+          error: function (error) {
+          }
+      });
+    };
     exports('user/userlist', {})
 });

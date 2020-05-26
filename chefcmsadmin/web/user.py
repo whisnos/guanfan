@@ -34,6 +34,22 @@ class UserVerifyInfoHandler(BaseHandler):
         code, msg, result = await user_verify_info(arg_key)
         self.send_cms_msg(code, msg, result)
 
+class UserPointEditListHandler(BaseHandler):
+    @authenticated
+    async def post(self):
+        ''' 设置点赞数量 '''
+        arg_key = change_byte_to_dict(self.request.body, self.request.query)
+        code, msg = await user_set_point_count(arg_key)
+        self.send_cms_msg(code, msg)
+
+class UserPointAddListHandler(BaseHandler):
+    @authenticated
+    async def post(self):
+        ''' 设置点赞数量 '''
+        arg_key = change_byte_to_dict(self.request.body, self.request.query)
+        code, msg = await user_add_point_count(arg_key)
+        self.send_cms_msg(code, msg)
+
 
 class UserDeleteHandler(BaseHandler):
     @authenticated
@@ -129,6 +145,108 @@ async def user_del(arg_dict):
     else:
         return 0 , "修改成功"
 
+async def user_add_point_count(arg_dict):
+    ''' 新增积分账户数量 '''
+    print('---------start------user_add_point_count')
+    add_pointcount_sql = '''
+    INSERT INTO user_point
+    (
+        point,
+        user_id
+    )
+    VALUES
+    (
+        ?,
+        ?
+    )
+    '''
+    add_pointcount_result = await dbins.execute(add_pointcount_sql,
+        (
+        arg_dict.get('grade_no'),
+        arg_dict.get('id')
+        ))
+
+    insert_pointcount_sql = '''
+    INSERT INTO user_pointbill
+    (
+        bill_type,
+        grade_no,
+        user_id
+    )
+    VALUES
+    (
+        ?,
+        ?,
+        ?
+    )
+    '''
+    print("------------start_insert_pointcount_sql---------1111")
+    insert_pointcount_result = await dbins.execute(insert_pointcount_sql,
+                                                   (
+                                                       arg_dict.get('bill_type'),
+                                                       arg_dict.get('grade_no'),
+                                                       arg_dict.get('id')
+                                                   ))
+
+    if (add_pointcount_result, insert_pointcount_result) is None:
+        return 3001, "修改失败"
+    else:
+        return 0, "修改成功"
+
+async def user_set_point_count(arg_dict):
+    ''' 设置积分账户数量 '''
+    print('---------start------user_set_point_count')
+    set_pointcount_sql = '''
+    UPDATE user_point
+    SET point = ? + ?
+    where user_id = ?
+    '''
+    print(arg_dict.get('bill_type'), 1111111111111)
+    print(('-' + arg_dict.get('grade_no')), 11111122222222)
+    if int(arg_dict.get('bill_type')) > 0:
+        print(arg_dict.get('grade_no'), 343434343)
+        set_pointcount_result = await dbins.execute(set_pointcount_sql,
+            (
+            arg_dict.get('point'),
+            arg_dict.get('grade_no'),
+            arg_dict.get('id')
+            ))
+    else:
+        print(('-' + arg_dict.get('grade_no')), 23232323)
+        set_pointcount_result = await dbins.execute(set_pointcount_sql,
+            (
+            arg_dict.get('point'),
+            ('-' + arg_dict.get('grade_no')),
+            arg_dict.get('id')
+            ))
+
+    insert_pointcount_sql = '''
+    INSERT INTO user_pointbill
+    (
+        bill_type,
+        grade_no,
+        user_id
+    )
+    VALUES
+    (
+        ?,
+        ?,
+        ?
+    )
+    '''
+    print("------------start_insert_user_pointbill_sql---------2222")
+    insert_pointcount_result = await dbins.execute(insert_pointcount_sql,
+        (
+        arg_dict.get('bill_type'),
+        arg_dict.get('grade_no'),
+        arg_dict.get('id')
+        ))
+
+    if (set_pointcount_result, insert_pointcount_result) is None:
+        return 3001 , "修改失败"
+    else:
+        return 0 , "修改成功"
+
 def user_search_string(arg_dict):
     ''' 返回搜索条件,arg_dict:所有请求的键值对数据,返回值 (1 where条件语句, 2 where条件对应的值) '''
     if arg_dict.get('page'):
@@ -187,10 +305,11 @@ async def user_list(arg_dict):
         
     recipe_list_sql = '''
     select
-    id,
+    DISTINCT u.id,
     username,
     headimg,
     mobile,
+    up.point,
     sex,
     birthday,
     tag,
@@ -199,10 +318,12 @@ async def user_list(arg_dict):
     certificationstatus,
     address,
     personalprofile,
-    updatetime,
-    createtime
+    u.updatetime,
+    u.createtime
     from
-    user
+    user u 
+    left JOIN user_point up 
+    on u.id = up.user_id
     {}
     limit ?,?
     '''.format(where_str)

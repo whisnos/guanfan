@@ -1,0 +1,38 @@
+
+
+
+<div class="layui-form" lay-filter="cms-user-point-form" id="cms-user-point-form" style="padding: 20px 30px 0 0;">
+        <script type="text/html" template lay-done="layui.data.done(d.params);">
+            <input type="hidden" name="id" value="{{ d.params.id || '' }}">
+            <input type="hidden" name="point" value="{{ d.params.point }}">
+        </script>
+<!--        <input type="hidden" name="id" value="{{ d.params.id || '' }}">-->
+<!--        <input type="hidden" name="userid" value="{{ d.data.userid || '' }}">-->
+        <div class="layui-form-item layui-form-text">
+            <div class="layui-label-container">
+            <label class="layui-form-label">修改积分数</label>
+            <div class="layui-input-inline">
+              <input type="text" name="grade_no" placeholder="请输入正整数" autocomplete="off" class="layui-input">
+            </div>
+          </div>
+        </div>
+    <div class="layui-form-item layui-form-text">
+        <label class="layui-form-label">修改操作</label>
+        <div class="layui-input-inline">
+            <div class="layui-btn-container">
+                <input type="button" lay-submit lay-filter="cms-user-point-form-submit" value="增加" class="layui-btn">
+                <input type="button" lay-submit lay-filter="cms-user-point-form-decline-submit" value="扣减" class="layui-btn layui-btn-danger">
+            </div>
+        </div>
+    </div>
+
+</div>
+<script>
+    layui.data.done = function (d) {
+        layui.use(['form'], function () {
+            var form = layui.form;
+            form.render(null, 'cms-user-point-form'); //渲染该模板下的动态表单
+        });
+    };
+    layui.use('user/user/pointedit', layui.factory('user/user/pointedit'));
+</script>
