@@ -34,7 +34,16 @@
                     <div class="layui-table-cell">未知类型:{{d.point_type}}</div>
                 {{#  } }}
             </script>
-                      <script type="text/html" id="opt_point_options_type_Tpl">
+
+            <script type="text/html" id="opt_point_status_Tpl">
+                {{#  if(d.status===0){ }}
+                    <button class="layui-btn layui-btn-xs">关闭</button>
+                {{#  }else if(d.status===1){ }}
+                    <button class="layui-btn layui-btn-warm layui-btn-xs">开启</button>
+                {{#  } }}
+            </script>
+
+            <script type="text/html" id="opt_point_options_type_Tpl">
                 {{#  if(d.options_type===1){ }}
                     <button class="layui-btn layui-btn-xs">每天 {{d.count}} 次</button>
                 {{#  }else if(d.options_type===3){ }}
