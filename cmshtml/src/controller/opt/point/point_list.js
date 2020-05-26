@@ -16,7 +16,7 @@ layui.define(['table', 'form', 'layer'], function (exports) {
         { field: 'id', title: 'ID', minWidth: 80 }
         , { field: 'point_type', title: '积分类型', minWidth: 80 ,templet: '#opt_point_type_Tpl', align: 'center' }
         , { field: 'grade_no', title: '积分数量', minWidth: 200 }
-        , { field: 'status', title: '积分状态', minWidth: 100, sort: true }
+        , { field: 'status', title: '积分状态', minWidth: 100, sort: true ,templet: '#opt_point_status_Tpl', align: 'center'  }
         , { field: 'options_type', title: '选项类型', minWidth: 200,width:300, sort: true,templet: '#opt_point_options_type_Tpl', align: 'center'  }
         , { field: 'count', title: '次数', minWidth: 100, sort: true }
         // , { field: 'updatetime', title: '更新时间', sort: true, minWidth: 180 }
@@ -96,7 +96,6 @@ layui.define(['table', 'form', 'layer'], function (exports) {
         // 编辑和添加监听
         form.on('submit(cms-opt-point-edit-form-submit)', function (data) {
             var field = data.field;
-            console.log(field);
                 point_edit(field);
             layer.close(realindex); //执行关闭
         });

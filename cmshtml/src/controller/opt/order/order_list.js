@@ -210,9 +210,7 @@ layui.define(['table', 'form', 'layer'], function(exports){
     // 编辑和添加监听
     //监听提交
     form.on('submit(cms-order-form-submit)', function(data){
-      console.log(data, 55555555555);
       var field = data.field; //获取提交的字段
-      console.log(field, 4444444444444);
       order_edit(field);
       layer.close(realindex);
     });
@@ -243,9 +241,7 @@ layui.define(['table', 'form', 'layer'], function(exports){
     // 编辑和添加监听
     //监听提交
     form.on('submit(cms-order-confirm-submit)', function(data){
-      console.log(data, 6666666666);
       var field = data.field; //获取提交的字段
-      console.log(field, 77777777777777);
       order_add(field);
       layer.close(realindex);
     });
