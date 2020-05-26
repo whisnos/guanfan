@@ -147,7 +147,6 @@ async def user_del(arg_dict):
 
 async def user_add_point_count(arg_dict):
     ''' 新增积分账户数量 '''
-    print('---------start------user_add_point_count')
     add_pointcount_sql = '''
     INSERT INTO user_point
     (
@@ -180,7 +179,6 @@ async def user_add_point_count(arg_dict):
         ?
     )
     '''
-    print("------------start_insert_pointcount_sql---------1111")
     insert_pointcount_result = await dbins.execute(insert_pointcount_sql,
                                                    (
                                                        arg_dict.get('bill_type'),
@@ -195,16 +193,12 @@ async def user_add_point_count(arg_dict):
 
 async def user_set_point_count(arg_dict):
     ''' 设置积分账户数量 '''
-    print('---------start------user_set_point_count')
     set_pointcount_sql = '''
     UPDATE user_point
     SET point = ? + ?
     where user_id = ?
     '''
-    print(arg_dict.get('bill_type'), 1111111111111)
-    print(('-' + arg_dict.get('grade_no')), 11111122222222)
     if int(arg_dict.get('bill_type')) > 0:
-        print(arg_dict.get('grade_no'), 343434343)
         set_pointcount_result = await dbins.execute(set_pointcount_sql,
             (
             arg_dict.get('point'),
@@ -212,7 +206,6 @@ async def user_set_point_count(arg_dict):
             arg_dict.get('id')
             ))
     else:
-        print(('-' + arg_dict.get('grade_no')), 23232323)
         set_pointcount_result = await dbins.execute(set_pointcount_sql,
             (
             arg_dict.get('point'),
@@ -234,7 +227,6 @@ async def user_set_point_count(arg_dict):
         ?
     )
     '''
-    print("------------start_insert_user_pointbill_sql---------2222")
     insert_pointcount_result = await dbins.execute(insert_pointcount_sql,
         (
         arg_dict.get('bill_type'),
@@ -256,11 +248,17 @@ def user_search_string(arg_dict):
 
     sql_where = []
     wvalue = []
+    if arg_dict.get('id'):
+        t = arg_dict.get('id')
+        wvalue.append(t)
+        sql_where.append("u.id = ?")
+        arg_dict.pop('id')
+
     if arg_dict.get('username'):
         # like 模糊搜索字段
         t = arg_dict.get('username')
         wvalue.append('%' + t + '%')
-        sql_where.append("title like ?")
+        sql_where.append("username like ?")
         arg_dict.pop('username')
 
     for k,v in arg_dict.items():
@@ -287,7 +285,7 @@ async def user_list(arg_dict):
 
     where_str, wvalue_list = user_search_string(arg_dict)
     # log.warning("{},{}".format(where_str, wvalue_list))
-    recipe_count_sql = '''select count(1) as ctnum from user {}'''.format(where_str)
+    recipe_count_sql = '''select count(1) as ctnum from user u {}'''.format(where_str)
     b_cnum = await dbins.selectone(recipe_count_sql, wvalue_list)
 
     if b_cnum is None:
@@ -330,6 +328,9 @@ async def user_list(arg_dict):
     wvalue_list.append(page)
     wvalue_list.append(epage)
     blist = await dbins.select(recipe_list_sql, wvalue_list)
+
+    if blist is None:
+        return 0, []
 
     for b in blist:
         ct = b.get('createtime')
