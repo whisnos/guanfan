@@ -65,10 +65,12 @@ async def order_add(arg_dict):
     (
     express_no,
     express_info_id,
-    exchange_id
+    exchange_id,
+    express_status
     )
     values 
     (
+    ?,
     ?,
     ?,
     ?
@@ -78,21 +80,26 @@ async def order_add(arg_dict):
         arg_dict.get('express_no'),
         arg_dict.get('express_info_id'),
         arg_dict.get('id'),
-        ))
+        arg_dict.get('express_status'),
+    ))
 
     update_sql2='''
     update
 	my_exchange_info mei
 	set
+	express_status = ?,
     express_id = (
-    select id 
-    FROM my_express_info mpi 
-    where mpi.exchange_id = ?
+			select id 
+			FROM my_express_info mpi 
+			where mpi.exchange_id = ?
+			ORDER BY id desc
+			LIMIT 1
     )
     where mei.id = ?
     '''
 
     insert_result2 = await dbins.execute(update_sql2, (
+        arg_dict.get('express_status'),
         arg_dict.get('id'),
         arg_dict.get('id'),
     ))
