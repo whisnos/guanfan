@@ -181,7 +181,7 @@ def make_app():
         (r"/tbk/materials", TaoIndexMaterialSearchAllHandler),   # tbk-物料搜索
         (r"/tbk/iteminfo", TaoIndexItemInfoAllHandler),          # tbk-商品详情
         (r"/tbk/footprint", TaoFootPrintAllHandler),             # tbk-足迹
-        (r"/tbk/footpdel", TaoFootPDeleteAllHandler),             # tbk-足迹
+        (r"/tbk/footpdel", TaoFootPDeleteAllHandler),            # tbk-删除足迹
         (r"/tbk/banner", TaoBannerAllHandler),                   # tbk-首页轮播图
         (r"/test", TestHandler),                                 # 测试接口
         ],

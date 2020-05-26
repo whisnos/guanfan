@@ -32,7 +32,7 @@ class MyPointHandler(BaseHandler):
 
 
 class MyPointBillHandler(BaseHandler):
-    ''' 我的积分 '''
+    ''' 我的积分账单 '''
 
     @check_login
     async def post(self, *args, **kwargs):
@@ -51,7 +51,6 @@ class MyPointBillHandler(BaseHandler):
                     user_pointbill_query = user_pointbill_query.filter(User_PointBill.bill_type > 0)
             if page:
                 user_pointbill_query = user_pointbill_query.paginate(int(page), PAGE_SIZE)
-            print('user_pointbill_query', user_pointbill_query)
             user_pointbills = await self.application.objects.execute(user_pointbill_query)
             for bill in user_pointbills:
                 bill_dict = model_to_dict(bill)
@@ -74,7 +73,7 @@ class MyPointProductHandler(BaseHandler):
         result = []
         page = self.verify_arg_legal(self.get_body_argument('page'), '页数', False, is_num=True)
         products_query = Product_Point.select(Product_Point.id, Product_Point.title, Product_Point.grade_no,
-                                              Product_Point.front_image, Product_Point.createTime).where(Product_Point.status==0).order_by(
+                                              Product_Point.front_image, Product_Point.sku_no, Product_Point.createTime).where(Product_Point.status==1).order_by(
             Product_Point.id.desc()).paginate(int(page), PAGE_SIZE)
         products = await self.application.objects.execute(products_query)
         for p in products:
