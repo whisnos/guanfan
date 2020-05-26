@@ -355,7 +355,9 @@ class MyExchangeDetailHandler(BaseHandler):
                 if express_info:
                     for addin in express_info:
                         express_info_dict = model_to_dict(addin)
-                        express_info_dict.pop('createTime')
+                        ct = express_info_dict.get('createTime', None)
+                        if ct:
+                            express_info_dict['createTime'] = ct.strftime('%Y-%m-%d %H:%M:%S')
                         express_info_dict.pop('updatetime')
                         p_dict['express'] = express_info_dict
 
