@@ -162,15 +162,21 @@ def order_search_string(arg_dict):
 
     sql_where = []
     wvalue = []
-    if arg_dict.get('title'):
-        # like 模糊搜索字段
-        t = arg_dict.get('title')
+    if arg_dict.get('id'):
+        t = arg_dict.get('id')
         wvalue.append(t)
-        sql_where.append("MATCH (title, tagKey) AGAINST (? in boolean mode)")
-        arg_dict.pop('title')
+        sql_where.append("total.id = ?")
+        arg_dict.pop('id')
 
     if arg_dict.get('user_id'):
-        arg_dict.update({'mha.user_id': arg_dict.pop("user_id")})
+        # like 模糊搜索字段
+        t = arg_dict.get('user_id')
+        wvalue.append(t)
+        sql_where.append("mha.user_id = ?")
+        arg_dict.pop('user_id')
+
+    # if arg_dict.get('user_id'):
+    #     arg_dict.update({'mha.user_id': arg_dict.pop("user_id")})
 
     for k, v in arg_dict.items():
         if v != '':
