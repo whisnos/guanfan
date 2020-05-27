@@ -2,7 +2,7 @@
 from chefserver.webhandler.point import MyPointHandler, MyPointBillHandler, MyPointProductHandler, \
     ProductPointDetailHandler, MyPointMyExchangeHandler, MyExchangeDetailHandler, AddressDetailHandler, \
     MyAddressHandler, MyAddressDetailHandler, MyPointPorderHandler, MyPointCmOrderHandler, MyAddressDeleteHandler, \
-    MyAddressDetailSinHandler
+    MyAddressDetailSinHandler, LevelTaskDetailHandler
 from chefserver.webhandler.taobaoke import TaoIndexSearchHandler, TaoIndexChannelInfoAllHandler, \
     TaoIndexMaterialSearchAllHandler, TaoIndexItemInfoAllHandler, TaoFootPrintAllHandler, TaoBannerAllHandler, \
     TaoFootPDeleteAllHandler
@@ -113,6 +113,7 @@ def make_app():
         (r"/detail/replydid", GetReplyDidDetailHandler),         # 评论列表-传did获取单个详情
         (r"/detail/propoint", ProductPointDetailHandler),        # 积分 - 商品详情
         (r"/detail/exchange", MyExchangeDetailHandler),          # 积分 - 兑换订单详情
+        (r"/detail/leveltask", LevelTaskDetailHandler),          # 积分 - 等级任务表详情
         (r"/subject/topiclist", SubjectListHandler),             # 主题列表
         (r"/subject/topicdetail", SubjectDetailHandler),         # 主题详情
         (r"/action/reply", ReplyHandler),                        # 添加评论
