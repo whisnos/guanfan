@@ -47,11 +47,13 @@ class User_Point(BaseModel):
 BILL_TYPE = {
     (-1, '兑换现金'),
     (-2, '兑换奖品'),
+    (-3, '平台扣减'),
     (1, '发布动态'),
     (2, '发布食谱'),
     (3, '发布评论'),
     (4, '发起打赏'),
     (5, '发起分享'),
+    (6, '平台赠送'),
     # (6, '兑换现金'),
     # (7, '兑换现金'),
     # (8, '兑换现金'),
@@ -61,12 +63,13 @@ BILL_TYPE = {
 BILL_TYPE_DICT = {
     -1: '兑换现金',
     -2: '兑换奖品',
+    -3: '平台扣减',
     1: '发布动态',
     2: '发布食谱',
     3: '发布评论',
     4: '发起打赏',
     5: '发起分享',
-    # (6, '兑换现金'),
+    6: '平台赠送',
     # (7, '兑换现金'),
     # (8, '兑换现金'),
     # (9, '兑换现金'),
@@ -95,6 +98,7 @@ class Product_Point(BaseModel):
     grade_no = IntegerField(verbose_name='积分数')
     sku_no = IntegerField(verbose_name="库存数")
     front_image = CharField(max_length=200, verbose_name="封面图")
+    status = SmallIntegerField(default=0, verbose_name='状态')
     updatetime = DateTimeField(default=datetime.now, verbose_name="更新时间")
 
 

@@ -1,0 +1,45 @@
+<title>活动列表</title>
+
+<div class="layui-card layadmin-header">
+    <div class="layui-breadcrumb" lay-filter="breadcrumb">
+        <a lay-href="/app/opt/award/list">运营</a>
+        <a><cite>积分奖品</cite></a>
+        <a><cite>列表</cite></a>
+    </div>
+</div>
+<div class="layui-fluid">
+    <div class="layui-card">
+        <div class="layui-card-body">
+            <div style="padding-bottom: 10px;">
+                <label class="layui-form-label">奖品设置</label>
+                <button class="layui-btn layuiadmin-btn-list" data-type="award_add">新增奖品</button>
+            </div>
+            <table id="LAY-cms-opt-award-list" lay-filter="LAY-cms-opt-award-list"></table>
+            <script type="text/html" id="award_img_ViewTpl">
+              <button class="layui-btn layui-btn-xs" style="background-color:#1e9fff" lay-event="checkbig">查看图片</button>
+              <!-- <img src="{{ layui.setter.basehost + d.faceimg }}" class="cms-list-img" lay-event="checkbig"> -->
+              <!-- <button class="layui-btn layui-btn-primary" data-type="test5">hello</button> -->
+            </script>
+            <script type="text/html" id="award_status_Tpl">
+                {{#  if(d.status===1){ }}
+                    <button class="layui-btn layui-btn-xs">上架</button>
+                {{#  }else if(d.status===0){ }}
+                    <button class="layui-btn layui-btn-primary layui-btn-xs" style="color:#cebdbd">下架</button>
+                {{#  } else { }}
+                  <button class="layui-btn layui-btn-primary layui-btn-xs" style="color:#cebdbd">已删除</button>
+                {{#  } }}
+            </script>
+
+            <script type="text/html" id="toolbar-award-list">
+                <a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="award_edit"><i class="layui-icon layui-icon-edit"></i>编辑</a>
+                <a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="award_detail_edit"><i class="layui-icon layui-icon-edit"></i>奖品详情编辑</a>
+                <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="award_del"><i class="layui-icon layui-icon-delete"></i>删除</a>
+                <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="award_set"><i class="layui-icon layui-btn-danger layui-icon-set"></i>下架</a>
+            </script>
+        </div>
+    </div>
+</div>
+<script>
+    // console.log("活动列表");
+    layui.use('opt/award/list', layui.factory('opt/award/list'));
+</script>

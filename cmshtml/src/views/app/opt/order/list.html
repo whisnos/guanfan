@@ -1,0 +1,86 @@
+
+  <title>奖品兑换订单列表</title>
+  
+  <div class="layui-card layadmin-header">
+    <div class="layui-breadcrumb" lay-filter="breadcrumb">
+      <a>运营</a>
+      <a><cite>奖品兑换</cite></a>
+      <a><cite>列表</cite></a>
+    </div>
+  </div>
+  <div class="layui-fluid">
+    <div class="layui-card">
+      <div class="layui-form layui-card-header layuiadmin-card-header-auto" lay-filter="cms-order-search-list">
+        <div class="layui-form-item">
+          <div class="layui-inline">
+            <label class="layui-form-label">订单号</label>
+            <div class="layui-input-inline">
+              <script type="text/html" template>
+                <input type="text" name="id" placeholder="请输入" autocomplete="off" class="layui-input" value="{{ layui.router().search.id || '' }}">
+              </script>
+            </div>
+          </div>
+          <div class="layui-inline">
+            <label class="layui-form-label">用户ID</label>
+            <div class="layui-input-inline">
+              <input type="text" name="user_id" placeholder="请输入" autocomplete="off" class="layui-input">
+            </div>
+          </div>
+          <div class="layui-inline">
+            <label class="layui-form-label">订单状态</label>
+            <div class="layui-input-inline">
+              <select name="express_status">
+                <option value="">请选择标签</option>
+                <option value="0">待发货</option>
+                <option value="1">已发货</option>
+                <option value="2">已完成</option>
+              </select>
+            </div>
+          </div>
+          <div class="layui-inline">
+            <button class="layui-btn layuiadmin-btn-list" lay-submit lay-filter="LAY-cms-order-search">
+              <i class="layui-icon layui-icon-search layuiadmin-button-btn"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="layui-card-body">
+        <table id="LAY-cms-order-list" lay-filter="LAY-cms-order-list"></table>
+        <script type="text/html" id="order_img_ViewTpl">
+          <button class="layui-btn layui-btn-xs" style="background-color:#1e9fff" lay-event="checkbig">查看大图</button>
+          <!-- <img src="{{ layui.setter.basehost + d.faceimg }}" class="cms-list-img" lay-event="checkbig"> -->
+          <!-- <button class="layui-btn layui-btn-primary" data-type="test5">hello</button> -->
+        </script>
+
+        <script type="text/html" id="order_user_id">
+          <a style="color:blue;" href="#/app/user/list/id={{ d.user_id }}">{{ d.user_id }}</a>
+        </script>
+
+
+
+        <script type="text/html" id="order_status_Tpl">
+          {{#  if(d.express_status===0){ }}
+          <button class="layui-btn layui-btn-xs">待发货</button>
+          {{#  } else if(d.express_status===1) { }}
+          <button class="layui-btn layui-btn-primary layui-btn-xs">已发货</button>
+          {{#  } else if(d.express_status===2) { }}
+          <button class="layui-btn layui-btn-primary layui-btn-xs">已完成货</button>
+          {{#  } else{ }}
+            <button class="layui-btn layui-btn-primary layui-btn-xs" style="color:#cebdbd">无该状态</button>
+          {{#  } }}
+        </script>
+        <script type="text/html" id="table-opt-list">
+          <!-- lay-event="step_edit"> -->
+          <!-- <a class="layui-btn layui-btn-normal layui-btn-xs" target="_blank" href="#/app/opt/order/steplist/orderid={{d.id}}/ordername={{d.title}}"><i class="layui-icon">&#xe641;</i>食谱步骤</a> -->
+          <a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="order_confirm"><i class="layui-icon layui-icon-edit"></i>确认发货</a>
+          <a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="edit"><i class="layui-icon layui-icon-edit"></i>修改发货信息</a>
+          <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del"><i class="layui-icon layui-icon-delete"></i>取消订单</a>
+          <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="set"><i class="layui-icon layui-btn-danger layui-icon-set"></i>用户确认收货</a>
+        </script>
+      </div>
+    </div>
+  </div>
+<script>
+  layui.use('opt/order/order_list', layui.factory('opt/order/order_list'));
+</script>

@@ -1,0 +1,69 @@
+<div class="layui-card-body">
+    <div class="layui-tab">
+        <ul class="layui-tab-title">
+            <li class="layui-this">设置状态</li>
+        </ul>
+        <div class="layui-tab-content">
+            <div class="layui-tab-item layui-show">
+                <div class="layui-form" lay-filter="cms-order-set-status-edit-form" id="cms-order-set-status-edit-form"
+                    style="padding: 20px 30px 0 0;">
+                    <script type="text/html" template lay-done="layui.data.done( d.params);"></script>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">是否收货</label>
+                        <div class="layui-btn-group">
+                            <script type="text/html" template>
+                                <input type="radio" name="express_status" value="0" title="待发货" checked>
+                                <input type="radio" name="express_status" value="1" title="已发货">
+                                <input type="radio" name="express_status" value="2" title="已完成">
+
+                            </script>
+                        </div>
+                    </div>
+
+                    <script type="text/html" template>
+                    <input type="hidden" name="id" value="{{ d.params.id || '0' }}">
+                    </script>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label"></label>
+                        <div class="layui-btn-group">
+                            <input type="button" lay-submit lay-filter="cms-order-set-status-edit-form-submit" value="确认修改"
+                                class="layui-btn">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    layui.data.done = function(d){
+        // console.log(d);
+        layui.use(['form','jquery'], function(){
+        var $ = layui.$
+            ,form = layui.form;
+
+            $('[name=isFeatured]').each(function(i,item){
+                if($(item).val()==d.isFeatured){
+                    $(item).prop('checked',true);
+                }
+            });
+            $('[name=isEnable]').each(function(i,item){
+                if($(item).val()==d.isEnable){
+                    $(item).prop('checked',true);
+                }
+            });
+            $('[name=status]').each(function(i,item){
+                if($(item).val()==d.status){
+                    $(item).prop('checked',true);
+                }
+            });
+            $('[name=isExclusive]').each(function(i,item){
+                if($(item).val()==d.isExclusive){
+                    $(item).prop('checked',true);
+                }
+            });
+            form.render(null, 'cms-order-set-status-edit-form'); //渲染该模板下的动态表单
+        });
+    };
+    // layui.use('content/order/order_list', layui.factory('content/order/order_list'));
+</script>

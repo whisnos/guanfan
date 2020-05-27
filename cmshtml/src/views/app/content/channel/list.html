@@ -1,0 +1,34 @@
+
+  <title>动态频道</title>
+
+  <div class="layui-card layadmin-header">
+    <div class="layui-breadcrumb" lay-filter="breadcrumb">
+      <a>动态频道</a>
+    </div>
+  </div>
+  <div class="layui-fluid">
+    <div class="layui-card">
+        <div class="layui-card-body">
+            <div style="padding-bottom: 10px;">
+                <button class="layui-btn layuiadmin-btn-list" data-type="channel_add">新增频道</button>
+            </div>
+            <table id="LAY-cms-content-channel-table-list" lay-filter="LAY-cms-content-channel-table-list"></table>
+
+            <script type="text/html" id="channel_img_list_ViewTpl">
+              <button class="layui-btn layui-btn-xs" style="background-color:#1e9fff" lay-event="check_channel_img">查看图片</button>
+            </script>
+
+            <script type="text/html" id="channel_channel_id_Tpl">
+                <a style="color:blue;" href="#/app/content/channel/list/id={{ d.channelId }}">{{ d.channelId }}</a>
+            </script>
+
+            <script type="text/html" id="toolbar-channel-type-content-list">
+            <a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="channel_edit"><i class="layui-icon layui-icon-edit"></i>编辑</a>
+            <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="channel_del"><i class="layui-icon layui-icon-delete"></i>删除</a>
+            </script>
+        </div>
+    </div>
+</div>
+<script>
+  layui.use('content/channel/channel_list', layui.factory('content/channel/channel_list'));
+</script>

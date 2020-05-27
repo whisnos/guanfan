@@ -273,7 +273,7 @@ class RestApi(object):
             response = await requests.post('http://gw.api.taobao.com/router/rest', params=public_parameter)
             text = await response.text()
             jsonobj = json.loads(text)
-            print('jsonobj', jsonobj)
+            # print('jsonobj', jsonobj)
             if "error_response" not in jsonobj.keys():
                 print("error_response...............首次获取失败，进入3次获取")
                 return jsonobj
@@ -290,10 +290,7 @@ class RestApi(object):
 
         sign_parameter = public_parameter.copy()
         sign_parameter.update(application_parameter)
-        print('sign_parameter', sign_parameter)
         sign_parameter["sign"] = self.get_Taobao_Sign(sign_parameter)
-        # sign_parameter["sign"] =sign(TAO_APP_SECRET,sign_parameter)
-        print('sign_parameter',sign_parameter)
         response = await requests.post('http://gw.api.taobao.com/router/rest', params=sign_parameter)
         text = await response.text()
         if response.status is not 200:
@@ -302,11 +299,11 @@ class RestApi(object):
         # for a in text:
         #     print(99,a)
         jsonobj = json.loads(text)
-        print('jsonobj',jsonobj)
         if "error_response" in jsonobj.keys():
             print("error_response...............首次获取失败，进入3次获取")
             res = await self.repeat_try(data,public_parameter)
             return res
+        # print('jsonobj',jsonobj)
         return jsonobj
 
     def getApplicationParameters(self):

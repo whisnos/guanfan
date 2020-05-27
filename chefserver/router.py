@@ -1,9 +1,11 @@
 ﻿from chefserver.webhandler.food_channel import ChannelListHandler
 from chefserver.webhandler.point import MyPointHandler, MyPointBillHandler, MyPointProductHandler, \
     ProductPointDetailHandler, MyPointMyExchangeHandler, MyExchangeDetailHandler, AddressDetailHandler, \
-    MyAddressHandler, MyAddressDetailHandler, MyPointPorderHandler, MyPointCmOrderHandler
+    MyAddressHandler, MyAddressDetailHandler, MyPointPorderHandler, MyPointCmOrderHandler, MyAddressDeleteHandler, \
+    MyAddressDetailSinHandler
 from chefserver.webhandler.taobaoke import TaoIndexSearchHandler, TaoIndexChannelInfoAllHandler, \
-    TaoIndexMaterialSearchAllHandler, TaoIndexItemInfoAllHandler, TaoFootPrintAllHandler, TaoBannerAllHandler
+    TaoIndexMaterialSearchAllHandler, TaoIndexItemInfoAllHandler, TaoFootPrintAllHandler, TaoBannerAllHandler, \
+    TaoFootPDeleteAllHandler
 from chefserver.webhandler.user import LoginHandler,SendSmsHandler,RestPasswordHandler
 from chefserver.webhandler.user import ModifyPhonedHandler,LogoutHandler,PersonInfoHandler
 from chefserver.webhandler.user import ModifyInfoHandler, SubmitAdvancedHandler,RegisterHandler
@@ -24,7 +26,8 @@ from chefserver.webhandler.publish import PushRecipeHandler, PushDongtaiHandler,
 
 from chefserver.webhandler.subject import SubjectListHandler, SubjectDetailHandler
 
-from chefserver.webhandler.action import ReplyHandler, DelReplyHandler, CollectionHandler, UnCollectionHandler
+from chefserver.webhandler.action import ReplyHandler, DelReplyHandler, CollectionHandler, UnCollectionHandler, \
+    PointShareHandler
 from chefserver.webhandler.action import LikeHandler, UnLikeHandler, MessageReadHandler
 from chefserver.webhandler.action import MessageNumHandler, DelRecipeHandler, DelDongtaiHandler
 from chefserver.webhandler.action import JubaoHandler, HeartBeatHandler
@@ -125,6 +128,7 @@ def make_app():
         (r"/action/report", JubaoHandler),                       # 举报
         (r"/action/heartbeat", HeartBeatHandler),                # 心跳
         (r"/action/timestamp", TimeStampHandler),                # 时间戳
+        (r"/action/pshare", PointShareHandler),                  # 分享操作- 积分联动
         (r"/dongtai/news", DtPlazaHandler),                      # 动态广场_最新最热动态
         (r"/dongtai/follownews", DtPlazafocusHandler),           # 动态广场_关注的最新动态
         (r"/dongtai/recommends", DtPlazaRecommendHandler),       # 动态广场_随机推荐动态
@@ -169,12 +173,15 @@ def make_app():
         (r"/mypoint/exchange", MyPointMyExchangeHandler),        # 积分-我的兑换
         (r"/address/detail", AddressDetailHandler),              # 地址-省市区获取
         (r"/my/address", MyAddressHandler),                      # 地址-省市区获取 get post put delete
+        (r"/my/adddel", MyAddressDeleteHandler),                 # 地址-  delete
+        (r"/my/adddetail", MyAddressDetailSinHandler),           # 地址-  获取某个地址
         (r"/detail/address", MyAddressDetailHandler),            # 地址-获取默认地址
         (r"/tbk/search", TaoIndexSearchHandler),                 # tbk-首页搜索
         (r"/tbk/channel", TaoIndexChannelInfoAllHandler),        # tbk-频道获取
         (r"/tbk/materials", TaoIndexMaterialSearchAllHandler),   # tbk-物料搜索
         (r"/tbk/iteminfo", TaoIndexItemInfoAllHandler),          # tbk-商品详情
         (r"/tbk/footprint", TaoFootPrintAllHandler),             # tbk-足迹
+        (r"/tbk/footpdel", TaoFootPDeleteAllHandler),            # tbk-删除足迹
         (r"/tbk/banner", TaoBannerAllHandler),                   # tbk-首页轮播图
         (r"/test", TestHandler),                                 # 测试接口
         ],

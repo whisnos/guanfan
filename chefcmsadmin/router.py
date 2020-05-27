@@ -11,12 +11,23 @@ from chefcmsadmin.web.topic import TopicRecipeListHandler, TopicRelationAddListH
 from chefcmsadmin.web.recommendrecipe import RecipeTypeSetHandler, RecipeTypeListHandler, RecipeTypeAddHandler, RecipeTypeDeleteHandler, RecipeTypeEditHandler
 from chefcmsadmin.web.recommendrecipe import RecipeTypeRecipeListHandler, RecipeTypeRelationAddListHandler, RecipeTypeRelationEditListHandler, RecipeTypeRelationDelListHandler
 
-from chefcmsadmin.web.recommendtopic import RecommendTopicListHandler, RecommendTopicAddHandler, RecommendTopicDeleteHandler, RecommendTopicEditHandler
+from chefcmsadmin.web.recommendtopic import RecommendTopicListHandler, RecommendTopicAddHandler, \
+    RecommendTopicDeleteHandler, RecommendTopicEditHandler
 
 from chefcmsadmin.web.dongtai import DongtaiListHandler, DongtaiDeleteHandler, DongtaiSetLikeHandler
 from chefcmsadmin.web.report import ReportListHandler, ReportSetHandler
+from chefcmsadmin.web.trending import TrendingListHandler, TrendingAddHandler, TrendingEditHandler, TrendingDelHandler
+from chefcmsadmin.web.channel import ChannelAddHandler, ChannelDelHandler, ChannelListHandler, ChannelEditHandler
+from chefcmsadmin.web.point import PointListHandler, PointAddHandler, PointDeleteHandler, PointEditHandler, PointSetHandler
+from chefcmsadmin.web.award import AwardListHandler, AwardAddHandler, AwardDeleteHandler, AwardEditHandler, AwardSetHandler
+from chefcmsadmin.web.awarddetail import AwardDetailListHandler, AwardDetailAddHandler, AwardDetailDeleteHandler, \
+    AwardDetailEditHandler
+from chefcmsadmin.web.order import OrderListHandler, OrderAddHandler, OrderDeleteHandler, OrderEditHandler, OrderSetHandler
+from chefcmsadmin.web.taobanner import TaoBannerListHandler, TaoBannerAddHandler, TaoBannerDeleteHandler, TaoBannerEditHandler
+from chefcmsadmin.web.taoclassinfo import TaoClassInfoListHandler, TaoClassInfoAddHandler, TaoClassInfoDeleteHandler, TaoClassInfoEditHandler
+from chefcmsadmin.web.taochannel import TaoChannelListHandler, TaoChannelAddHandler, TaoChannelEditHandler, TaoChannelDelHandler
 
-from chefcmsadmin.web.user import UserListHandler, UserDeleteHandler, UserCheckHandler, UserVerifyInfoHandler
+from chefcmsadmin.web.user import UserListHandler, UserDeleteHandler, UserCheckHandler, UserVerifyInfoHandler, UserPointEditListHandler, UserPointAddListHandler
 
 from chefcmsadmin.web.campaign.campaign import CampaignAddHandler, CampaignDeleteHandler, CampaignEditHandler, CampaignListHandler, CampaignSetHandler
 from chefcmsadmin.web.campaign.content import CampaignContentAddHandler, CampaignContentDeleteHandler, CampaignContentEditHandler, CampaignContentListHandler
@@ -57,6 +68,8 @@ def make_app():
         (r"/api/class/del",             ClassInfoDeleteHandler),             # 分类删除
         (r"/api/class/edit",            ClassInfoEditHandler),               # 分类修改
         (r"/api/user/list",             UserListHandler),                    # 用户列表
+        (r"/api/user/pointedit",        UserPointEditListHandler),           # 用户积分设置
+        (r"/api/user/pointadd",         UserPointAddListHandler),            # 用户积分新增
         (r"/api/user/del",              UserDeleteHandler),                  # 用户删除(禁用)
         (r"/api/user/checkverify",      UserCheckHandler),                   # 审核认证
         (r"/api/user/verifyinfo",       UserVerifyInfoHandler),              # 获取高级认证内容
@@ -81,6 +94,45 @@ def make_app():
         (r"/api/dongtai/list",          DongtaiListHandler),                 # 动态列表
         (r"/api/dongtai/del",           DongtaiDeleteHandler),               # 动态状态修改
         (r"/api/dongtai/setlike",       DongtaiSetLikeHandler),              # 动态设置点赞
+        (r"/api/point/list",            PointListHandler),                   # Point列表
+        (r"/api/point/add",             PointAddHandler),                    # Point添加
+        (r"/api/point/del",             PointDeleteHandler),                 # Point删除
+        (r"/api/point/edit",            PointEditHandler),                   # Point修改
+        (r"/api/point/set",             PointSetHandler),                    # Point设置
+        (r"/api/award/list",            AwardListHandler),                   # 积分奖品-列表
+        (r"/api/award/add",             AwardAddHandler),                    # 积分奖品-添加
+        (r"/api/award/del",             AwardDeleteHandler),                 # 积分奖品-删除
+        (r"/api/award/edit",            AwardEditHandler),                   # 积分奖品-编辑
+        (r"/api/award/set",             AwardSetHandler),                    # 积分奖品-设置
+        (r"/api/awarddetail/list",      AwardDetailListHandler),             # 积分奖品详情-列表
+        (r"/api/awarddetail/add",       AwardDetailAddHandler),              # 积分奖品详情-添加
+        (r"/api/awarddetail/del",       AwardDetailDeleteHandler),           # 积分奖品详情-删除
+        (r"/api/awarddetail/edit",      AwardDetailEditHandler),             # 积分奖品详情-编辑
+        (r"/api/order/list",            OrderListHandler),                   # 积分奖品兑换订单列表
+        (r"/api/order/add",             OrderAddHandler),                    # 积分奖品兑换订单添加
+        (r"/api/order/del",             OrderDeleteHandler),                 # 积分奖品兑换订单删除
+        (r"/api/order/edit",            OrderEditHandler),                   # 积分奖品兑换订单修改
+        (r"/api/order/set",             OrderSetHandler),                    # 积分奖品兑换订单设置
+        (r"/api/channel/list",          ChannelListHandler),                 # 频道-列表
+        (r"/api/channel/add",           ChannelAddHandler),                  # 频道-添加
+        (r"/api/channel/edit",          ChannelEditHandler),                 # 频道-修改
+        (r"/api/channel/del",           ChannelDelHandler),                  # 频道-删除
+        (r"/api/trending/list",         TrendingListHandler),                # 热搜-列表
+        (r"/api/trending/add",          TrendingAddHandler),                 # 热搜-添加
+        (r"/api/trending/edit",         TrendingEditHandler),                # 热搜-修改
+        (r"/api/trending/del",          TrendingDelHandler),                 # 热搜-删除
+        (r"/api/taobanner/list",        TaoBannerListHandler),               # taobanner列表
+        (r"/api/taobanner/add",         TaoBannerAddHandler),                # taobanner添加
+        (r"/api/taobanner/del",         TaoBannerDeleteHandler),             # taobanner删除
+        (r"/api/taobanner/edit",        TaoBannerEditHandler),               # taobanner修改
+        (r"/api/taochannel/list",       TaoChannelListHandler),              # 淘频道-列表
+        (r"/api/taochannel/add",        TaoChannelAddHandler),               # 淘频道-添加
+        (r"/api/taochannel/edit",       TaoChannelEditHandler),              # 淘频道-修改
+        (r"/api/taochannel/del",        TaoChannelDelHandler),               # 淘频道-删除
+        (r"/api/taoclass/list",         TaoClassInfoListHandler),            # 分类列表
+        (r"/api/taoclass/add",          TaoClassInfoAddHandler),             # 分类添加
+        (r"/api/taoclass/del",          TaoClassInfoDeleteHandler),          # 分类删除
+        (r"/api/taoclass/edit",         TaoClassInfoEditHandler),            # 分类修改
         (r"/api/report/list",           ReportListHandler),                  # 举报列表
         (r"/api/report/set",            ReportSetHandler),                   # 举报状态修改
         (r"/api/recommendtopic/list",   RecommendTopicListHandler),          # 主题推荐-列表

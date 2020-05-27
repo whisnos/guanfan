@@ -218,9 +218,11 @@ async def campaign_list(arg_dict):
     *,
 (
 CASE
+	WHEN UNIX_TIMESTAMP(starttime) > UNIX_TIMESTAMP(NOW()) THEN 0
 	WHEN UNIX_TIMESTAMP(endtime) >= UNIX_TIMESTAMP(NOW()) AND UNIX_TIMESTAMP(starttime) <= UNIX_TIMESTAMP(NOW()) THEN 1
-	WHEN UNIX_TIMESTAMP(starttime) > UNIX_TIMESTAMP(NOW()) THEN 2
-	WHEN UNIX_TIMESTAMP(endtime) < UNIX_TIMESTAMP(NOW()) THEN 3
+	WHEN UNIX_TIMESTAMP(endtime) < UNIX_TIMESTAMP(NOW()) AND UNIX_TIMESTAMP(NOW()) <= UNIX_TIMESTAMP(sel_starttime) THEN 2
+    WHEN UNIX_TIMESTAMP(sel_endtime) >= UNIX_TIMESTAMP(NOW()) AND UNIX_TIMESTAMP(sel_starttime) <= UNIX_TIMESTAMP(NOW()) THEN 3
+    WHEN UNIX_TIMESTAMP(sel_endtime) < UNIX_TIMESTAMP(NOW()) THEN 4
 END
 )AS statustime
     FROM
@@ -248,4 +250,10 @@ END
 
         et = b.get('endtime')
         b['endtime'] = str(et)
+
+        sel_st = b.get('sel_starttime')
+        b['sel_starttime'] = str(sel_st)
+
+        sel_et = b.get('sel_endtime')
+        b['sel_endtime'] = str(sel_et)
     return b_cnum.get('ctnum', 0), blist

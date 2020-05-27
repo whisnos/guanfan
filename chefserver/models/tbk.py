@@ -30,12 +30,14 @@ class Tao_Channel_Info(BaseModel):
     iconImg = CharField(max_length=200, null=True, verbose_name="封面图")
     materialId = CharField(max_length=20, verbose_name="物料id")
     recommendId = CharField(max_length=20, null=True, verbose_name="物料id")
-    pid = ForeignKeyField('self', null=True, verbose_name="父级id", backref='channels')
+    # pid = ForeignKeyField('self', null=True, verbose_name="父级id", backref='channels')
+    pid_id = IntegerField(default=0, verbose_name="父级id",)
     sort = IntegerField(default=0, verbose_name='排序')
     level = IntegerField(choices=CHANNEL_LEVEL, verbose_name='分类等级')
     type = IntegerField(choices=CHANNEL_TYPE, default=0, verbose_name='频道类型')
     status = SmallIntegerField(default=0, verbose_name='状态')
     is_banner = BooleanField(default=False, verbose_name='是否轮播')
+    is_top = BooleanField(default=False, verbose_name='是否top')
     updateTime = DateTimeField(default=datetime.now, verbose_name="更新时间")
 
 

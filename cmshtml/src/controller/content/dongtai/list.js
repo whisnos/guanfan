@@ -21,7 +21,9 @@ layui.define(['table', 'form', 'layer'], function (exports) {
         , { field: 'id', title: 'ID',width:70 }
         , { field: 'userid', title: '用户ID',width:80, templet: '#dongtai_user_id', align: 'center' }
         , { field: 'momentsdescription', title: '动态内容', minWidth: 260}
+        , { field: 'heat', title: '热度', minWidth: 100, align: 'center' }
         , { field: 'momentsimgurl', title: '动态图片', templet: '#dongtai_img_list_ViewTpl', align: 'center' }
+        , { field: 'title', title: '所属频道', minWidth: 150 }
         , { field: 'isvideo', title: '视频', templet: '#dongtai_isvideo_Tpl', minWidth: 100,align: 'center' }
         , { field: 'type', title: '类型', templet: '#dongtai_type_Tpl', minWidth: 100,align: 'center' }
         , { field: 'itemid', title: '关联ID', width: 100, templet: '#dongtai_relation_id_Tpl', align: 'center' }
@@ -50,7 +52,8 @@ layui.define(['table', 'form', 'layer'], function (exports) {
         page: {
           curr: 1 //重新从第 1 页开始
         }
-      });
+      })
+        console.log(field);
     });
 
     //监听工具条

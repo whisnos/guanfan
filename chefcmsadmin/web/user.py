@@ -34,6 +34,22 @@ class UserVerifyInfoHandler(BaseHandler):
         code, msg, result = await user_verify_info(arg_key)
         self.send_cms_msg(code, msg, result)
 
+class UserPointEditListHandler(BaseHandler):
+    @authenticated
+    async def post(self):
+        ''' 设置点赞数量 '''
+        arg_key = change_byte_to_dict(self.request.body, self.request.query)
+        code, msg = await user_set_point_count(arg_key)
+        self.send_cms_msg(code, msg)
+
+class UserPointAddListHandler(BaseHandler):
+    @authenticated
+    async def post(self):
+        ''' 设置点赞数量 '''
+        arg_key = change_byte_to_dict(self.request.body, self.request.query)
+        code, msg = await user_add_point_count(arg_key)
+        self.send_cms_msg(code, msg)
+
 
 class UserDeleteHandler(BaseHandler):
     @authenticated
@@ -129,6 +145,100 @@ async def user_del(arg_dict):
     else:
         return 0 , "修改成功"
 
+async def user_add_point_count(arg_dict):
+    ''' 新增积分账户数量 '''
+    add_pointcount_sql = '''
+    INSERT INTO user_point
+    (
+        point,
+        user_id
+    )
+    VALUES
+    (
+        ?,
+        ?
+    )
+    '''
+    add_pointcount_result = await dbins.execute(add_pointcount_sql,
+        (
+        arg_dict.get('grade_no'),
+        arg_dict.get('id')
+        ))
+
+    insert_pointcount_sql = '''
+    INSERT INTO user_pointbill
+    (
+        bill_type,
+        grade_no,
+        user_id
+    )
+    VALUES
+    (
+        ?,
+        ?,
+        ?
+    )
+    '''
+    insert_pointcount_result = await dbins.execute(insert_pointcount_sql,
+                                                   (
+                                                       arg_dict.get('bill_type'),
+                                                       arg_dict.get('grade_no'),
+                                                       arg_dict.get('id')
+                                                   ))
+
+    if (add_pointcount_result, insert_pointcount_result) is None:
+        return 3001, "修改失败"
+    else:
+        return 0, "修改成功"
+
+async def user_set_point_count(arg_dict):
+    ''' 设置积分账户数量 '''
+    set_pointcount_sql = '''
+    UPDATE user_point
+    SET point = ? + ?
+    where user_id = ?
+    '''
+    if int(arg_dict.get('bill_type')) > 0:
+        set_pointcount_result = await dbins.execute(set_pointcount_sql,
+            (
+            arg_dict.get('point'),
+            arg_dict.get('grade_no'),
+            arg_dict.get('id')
+            ))
+    else:
+        set_pointcount_result = await dbins.execute(set_pointcount_sql,
+            (
+            arg_dict.get('point'),
+            ('-' + arg_dict.get('grade_no')),
+            arg_dict.get('id')
+            ))
+
+    insert_pointcount_sql = '''
+    INSERT INTO user_pointbill
+    (
+        bill_type,
+        grade_no,
+        user_id
+    )
+    VALUES
+    (
+        ?,
+        ?,
+        ?
+    )
+    '''
+    insert_pointcount_result = await dbins.execute(insert_pointcount_sql,
+        (
+        arg_dict.get('bill_type'),
+        arg_dict.get('grade_no'),
+        arg_dict.get('id')
+        ))
+
+    if (set_pointcount_result, insert_pointcount_result) is None:
+        return 3001 , "修改失败"
+    else:
+        return 0 , "修改成功"
+
 def user_search_string(arg_dict):
     ''' 返回搜索条件,arg_dict:所有请求的键值对数据,返回值 (1 where条件语句, 2 where条件对应的值) '''
     if arg_dict.get('page'):
@@ -138,11 +248,17 @@ def user_search_string(arg_dict):
 
     sql_where = []
     wvalue = []
+    if arg_dict.get('id'):
+        t = arg_dict.get('id')
+        wvalue.append(t)
+        sql_where.append("u.id = ?")
+        arg_dict.pop('id')
+
     if arg_dict.get('username'):
         # like 模糊搜索字段
         t = arg_dict.get('username')
         wvalue.append('%' + t + '%')
-        sql_where.append("title like ?")
+        sql_where.append("username like ?")
         arg_dict.pop('username')
 
     for k,v in arg_dict.items():
@@ -169,7 +285,7 @@ async def user_list(arg_dict):
 
     where_str, wvalue_list = user_search_string(arg_dict)
     # log.warning("{},{}".format(where_str, wvalue_list))
-    recipe_count_sql = '''select count(1) as ctnum from user {}'''.format(where_str)
+    recipe_count_sql = '''select count(1) as ctnum from user u {}'''.format(where_str)
     b_cnum = await dbins.selectone(recipe_count_sql, wvalue_list)
 
     if b_cnum is None:
@@ -187,10 +303,11 @@ async def user_list(arg_dict):
         
     recipe_list_sql = '''
     select
-    id,
+    DISTINCT u.id,
     username,
     headimg,
     mobile,
+    up.point,
     sex,
     birthday,
     tag,
@@ -199,16 +316,21 @@ async def user_list(arg_dict):
     certificationstatus,
     address,
     personalprofile,
-    updatetime,
-    createtime
+    u.updatetime,
+    u.createtime
     from
-    user
+    user u 
+    left JOIN user_point up 
+    on u.id = up.user_id
     {}
     limit ?,?
     '''.format(where_str)
     wvalue_list.append(page)
     wvalue_list.append(epage)
     blist = await dbins.select(recipe_list_sql, wvalue_list)
+
+    if blist is None:
+        return 0, []
 
     for b in blist:
         ct = b.get('createtime')

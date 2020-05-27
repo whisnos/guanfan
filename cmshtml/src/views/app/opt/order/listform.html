@@ -1,0 +1,68 @@
+
+  <title>修改发货信息</title>
+  <div class="layui-card layadmin-header">
+    <div class="layui-breadcrumb" lay-filter="breadcrumb">
+      <a><cite><span id="order_name"></span></cite></a>
+      <a><cite>修改发货列表</cite></a>
+    </div>
+  </div>
+
+<div class="layui-tab-content">
+            <div class="layui-tab-item layui-show">
+                <div class="layui-form" lay-filter="cms-order-form" id="cms-order-form" style="padding: 20px 30px 0 0;">
+                    <script type="text/html" template lay-done="layui.data.done( d.params);"></script>
+
+      <div class="layui-form-item">
+          <label class="layui-form-label">快递商</label>
+          <div class="layui-btn-group">
+              <script type="text/html" template>
+                <input type="radio" name="name" value="虚拟物品无需快递" title="虚拟物品无需快递" checked>
+                <input type="radio" name="name" value="圆通" title="圆通">
+                <input type="radio" name="name" value="中通" title="中通">
+                <input type="radio" name="name" value="韵达" title="韵达">
+                <input type="radio" name="name" value="顺丰" title="顺丰">
+                <input type="radio" name="name" value="申通" title="申通">
+                <input type="radio" name="name" value="天天" title="天天">
+              </script>
+          </div>
+      </div>
+
+      <div class="layui-form-item">
+        <label class="layui-form-label">运单号</label>
+        <div class="layui-input-inline">
+          <script type="text/html" template>
+            <input type="text" name="express_no" value="{{ d.params.express_no || '0' }}" lay-verify="required" placeholder="请输入运单号" autocomplete="off" class="layui-input">
+          </script>
+        </div>
+      </div>
+
+                    <script type="text/html" template>
+                    <input type="hidden" name="id" value="{{ d.params.id || '0' }}">
+                    <input type="hidden" name="express_info_id" value="{{ d.params.express_info_id }}" >
+                    <input type="hidden" name="express_id" value="{{ d.params.express_id }}">
+
+                    </script>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label"></label>
+                        <div class="layui-btn-group">
+                            <input type="button" lay-submit lay-filter="cms-order-form-submit" value="确认修改"
+                                class="layui-btn">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+<script>
+    layui.data.done = function(d){
+        // console.log(d);
+        layui.use(['form','jquery'], function(){
+        var $ = layui.$
+            ,form = layui.form;
+
+            form.render(null, 'cms-order-form'); //渲染该模板下的动态表单
+        });
+    };
+  // layui.use('opt/order/order_list', layui.factory('opt/order/order_list'));
+
+</script>

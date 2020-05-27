@@ -32,7 +32,7 @@ class MyPointHandler(BaseHandler):
 
 
 class MyPointBillHandler(BaseHandler):
-    ''' 我的积分 '''
+    ''' 我的积分账单 '''
 
     @check_login
     async def post(self, *args, **kwargs):
@@ -51,7 +51,6 @@ class MyPointBillHandler(BaseHandler):
                     user_pointbill_query = user_pointbill_query.filter(User_PointBill.bill_type > 0)
             if page:
                 user_pointbill_query = user_pointbill_query.paginate(int(page), PAGE_SIZE)
-            print('user_pointbill_query', user_pointbill_query)
             user_pointbills = await self.application.objects.execute(user_pointbill_query)
             for bill in user_pointbills:
                 bill_dict = model_to_dict(bill)
@@ -74,9 +73,8 @@ class MyPointProductHandler(BaseHandler):
         result = []
         page = self.verify_arg_legal(self.get_body_argument('page'), '页数', False, is_num=True)
         products_query = Product_Point.select(Product_Point.id, Product_Point.title, Product_Point.grade_no,
-                                              Product_Point.front_image, Product_Point.createTime).order_by(
+                                              Product_Point.front_image, Product_Point.sku_no, Product_Point.createTime).where(Product_Point.status==1).order_by(
             Product_Point.id.desc()).paginate(int(page), PAGE_SIZE)
-        print('products_query', products_query)
         products = await self.application.objects.execute(products_query)
         for p in products:
             p_dict = model_to_dict(p)
@@ -252,7 +250,7 @@ class MyPointPorderHandler(BaseHandler):
 
 
 class MyPointCmOrderHandler(BaseHandler):
-    ''' 获取兑换订单详情 '''
+    ''' 确认收货 '''
 
     @check_login
     async def post(self):
@@ -263,7 +261,7 @@ class MyPointCmOrderHandler(BaseHandler):
             the_exchange_order = await self.application.objects.get(My_Exchange_Info, user_id=userid, id=did, express_status=1)
             the_exchange_order.express_status = 2
             await self.application.objects.update(the_exchange_order)
-            return self.send_message(False, 0, '收货成功', result)
+            return self.send_message(True, 0, '确认收货成功', result)
         except My_Exchange_Info.DoesNotExist:
             return self.send_message(False, 404, '订单不存在', result)
 
@@ -280,10 +278,11 @@ class MyPointMyExchangeHandler(BaseHandler):
         my_exchange_query = My_Exchange_Info.extend().where(My_Exchange_Info.user_id == userid)
         if sort:
             if sort != '0':
-                my_exchange_query = my_exchange_query.where(My_Exchange_Info.express_status == sort)
+                my_exchange_query = my_exchange_query.where(My_Exchange_Info.express_status == (int(sort)-1))
             else:
                 pass
         my_exchange_query = my_exchange_query.order_by(My_Exchange_Info.id.desc()).paginate(int(page), PAGE_SIZE)
+        print('my_exchange_query',my_exchange_query)
         exchanges_warpper = await self.application.objects.execute(my_exchange_query)
         if exchanges_warpper:
             for ex in exchanges_warpper:
@@ -308,7 +307,7 @@ class MyPointMyExchangeHandler(BaseHandler):
             return self.send_message(success, code, message, result)
 
         else:
-            return self.send_message(False, 404, '订单不存在', result)
+            return self.send_message(True, 404, '订单不存在', result)
 
 
 class MyExchangeDetailHandler(BaseHandler):
@@ -356,7 +355,9 @@ class MyExchangeDetailHandler(BaseHandler):
                 if express_info:
                     for addin in express_info:
                         express_info_dict = model_to_dict(addin)
-                        express_info_dict.pop('createTime')
+                        ct = express_info_dict.get('createTime', None)
+                        if ct:
+                            express_info_dict['createTime'] = ct.strftime('%Y-%m-%d %H:%M:%S')
                         express_info_dict.pop('updatetime')
                         p_dict['express'] = express_info_dict
 
@@ -436,7 +437,7 @@ class MyAddressHandler(BaseHandler):
             success, code, message, result = True, 0, '获取成功', result
             return self.send_message(success, code, message, result)
         else:
-            return self.send_message(False, 404, '地址为空', result)
+            return self.send_message(True, 200, '地址为空', result)
 
     @check_login
     async def post(self):
@@ -496,7 +497,7 @@ class MyAddressHandler(BaseHandler):
         pid = self.verify_arg_num(self.get_body_argument('pid'), '省id', is_num=True, )
         cid = self.verify_arg_num(self.get_body_argument('cid'), '市id', is_num=True, )
         aid = self.verify_arg_num(self.get_body_argument('aid'), '县区id', is_num=True, )
-        address = self.verify_arg_legal(self.get_body_argument('address'), '详细地址', False, is_len=50, )
+        address = self.verify_arg_legal(self.get_body_argument('address'), '详细地址', False, is_len=True, olen=50)
         is_default = self.verify_arg_num(self.get_body_argument('is_default'), '是否默认', is_num=True)
 
         try:
@@ -555,6 +556,70 @@ class MyAddressHandler(BaseHandler):
         return self.send_message(success, code, message, result)
 
 
+
+class MyAddressDetailSinHandler(BaseHandler):
+    ''' 获取某 地址 '''
+
+    @check_login
+    async def get(self):
+        result = []
+        userid = self.get_session().get('id', 0)
+        did = self.verify_arg_legal(self.get_argument('did'), '地址id', False, is_num=True)
+        my_address_query = My_Address.select().order_by(My_Address.id.desc()).where(My_Address.user_id == userid,My_Address.id==did)
+        address_wrappers = await self.application.objects.execute(my_address_query)
+        if address_wrappers:
+            for ad in address_wrappers:
+                sql_ = '''
+    SELECT
+    t1.name as p_name,
+    t2.name as c_name,
+    t3.name as a_name
+    from
+    (select
+    name
+    from area
+    where id=?) as t1
+    inner join area as t2
+    on t2.id = ?
+    inner join area as t3
+    on t3.id = ?'''
+                address_result = await dbins.select(sql_, (ad.province_id, ad.city_id, ad.area_id))
+                if address_result is None:
+                    return self.send_message(False, 3003, '获取收货地址失败,请重试', None)
+                else:
+                    address_detail = address_result[0]
+                    detail_dict = {}
+                    detail_dict['id'] = ad.id
+                    detail_dict['name'] = ad.name
+                    detail_dict['mobile'] = ad.mobile
+                    address_detail['address'] = ad.address
+                    detail_dict['detail'] = address_detail
+                    detail_dict['is_default'] = ad.is_default
+                    result.append(detail_dict)
+            success, code, message, result = True, 0, '获取成功', result
+            return self.send_message(success, code, message, detail_dict)
+        else:
+            return self.send_message(True, 404, '地址为空', result)
+
+
+class MyAddressDeleteHandler(BaseHandler):
+    ''' 删除 地址 '''
+    @check_login
+    async def post(self, *args, **kwargs):
+        result = []
+        userid = self.get_session().get('id', 0)
+        did = self.verify_arg_legal(self.get_body_argument('did'), '地址id', False, is_num=True)
+        # self.verify_arg_num(self.get_body_argument('is_delete'), '是否默认', is_num=True)
+        try:
+            add_obj = await self.application.objects.get(My_Address, id=did, is_delete=False, user_id=userid)
+        except My_Address.DoesNotExist:
+            return self.send_message(False, 404, '地址不存在', result)
+        add_obj.is_delete = True
+        await self.application.objects.update(add_obj)
+        success, code, message, result = True, 0, '删除成功', result
+        return self.send_message(success, code, message, result)
+
+
 class MyAddressDetailHandler(BaseHandler):
     ''' 创建 修改 删除 地址 '''
 
@@ -598,7 +663,7 @@ class MyAddressDetailHandler(BaseHandler):
             success, code, message, result = True, 0, '获取成功', result
             return self.send_message(success, code, message, result)
         else:
-            return self.send_message(False, 400, '没有默认地址', result)
+            return self.send_message(True, 400, '没有默认地址', result)
 
     @check_login
     async def post(self):

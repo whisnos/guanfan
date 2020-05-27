@@ -473,7 +473,8 @@ us.headImg as faceImg,
 search.*
 from
 (
-SELECT id, userId, momentsDescription, momentsImgUrl as mmimg, 
+SELECT id, userId, momentsDescription, momentsImgUrl as mmimg,
+isvideo as is_video, 
 likeCount as collections,
 (likeCount + visitcount) as total,
 createtime
@@ -495,6 +496,7 @@ search.*
 from
 (
 SELECT id, userId, momentsDescription, momentsImgUrl as mmimg, 
+isvideo as is_video,
 likeCount as collections,
 (likeCount + visitcount) as total,
 createtime
@@ -516,6 +518,7 @@ search.*
 from
 (
 SELECT id, userId, momentsDescription, momentsImgUrl as mmimg, 
+isvideo as is_video,
 likeCount as collections,
 (likeCount + visitcount) as total,
 createtime

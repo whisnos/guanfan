@@ -1,0 +1,87 @@
+
+
+  <div class="layui-form" lay-filter="layuiadmin-app-form-list" id="layuiadmin-app-form-list"style="padding: 20px 30px 0 0;">
+    <script type="text/html" template lay-done="layui.data.done(d);"></script>
+
+    <div class="layui-form-item">
+      <label class="layui-form-label">海报标题</label>
+      <div class="layui-input-inline">
+        <script type="text/html" template>
+          <input type="text" name="title" value="{{ d.params.title || '' }}" lay-verify="required" placeholder="请输入标题" autocomplete="off" class="layui-input">
+        </script>
+      </div>
+    </div>
+    <div class="layui-form-item">
+      <label class="layui-form-label">海报图片</label>
+      <div class="layui-input-inline">
+        <script type="text/html" template>
+          <input type="text" id="img" name="img" value="{{ d.params.img || '' }}" style="width:400px" lay-verify="required" placeholder="点击上传图片" autocomplete="off" class="layui-input">
+        </script>
+      </div>
+    </div>
+    <div class="layui-form-item">
+      <label class="layui-form-label"></label>
+      <div class="layui-input-inline">
+        <script type="text/html" template>
+          <button class="layui-btn" id="uploadfiletaobanner">上传图片</button>
+        </script>
+      </div>
+    </div>
+    <div class="layui-form-item">
+      <label class="layui-form-label">背景颜色值</label>
+      <div class="layui-input-inline">
+        <script type="text/html" template>
+          <input type="text" name="backColor" value="{{ d.params.backColor || '' }}" lay-verify="required" placeholder="请输入背景色" autocomplete="off" class="layui-input">
+        </script>
+      </div>
+    </div>
+
+    <div class="layui-form-item">
+      <label class="layui-form-label">排序</label>
+      <div class="layui-input-inline">
+        <script type="text/html" template>
+          <input type="text" name="sort" value="{{ d.params.sort || 0 }}" lay-verify="required" placeholder="请输入排序号" autocomplete="off" class="layui-input">
+        </script>
+      </div>
+    </div>
+    <div class="layui-form-item">
+      <label class="layui-form-label">跳转链接</label>
+      <div class="layui-input-inline">
+        <script type="text/html" template>
+          <input type="text" name="content" value="{{ d.params.content || 0 }}" lay-verify="required" placeholder="请输入跳转链接" autocomplete="off" class="layui-input">
+        </script>
+      </div>
+    </div>
+    <script type="text/html" template>
+      <input type="hidden" name="id" value="{{ d.params.id || '' }}">
+    </script>
+    <div class="layui-form-item">
+      <label class="layui-form-label"></label>
+      <div class="layui-input-inline">
+        <input type="button" lay-submit lay-filter="layuiadmin-app-form-submit" value="确认" class="layui-btn">
+      </div>
+    </div>
+  </div>
+  <script>
+      layui.data.done = function(d){
+          // console.log(d);
+          layui.use(['form','jquery'], function(){
+          var $ = layui.$
+              ,form = layui.form;
+
+              $('[name=type]').each(function(i,item){
+                  if($(item).val()==d.params.type){
+                      $(item).prop('checked',true);
+                  }
+              });
+              $('[name=channel]').each(function(i,item){
+                  if($(item).val()==d.params.channel){
+                      $(item).prop('checked',true);
+                  }
+              });
+
+              form.render(null, 'cms-recipe-set-status-edit-form'); //渲染该模板下的动态表单
+          });
+      };
+      // layui.use('content/recipe/recipe_list', layui.factory('content/recipe/recipe_list'));
+  </script>

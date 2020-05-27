@@ -46,8 +46,8 @@ class BaseHandler(tornado.web.RequestHandler):
         responsedict.setdefault('message', msg)
         responsedict.setdefault('result', result)
         self.write(responsedict)
-        tornado.web.Finish()
-        # return self.finish()
+        # tornado.web.Finish()
+        return self.finish()
 
     def send_msg(self, success, code, msg='ok', result=None):
         '''send error message'''
@@ -245,7 +245,7 @@ def check_login(func):
         # if self.request.query_arguments.get('token',False) is False:
         #     self.send_message(False, 2001, '参数错误,请先登录')
         if self.request.headers.get('token', False) is False:
-            self.send_message(False, 2001, '参数错误,请先登录')
+            self.send_msg(False, 2001, '参数错误,请先登录')
 
         token = self.request.headers.get('token')
         key = "token:{}".format(token)
@@ -258,9 +258,9 @@ def check_login(func):
                 self.token_session = json_decode(rdget)
             except Exception as e:
                 log.error("数据:{},异常:{}".format(rdget, e))
-                self.send_message(False, 2002, '用户数据异常')
+                self.send_msg(False, 2002, '用户数据异常')
             return await func(self, *args, **kwargs)
         else:
-            self.send_message(False, 9999, '请先登录')
+            self.send_msg(False, 9999, '请先登录')
 
     return wrapper

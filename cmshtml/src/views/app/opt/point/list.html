@@ -1,0 +1,64 @@
+<title>积分获取规则</title>
+
+<div class="layui-card layadmin-header">
+    <div class="layui-breadcrumb" lay-filter="breadcrumb">
+        <a lay-href="app/opt/point/list">运营</a>
+        <a><cite>积分</cite></a>
+        <a><cite>列表</cite></a>
+    </div>
+</div>
+<div class="layui-fluid">
+    <div class="layui-card">
+        <div class="layui-card-body">
+            <div style="padding-bottom: 10px;">
+                <button class="layui-btn layuiadmin-btn-list" data-type="point_type_add">添加积分获取规则</button>
+            </div>
+            <table id="LAY-cms-opt-point-list" lay-filter="LAY-cms-opt-point-list"></table>
+
+            <script type="text/html" id="opt_point_id_Tpl">
+                <a style="color:blue;" href="#/app/opt/point/list/id={{ d.pointId }}">{{ d.pointId }}</a>
+            </script>
+
+            <script type="text/html" id="opt_point_type_Tpl">
+                {{#  if(d.point_type===0){ }}
+                    <button class="layui-btn layui-btn-xs">动态</button>
+                {{#  }else if(d.point_type===1){ }}
+                    <button class="layui-btn layui-btn-warm layui-btn-xs">食谱</button>
+                {{#  }else if(d.point_type===2){ }}
+                    <button class="layui-btn layui-btn-primary layui-btn-xs" style="color:#cebdbd">评论</button>
+                {{#  }else if(d.point_type===3){ }}
+                    <button class="layui-btn layui-btn-primary layui-btn-xs" style="color:#cebdbd">打赏</button>
+                {{#  }else if(d.point_type===4){ }}
+                    <button class="layui-btn layui-btn-primary layui-btn-xs" style="color:#cebdbd">分享</button>
+                {{#  }else{ }}
+                    <div class="layui-table-cell">未知类型:{{d.point_type}}</div>
+                {{#  } }}
+            </script>
+
+            <script type="text/html" id="opt_point_status_Tpl">
+                {{#  if(d.status===0){ }}
+                    <button class="layui-btn layui-btn-xs">关闭</button>
+                {{#  }else if(d.status===1){ }}
+                    <button class="layui-btn layui-btn-warm layui-btn-xs">开启</button>
+                {{#  } }}
+            </script>
+
+            <script type="text/html" id="opt_point_options_type_Tpl">
+                {{#  if(d.options_type===1){ }}
+                    <button class="layui-btn layui-btn-xs">每天 {{d.count}} 次</button>
+                {{#  }else if(d.options_type===3){ }}
+                    <button class="layui-btn layui-btn-primary layui-btn-xs" style="color:#cebdbd">无限</button>
+                {{#  }else{ }}
+                    <button class="layui-btn layui-btn-warm layui-btn-xs">一次性</button>
+                {{#  } }}
+            </script>
+            <script type="text/html" id="toolbar-point-type-opt-list">
+            <a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="point_type_edit"><i class="layui-icon layui-icon-edit"></i>编辑</a>
+            <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="point_type_del"><i class="layui-icon layui-icon-delete"></i>删除</a>
+            </script>
+        </div>
+    </div>
+</div>
+<script>
+    layui.use('opt/point/point_list', layui.factory('opt/point/point_list'));
+</script>

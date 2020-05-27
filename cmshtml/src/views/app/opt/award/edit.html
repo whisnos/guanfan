@@ -1,0 +1,84 @@
+<div class="layui-form" lay-filter="cms-opt-award-edit-form" id="cms-opt-award-edit-form" style="padding: 20px 30px 0 0;">
+        <script type="text/html" template lay-done="layui.data.done(d.params);">
+            <input type="hidden" id="awardid" name="id" value="{{ d.params.id }}">
+        </script>
+        <div class="layui-form-item">
+          <label class="layui-form-label">封面图</label>
+          <div class="layui-input-inline">
+            <script type="text/html" template>
+              <img id="front_imageshow" src="{{ layui.setter.basehost + d.params.front_image }}" class="cms-list-img" style="width:400px;height:auto;">
+            </script>
+          </div>
+        </div>
+
+
+        <div class="layui-form-item">
+          <label class="layui-form-label">频道图片地址</label>
+          <div class="layui-input-inline">
+            <script type="text/html" template>
+              <input type="text" id="front_image" name="front_image" value="{{ d.params.front_image || '' }}" style="width:700px" lay-verify="required" placeholder="点击上传图片" autocomplete="off" class="layui-input">
+            </script>
+          </div>
+        </div>
+
+
+        <div class="layui-form-item">
+          <label class="layui-form-label"></label>
+          <div class="layui-input-inline">
+            <script type="text/html" template>
+              <button class="layui-btn" id="uploadfileawardimg">上传图片</button>
+            </script>
+          </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">奖品名称</label>
+            <div class="layui-input-inline">
+                <script type="text/html" template>
+                    <input type="text" name="title" value="{{ d.params.title || '' }}" placeholder="请输入" autocomplete="off" class="layui-input" style="width:400px">
+                </script>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">奖品价值</label>
+            <div class="layui-input-inline">
+                <script type="text/html" template>
+                    <input type="text" name="grade_no" value="{{ d.params.grade_no || '' }}" placeholder="请输入" autocomplete="off" class="layui-input" style="width:400px">
+                </script>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">奖品库存</label>
+            <div class="layui-input-inline">
+                <script type="text/html" template>
+                    <input type="text" name="sku_no" value="{{ d.params.sku_no || '' }}" placeholder="请输入" autocomplete="off" class="layui-input" style="width:400px">
+                </script>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <label class="layui-form-label">奖品排序</label>
+            <div class="layui-input-inline">
+                <script type="text/html" template>
+                    <input type="text" name="sort" value="{{ d.params.sort || '' }}" placeholder="请输入" autocomplete="off" class="layui-input" style="width:400px">
+                </script>
+            </div>
+        </div>
+
+    <div class="layui-form-item">
+      <label class="layui-form-label"></label>
+      <div class="layui-input-inline">
+        <input type="button" lay-submit lay-filter="cms-award-edit-submit" value="确认" class="layui-btn">
+      </div>
+    </div>
+    </div>
+<script>
+/* 自定义验证规则 */
+    layui.data.done = function(d){
+        layui.use(['form','jquery'],function(){
+            var $ = layui.$,
+            form = layui.form;
+            form.render(null, 'cms-opt-award-edit-form'); //渲染该模板下的动态表单
+        });
+    };
+
+    layui.use('opt/award/edit', layui.factory('opt/award/edit'));
+</script>
