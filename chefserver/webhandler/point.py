@@ -3,13 +3,15 @@ from playhouse.shortcuts import JOIN, model_to_dict
 
 from chefserver.config import PAGE_SIZE, DATABASE
 from chefserver.models.point import User, User_Point, User_PointBill, BILL_TYPE_DICT, Product_Point_Detail, \
-    Product_Point, My_Exchange_Info, My_History_Address, My_Express_Info, Area, My_Address
+    Product_Point, My_Exchange_Info, My_History_Address, My_Express_Info, Area, My_Address, Point_Info, Point_Setting
 from chefserver.tool.function import verify_num
 from chefserver.webhandler.basehandler import BaseHandler, check_login
 from chefserver.tool.tooltime import curDatetime
 from chefserver.tool.dbpool import DbOperate
 from chefserver.tool import applog
 import tornado.web
+
+from chefserver.webhandler.cacheoperate import CacheUserPointinfo
 
 log = applog.get_log('webhandler.point')
 dbins = DbOperate.instance()
@@ -365,6 +367,43 @@ class MyExchangeDetailHandler(BaseHandler):
             return self.send_message(success, code, message, result)
         else:
             return self.send_message(False, 404, '订单不存在', result)
+
+
+class LevelTaskDetailHandler(BaseHandler):
+    ''' 获取等级任务列表详情 '''
+
+    @check_login
+    async def post(self):
+        result = []
+        userid = self.get_session().get('id', 0)
+        # redis
+        cacheojb = CacheUserPointinfo(userid)
+        cres = await cacheojb.createCache()
+        if cres is False:
+            log.error("用户{}-积分缓存创建失败。".format(userid))
+
+        point_query = Point_Info.select().where(Point_Info.status == 1)
+        points_wrappers = await self.application.objects.execute(point_query)
+        if not points_wrappers:
+            return self.send_msg(True, 400, '没有积分规则', result)
+
+        for wrap in points_wrappers:
+            point_dict = model_to_dict(wrap)
+
+            ct = point_dict.get('createTime', None)
+            if ct:
+                point_dict['createTime'] = ct.strftime('%Y-%m-%d %H:%M:%S')
+            result.append(point_dict)
+
+            point_set_query = Point_Setting.select().where(Point_Setting.pointinfo_id == wrap.id)
+            points_set_wrappers = await self.application.objects.execute(point_set_query)
+            for wrap in points_set_wrappers:
+                point_dict['rule']={}
+                point_dict['rule']['options_type']=wrap.options_type
+                point_dict['rule']['count']=wrap.count
+            point_dict['done'] = int(await cacheojb.get_point_choice(point_dict['point_type']))
+
+        return self.send_message(True, 0, '获取成功', result)
 
 
 class AddressDetailHandler(BaseHandler):
