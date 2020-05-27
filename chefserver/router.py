@@ -38,7 +38,7 @@ from chefserver.webhandler.search import SearchHandler, SearchMemberHandler, key
 from chefserver.webhandler.dongtaiplaza import DtPlazaHandler, DtPlazafocusHandler, DtPlazaRecommendHandler
 
 from chefserver.webhandler.index import IndexBannerHandler, IndexRecomTopicHandler, IndexRecomRecipeHandler, \
-    IndexFeaturedRecipeHandler, IndexChannelInfoAllHandler
+    IndexFeaturedRecipeHandler, IndexChannelInfoAllHandler, IndexFoodManAllHandler
 from chefserver.webhandler.index import IndexClassInfoAllHandler
 
 from chefserver.webhandler.ossserver import OssSingtureHandler
@@ -143,6 +143,7 @@ def make_app():
         (r"/index/featuredrecipe", IndexFeaturedRecipeHandler),  # 首页精选菜谱
         (r"/index/class", IndexClassInfoAllHandler),             # 首页分类
         (r"/index/channel", IndexChannelInfoAllHandler),         # 首页频道列表
+        (r"/index/foodman", IndexFoodManAllHandler),             # 首页吃货达人
         (r"/block/list", BlocklistHandler),                      # 黑名单列表
         (r"/block/add", BlockAddHandler),                        # 黑名单删除
         (r"/block/del", BlockDelHandler),                        # 黑名单添加
