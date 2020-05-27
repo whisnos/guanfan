@@ -303,7 +303,7 @@ class IndexFoodManAllHandler(BaseHandler):
                                                                                             'personalProfile',
                                                                                             'certificationStatus',
                                                                                             'sex')
-            the_num = n_dt + n_fs + n_sp
+            the_num = int(n_dt) + int(n_fs) + int(n_sp)
             user_dict['name']=name
             user_dict['img']=img
             user_dict['n_dt']=n_dt
