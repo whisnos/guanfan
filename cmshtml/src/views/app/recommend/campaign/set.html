@@ -12,18 +12,34 @@
         </div>
     </div>
     <div class="layui-form-item">
-        <label class="layui-form-label">开始时间</label>
+        <label class="layui-form-label">活动开始时间</label>
         <div class="layui-input-inline">
             <script type="text/html" template>
-                <input type="text" id="starttime" name="starttime" value="{{ d.params.starttime }}" lay-verify="required" placeholder="请输入收藏量" autocomplete="off" class="layui-input">
+                <input type="text" id="starttime" name="starttime" value="{{ d.params.starttime }}" lay-verify="required" placeholder="请输入开始时间" autocomplete="off" class="layui-input">
             </script>
         </div>
     </div>
     <div class="layui-form-item">
-        <label class="layui-form-label">结束时间</label>
+        <label class="layui-form-label">活动结束时间</label>
         <div class="layui-input-inline">
             <script type="text/html" template>
-                <input type="text" id="endtime"  name="endtime" value="{{ d.params.endtime }}" lay-verify="required" placeholder="请输入收藏量" autocomplete="off" class="layui-input">
+                <input type="text" id="endtime"  name="endtime" value="{{ d.params.endtime }}" lay-verify="required" placeholder="请输入结束时间" autocomplete="off" class="layui-input">
+            </script>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">评选开始时间</label>
+        <div class="layui-input-inline">
+            <script type="text/html" template>
+                <input type="text" id="sel_starttime" name="sel_starttime" value="{{ d.params.sel_starttime }}" lay-verify="required" placeholder="评选开始时间" autocomplete="off" class="layui-input">
+            </script>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">评选结束时间</label>
+        <div class="layui-input-inline">
+            <script type="text/html" template>
+                <input type="text" id="sel_endtime"  name="sel_endtime" value="{{ d.params.sel_endtime }}" lay-verify="required" placeholder="请输入评选结束时间" autocomplete="off" class="layui-input">
             </script>
         </div>
     </div>
@@ -73,6 +89,14 @@
             });
             laydate.render({
                 elem: '#endtime' //指定元素
+                ,type: 'datetime'
+            });
+            laydate.render({
+                elem: '#sel_starttime' //指定元素
+                ,type: 'datetime'
+            });
+            laydate.render({
+                elem: '#sel_endtime' //指定元素
                 ,type: 'datetime'
             });
         });

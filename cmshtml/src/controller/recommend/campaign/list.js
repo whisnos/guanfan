@@ -23,17 +23,19 @@ layui.define(['table', 'form', 'layer'], function (exports) {
         , url: '/api/campaign/list' //获取数据接口
         , cols: [[
           // {type: 'checkbox', fixed: 'left'}
-          { field: 'id', title: 'ID', minWidth: 80 }
+          { field: 'id', title: 'ID', width: 60 }
           , { field: 'name', title: '活动名称', minWidth: 100 }
           , { field: 'keyname', title: '关键词', minWidth: 100 }
         //   , { field: 'visitcount', title: '访问量', minWidth: 80 }
-          , { field: 'ispk', title: '是否PK', templet: '#campaign_pK_Tpl', minWidth: 210, align: 'center' }
-          , { field: 'sort', title: '排序', minWidth: 40, sort: true, align: 'center'}
-          , { field: 'status', title: '启用', templet: '#campaign_status_Tpl', minWidth: 40, align: 'center' }
-          , { field: 'starttime', title: '状态', templet: '#campaign_begining_Tpl', minWidth: 40, align: 'center' }
+          , { field: 'ispk', title: '是否PK', templet: '#campaign_pK_Tpl', width: 160, align: 'center' }
+          , { field: 'sort', title: '排序', width: 60, sort: true, align: 'center'}
+          , { field: 'status', title: '启用', templet: '#campaign_status_Tpl', width: 60, align: 'center' }
+          , { field: 'statustime', title: '状态', templet: '#campaign_begining_Tpl', width: 80, align: 'center' }
           , { field: 'starttime', title: '开始时间' }
           , { field: 'endtime', title: '结束时间' }
-          , { title: '操作', minWidth: 400, align: 'center', fixed: 'right', toolbar: '#toolbar-campaign-list' }
+          , { field: 'sel_starttime', title: '评选开始时间' }
+          , { field: 'sel_endtime', title: '评选结束时间' }
+          , { title: '操作', minWidth: 450, align: 'center', fixed: 'right', toolbar: '#toolbar-campaign-list' }
         ]]
         , page: true
         , limit: 10
@@ -148,6 +150,7 @@ layui.define(['table', 'form', 'layer'], function (exports) {
         // 设置表单监听
         form.on('submit(cms-content-campaign-status-set-form-submit)', function (data) {
             var field = data.field;
+            console.log(field, 1111111111);
             compaign_set(field);
             layer.close(realindex); //执行关闭
         });

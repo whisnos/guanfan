@@ -25,19 +25,20 @@
             </script>
             
             <script type="text/html" id="campaign_begining_Tpl">
-                {{# var start_d = new Date(d.starttime).getTime();
-                    var end_d = new Date(d.endtime).getTime();
-                    var now = new Date().getTime();
-                    if(now>start_d && now < end_d){
-                 }}
-                    <button class="layui-btn layui-btn-xs">进行中</button>
-                {{#  }else if(now<=start_d){ }}
-                    <button class="layui-btn layui-btn-primary layui-btn-xs" style="color:#cebdbd">未开始</button>
-                {{#  }else if(now>end_d){ }}
-                    <button class="layui-btn layui-btn-primary layui-btn-xs" style="color:#cebdbd">已结束</button>
+                {{#  if(d.statustime === 0){ }}
+                    <button class="layui-btn layui-btn-xs">活动未开始</button>
+                {{#  }else if(d.statustime === 1){ }}
+                    <button class="layui-btn layui-btn-primary layui-btn-xs" style="color:#cebdbd">活动进行中</button>
+                {{#  }else if(d.statustime === 2){ }}
+                    <button class="layui-btn layui-btn-primary layui-btn-xs" style="color:#cebdbd">活动已结束</button>
+                {{#  }else if(d.statustime === 3){ }}
+                    <button class="layui-btn layui-btn-xs">评选进行中</button>
+                {{#  }else if(d.statustime === 4){ }}
+                    <button class="layui-btn layui-btn-primary layui-btn-xs" style="color:#cebdbd">评选已结束</button>
                 {{#  } else { }}
                     <div class="layui-table-cell">未知</div>
                 {{#  } }}
+
             </script>
             
             <script type="text/html" id="campaign_pK_Tpl">
