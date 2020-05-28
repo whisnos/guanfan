@@ -1,9 +1,14 @@
+from playhouse.shortcuts import model_to_dict
+
+from chefserver.models.point import User
 from chefserver.webhandler.basehandler import BaseHandler, check_login
 from chefserver.tool.tooltime import curDatetime
 from chefserver.tool.dbpool import DbOperate
 from chefserver.tool import applog
 import tornado.web
 
+from chefserver.webhandler.cacheoperate import CacheUserPointinfo, CacheUserinfo
+from chefserver.webhandler.myspace import get_relationship_status
 
 log = applog.get_log('webhandler.index')
 dbins = DbOperate.instance()
@@ -268,6 +273,80 @@ async def count_channel_num(result):
         p['hotCount'] = count_num[0]['count']+p['visitCount']
     return result
 
+
+class IndexFoodManAllHandler(BaseHandler):
+    ''' 首页吃货达人 '''
+
+    @check_login
+    async def post(self):
+        result = []
+        sort = self.verify_arg_legal(self.get_body_argument('sort'), '排序类型', False, is_num=True, uchecklist=True,
+                                     user_check_list=['0',])
+        page = self.verify_arg_num(self.get_argument('page'), '页数', is_num=True)
+        userid = self.get_session().get('id', 0)
+        # 查找吃货达人
+        user_query = User.select().order_by().where(User.certificationStatus == 2, User.status == 0)
+        users_wrappers = await self.application.objects.execute(user_query)
+
+        for user in users_wrappers:
+            user_dict = model_to_dict(user)
+
+            cacheojb = CacheUserinfo(user.id)
+            cres = await cacheojb.createCache()
+            if cres is False:
+                log.error("用户{}-积分缓存创建失败。".format(userid))
+            n_dt = await cacheojb.get_dongtai()
+            n_fs = await cacheojb.get_fans()
+            n_sp = await cacheojb.get_shipu()
+            name, img, tag, personalprofile, certificationStatus, sex = await cacheojb.mget('username', 'headimg',
+                                                                                            'tag',
+                                                                                            'personalProfile',
+                                                                                            'certificationStatus',
+                                                                                            'sex')
+            the_num = int(n_dt) + int(n_fs) + int(n_sp)
+            user_dict['name']=name
+            user_dict['img']=img
+            user_dict['n_dt']=n_dt
+            user_dict['n_fs']=n_fs
+            user_dict['n_sp']=n_sp
+            user_dict['sort']=the_num
+            user_dict.pop('createTime')
+            result.append(user_dict)
+        new_s = sorted(result, key=lambda e: e.__getitem__('sort'), reverse=True)
+        # 每页数量
+        page_num = 20
+        page1 = 0 if page - 1 <= 0 else page - 1
+        pagenum = page1 * page_num
+        new_s = new_s[pagenum:pagenum+page_num]
+        # 补充食谱信息
+        for obj in new_s:
+            # 判断是否关注 ''' 获取两个用户的关注关系,返回值 0 未关注 1 你关注了他 2 他关注了你 3 互相关注 '''
+            relationship = await get_relationship_status(userid, obj['id'])
+            obj['relationship'] = relationship
+            sql = 'select id, title, faceimg from recipe_info where userid={} and status=1 ORDER BY id desc limit 3'.format(obj['id'])
+            result = await DbOperate.instance().select(sql, ())
+            obj['recipe_info']=result
+
+        return self.send_message(True, 0, '操作成功', new_s)
+
+async def search_foodman__list(userid, pagenum, epage=20):
+    ''' 获取用户动态列表 '''
+    page = 0 if pagenum-1 <= 0 else pagenum-1
+    page = page*epage
+    # collect_query = User.select().where(User.certificationStatus == 2, User.status == 0).paginate(int(page), 20)
+    # collects_wrappers = await self.application.objects.execute(collect_query)
+    # sql = '''
+    # select * from
+    # user
+    # where certificationStatus=2 and status=0
+    # ORDER BY mmi.id desc
+    #     '''
+    # result = await db_ins.select(sql, (userid, page, epage))
+    # # print(result, userid, page, epage)
+    # if result is None:
+    #     return False, 3001, '获取数据错误', None
+    # for p in result:
+    #     ct = p.get('createtime')
 if __name__ == '__main__':
     async def test_banner_list():
         res = await banner_list(0)
