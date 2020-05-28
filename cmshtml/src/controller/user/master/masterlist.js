@@ -39,45 +39,14 @@ layui.define(['table', 'form', 'layer'], function(exports){
     });
 
     form.render(null, 'cms-user-master-list');
-    // //监听搜索
-    // form.on('submit(LAY-cms-user-search)', function(data){
-    //   var field = data.field;
-    //
-    //   // console.log("search",field);
-    //   //执行重载
-    //   table.reload('LAY-cms-user-list', {
-    //       where: field,
-    //       page: {
-    //         curr: 1 //重新从第 1 页开始
-    //       }
-    //   });
-    // });
-    //监听下拉
-    form.on('select(cms-user-master-list)', function (obj) {
-      var elem = $(obj.elem);
-      var trElem = elem.parents('tr');
-      tableData[trElem.data('index')][elem.attr('certificationstatus')] = obj.value;
-      table.reload('LAY-cms-user-list'),{
-          where: {dataType: type},
-          page: {
-              curr: 1
-          }
-      }
-      admin.req({
-          type:"post",
-          url:'/api/user/list',
-          data:{data:data},
-          success:function (data) {
-              var tdata = data.data;
-              for (var k in tdata){
-                  $("select[name='certificationstatus']").append('<option value="' + tdata[k].ParentCode +'">' + tdata[k].ParentName + '</option>');
-              }
-
-          }
-      });
-      form.render('select')
-
-  })
+    form.on('select(LAY-user-master-list)', function (data) {
+        var field = data.field;
+        table.reload('LAY-cms-user-list',{
+            where: {
+                certificationstatus: data.value
+            }
+        });
+    });
 
 
     //监听工具条
