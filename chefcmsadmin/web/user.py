@@ -323,6 +323,7 @@ async def user_list(arg_dict):
     left JOIN user_point up 
     on u.id = up.user_id
     {}
+    order by u.id
     limit ?,?
     '''.format(where_str)
     wvalue_list.append(page)
