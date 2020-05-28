@@ -2,7 +2,7 @@
 from chefserver.webhandler.point import MyPointHandler, MyPointBillHandler, MyPointProductHandler, \
     ProductPointDetailHandler, MyPointMyExchangeHandler, MyExchangeDetailHandler, AddressDetailHandler, \
     MyAddressHandler, MyAddressDetailHandler, MyPointPorderHandler, MyPointCmOrderHandler, MyAddressDeleteHandler, \
-    MyAddressDetailSinHandler
+    MyAddressDetailSinHandler, LevelTaskDetailHandler
 from chefserver.webhandler.taobaoke import TaoIndexSearchHandler, TaoIndexChannelInfoAllHandler, \
     TaoIndexMaterialSearchAllHandler, TaoIndexItemInfoAllHandler, TaoFootPrintAllHandler, TaoBannerAllHandler, \
     TaoFootPDeleteAllHandler
@@ -38,7 +38,7 @@ from chefserver.webhandler.search import SearchHandler, SearchMemberHandler, key
 from chefserver.webhandler.dongtaiplaza import DtPlazaHandler, DtPlazafocusHandler, DtPlazaRecommendHandler
 
 from chefserver.webhandler.index import IndexBannerHandler, IndexRecomTopicHandler, IndexRecomRecipeHandler, \
-    IndexFeaturedRecipeHandler, IndexChannelInfoAllHandler
+    IndexFeaturedRecipeHandler, IndexChannelInfoAllHandler, IndexFoodManAllHandler
 from chefserver.webhandler.index import IndexClassInfoAllHandler
 
 from chefserver.webhandler.ossserver import OssSingtureHandler
@@ -113,6 +113,7 @@ def make_app():
         (r"/detail/replydid", GetReplyDidDetailHandler),         # 评论列表-传did获取单个详情
         (r"/detail/propoint", ProductPointDetailHandler),        # 积分 - 商品详情
         (r"/detail/exchange", MyExchangeDetailHandler),          # 积分 - 兑换订单详情
+        (r"/detail/leveltask", LevelTaskDetailHandler),          # 积分 - 等级任务表详情
         (r"/subject/topiclist", SubjectListHandler),             # 主题列表
         (r"/subject/topicdetail", SubjectDetailHandler),         # 主题详情
         (r"/action/reply", ReplyHandler),                        # 添加评论
@@ -142,6 +143,7 @@ def make_app():
         (r"/index/featuredrecipe", IndexFeaturedRecipeHandler),  # 首页精选菜谱
         (r"/index/class", IndexClassInfoAllHandler),             # 首页分类
         (r"/index/channel", IndexChannelInfoAllHandler),         # 首页频道列表
+        (r"/index/foodman", IndexFoodManAllHandler),             # 首页吃货达人
         (r"/block/list", BlocklistHandler),                      # 黑名单列表
         (r"/block/add", BlockAddHandler),                        # 黑名单删除
         (r"/block/del", BlockDelHandler),                        # 黑名单添加
