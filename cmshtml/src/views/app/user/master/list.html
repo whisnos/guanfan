@@ -2,7 +2,8 @@
 
   <div class="layui-card layadmin-header">
     <div class="layui-breadcrumb" lay-filter="breadcrumb">
-      <a><cite>用户</cite></a>
+      <a lay-href="">用户</a>
+      <a><cite>达人</cite></a>
       <a><cite>列表</cite></a>
     </div>
   </div>
@@ -13,8 +14,8 @@
                 <div class="layui-inline">
                     <label class="layui-form-label">达人审核</label>
                     <div class="layui-input-inline">
-                        <select name="verify" lay-verify="" lay-search>
-                        <option value="" selected>全部</option>
+                        <select name="certificationstatus" id="certificationstatus" lay-filter="LAY-user-master-list">
+                        <option value="0" selected>全部</option>
                         <option value="1">未审核</option>
                         <option value="2">已通过审核</option>
                         <option value="3">审核未通过</option>
