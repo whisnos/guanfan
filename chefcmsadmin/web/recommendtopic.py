@@ -242,7 +242,7 @@ async def recommendtopic_list(arg_dict):
     FROM
     (SELECT * FROM recommend_topic {}) as retopic
     LEFT JOIN topic_info as tic ON retopic.topicid = tic.id and retopic.status!=-1
-    ORDER BY retopic.id DESC
+    ORDER BY retopic.sort DESC, retopic.id DESC
     LIMIT ?,?
     '''.format(where_str)
     wvalue_list.append(page)
