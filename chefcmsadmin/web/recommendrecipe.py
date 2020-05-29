@@ -318,7 +318,7 @@ async def recipetype_list(arg_dict):
     FROM
     recommend_recipe_category
     {}
-    ORDER BY id desc
+    ORDER BY sort desc, id desc
     LIMIT ?,?
     '''.format(where_str)
     # ORDER BY status desc,sort desc
