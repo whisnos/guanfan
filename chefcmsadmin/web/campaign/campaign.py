@@ -228,7 +228,7 @@ END
     FROM
     campaign_info
     {}
-    ORDER BY statustime asc, id desc
+    ORDER BY sort desc, statustime asc, id desc
     LIMIT ?,?
     '''.format(where_str)
     wvalue_list.append(page)

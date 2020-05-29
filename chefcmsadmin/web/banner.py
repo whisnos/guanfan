@@ -155,7 +155,7 @@ async def banner_list(arg_dict):
     select id, title, bannerimg, linkurl, type, recipeid, sort, channel, `status`, createtime
     from banner
     where `status`!=-1 and channel= ?
-    order by id desc
+    order by sort desc, id desc
     limit ?,?
     '''
     blist = await dbins.select(banner_list_sql, (arg_dict.get('channel',0), page, epage))
