@@ -277,13 +277,18 @@ async def count_channel_num(result):
 class IndexFoodManAllHandler(BaseHandler):
     ''' 首页吃货达人 '''
 
-    @check_login
+    # @check_login
     async def post(self):
         result = []
+        user_session = await self.get_login()
+        if user_session is False:
+            # 未登录
+            userid = 0
+        else:
+            userid = user_session.get('id', 0)
         sort = self.verify_arg_legal(self.get_body_argument('sort'), '排序类型', False, is_num=True, uchecklist=True,
                                      user_check_list=['0',])
         page = self.verify_arg_num(self.get_argument('page'), '页数', is_num=True)
-        userid = self.get_session().get('id', 0)
         # 查找吃货达人
         user_query = User.select().order_by().where(User.certificationStatus == 2, User.status == 0)
         users_wrappers = await self.application.objects.execute(user_query)
@@ -294,16 +299,17 @@ class IndexFoodManAllHandler(BaseHandler):
             cacheojb = CacheUserinfo(user.id)
             cres = await cacheojb.createCache()
             if cres is False:
-                log.error("用户{}-积分缓存创建失败。".format(userid))
-            n_dt = await cacheojb.get_dongtai()
-            n_fs = await cacheojb.get_fans()
-            n_sp = await cacheojb.get_shipu()
+                log.error("用户{}-积分缓存创建失败。".format(user.id))
+                continue
+            n_dt = int(await cacheojb.get_dongtai())
+            n_fs = int(await cacheojb.get_fans())
+            n_sp = int(await cacheojb.get_shipu())
             name, img, tag, personalprofile, certificationStatus, sex = await cacheojb.mget('username', 'headimg',
                                                                                             'tag',
                                                                                             'personalProfile',
                                                                                             'certificationStatus',
                                                                                             'sex')
-            the_num = int(n_dt) + int(n_fs) + int(n_sp)
+            the_num = n_dt + n_fs + n_sp
             user_dict['name']=name
             user_dict['img']=img
             user_dict['n_dt']=n_dt
