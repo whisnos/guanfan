@@ -45,9 +45,8 @@ layui.define(['index','form', 'dtree'], function(exports){
     basicData = dtree.unescape(basicData); // 转义
     var basicDataJSON = JSON.parse(basicData);  // 转成JSON格式 {"sort":999,"iconimg":"","type":1}
 
-
     // res_data.name = basicData.name;
-    // res_data.parentId = basicData.parentId;
+    // res_data.pid_id = basicDataJSON.pid_id;
     res_data.sort = basicDataJSON.sort;
     res_data.materialId = basicDataJSON.materialId;
     res_data.is_banner = basicDataJSON.is_banner;
@@ -66,7 +65,7 @@ layui.define(['index','form', 'dtree'], function(exports){
             //监听编辑
             form.on('submit(cms-taoclassinfo-edit-form-submit)', function(data){
               var field = data.field;
-              console.log(field)
+              console.log(field);
               taoclassinfo_edit(field);
               dtreeinit();
               layer.close(index);
@@ -75,7 +74,7 @@ layui.define(['index','form', 'dtree'], function(exports){
             // form.render(null, 'cms-taoclassinfo-add-form');
             form.on('submit(cms-taoclassinfo-add-form-submit)', function(data){
               var field = data.field; //添加
-              console.log(field)
+              console.log(field);
               taoclassinfo_add(field);
               dtreeinit();
               layer.close(index); //执行关闭
@@ -150,6 +149,31 @@ layui.define(['index','form', 'dtree'], function(exports){
       });
   }
 
+    $(document).on('click', '#adduploadfiletaochannel', function(){
+        admin.popup({
+            title: '上传图片'
+            ,area: ['550px', '450px']
+            ,id: 'LAY-popup-content-oss-fileupload'
+            ,success: function(layero, index){
+                data = {'operate':2}; //上传图片类型,1 动态 2 食谱 3 主题 4 海报 5 用户头像 6 高级认证 7 其它
+                view(this.id).render('app/common/ossupload', {'operate':3}).done(function(){
+                    form.render(null, 'layuiadmin-app-oss-fileupload');
+                    //文件上传,监听关闭
+                    form.on('submit(layuiadmin-app-oss-fileupload)', function(data){
+                        var field = data.field; //获取提交的字段
+                        console.log(field)
+                        if(field.cmsupfiles != ''){
+                            document.getElementById('iconImg').value = field.cmsupfiles.slice(0,-1); // 更新上传图片文件地址
+                            document.getElementById('iconImg').src = layui.setter.basehost + field.cmsupfiles.slice(0,-1); // 更新上传图片文件地址
+                        }
+                        layer.close(index); //执行关闭
+                    });
+                });
+            }
+        });
+    });
+
+
   function taoclassinfo_del(data){
       //删除分类
       admin.req({
@@ -192,15 +216,15 @@ layui.define(['index','form', 'dtree'], function(exports){
         admin.popup({
             title: '上传图片'
             ,area: ['550px', '450px']
-            ,id: 'LAY-popup-content-oss-fileupload'
+            ,id: 'LAY-popup-taochannel-oss-fileupload'
             ,success: function(layero, index){
-                data = {'operate':2}; //上传图片类型,1 动态 2 食谱 3 主题 4 海报 5 用户头像 6 高级认证 7 其它
-                view(this.id).render('app/common/ossupload', {'operate':3}).done(function(){
-                    form.render(null, 'layuiadmin-app-oss-fileupload');
+                data = {'operate':2, 'spaceid':document.getElementById('nodeId').value, 'filename':''}; //上传图片类型,1 动态 2 食谱 3 主题 4 海报 5 用户头像 6 高级认证 7 其它
+                view(this.id).render('app/common/ossuploadspace', data).done(function(){
+                    form.render(null, 'layuiadmin-app-oss-fileupload-space');
                     //文件上传,监听关闭
-                    form.on('submit(layuiadmin-app-oss-fileupload)', function(data){
+                    form.on('submit(layuiadmin-app-oss-fileupload-space-submit)', function(data){
                         var field = data.field; //获取提交的字段
-                        console.log(field)
+                        console.log(field);
                         if(field.cmsupfiles != ''){
                             document.getElementById('iconImg').value = field.cmsupfiles.slice(0,-1); // 更新上传图片文件地址
                             document.getElementById('iconImg').src = layui.setter.basehost + field.cmsupfiles.slice(0,-1); // 更新上传图片文件地址
@@ -226,8 +250,8 @@ layui.define(['index','form', 'dtree'], function(exports){
                         var field = data.field; //获取提交的字段
                         console.log(field)
                         if(field.cmsupfiles != ''){
-                            document.getElementById('iconImg').value = field.cmsupfiles.slice(0,-1); // 更新上传图片文件地址
-                            document.getElementById('iconImg').src = layui.setter.basehost + field.cmsupfiles.slice(0,-1); // 更新上传图片文件地址
+                            document.getElementById('iconSonImg').value = field.cmsupfiles.slice(0,-1); // 更新上传图片文件地址
+                            document.getElementById('iconSonImg').src = layui.setter.basehost + field.cmsupfiles.slice(0,-1); // 更新上传图片文件地址
                         }
                         layer.close(index); //执行关闭
                     });
@@ -235,6 +259,30 @@ layui.define(['index','form', 'dtree'], function(exports){
             }
         });
     });
+
+    // $(document).on('click', '#uploadfiletaosonchannel', function(){
+    //     admin.popup({
+    //         title: '上传图片'
+    //         ,area: ['550px', '450px']
+    //         ,id: 'LAY-popup-taoChannelSon-oss-fileupload'
+    //         ,success: function(layero, index){
+    //             data = {'operate':2, 'spaceid':document.getElementById('nodeIdSon').value, 'filename':''}; //上传图片类型,1 动态 2 食谱 3 主题 4 海报 5 用户头像 6 高级认证 7 其它
+    //             view(this.id).render('app/common/ossuploadspace', data).done(function(){
+    //                 form.render(null, 'layuiadmin-app-oss-fileupload-space');
+    //                 //文件上传,监听关闭
+    //                 form.on('submit(layuiadmin-app-oss-fileupload-space-submit)', function(data){
+    //                     var field = data.field; //获取提交的字段
+    //                     console.log(field);
+    //                     if(field.cmsupfiles != ''){
+    //                         document.getElementById('iconImg').value = field.cmsupfiles.slice(0,-1); // 更新上传图片文件地址
+    //                         document.getElementById('iconImg').src = layui.setter.basehost + field.cmsupfiles.slice(0,-1); // 更新上传图片文件地址
+    //                     }
+    //                     layer.close(index); //执行关闭
+    //                 });
+    //             });
+    //         }
+    //     });
+    // });
 
   exports('/tao/taoclassinfo/gftree', {})
 });
