@@ -419,7 +419,7 @@ async def update_all_point(self,userid,point_type,bill_type,des):
                     user_point_obj = await self.application.objects.create(User_Point, user_id=userid)
                 async with await DATABASE.transaction() as transaction:
                     # 过滤刷积分
-                    if num_dt == await cacheojb.get_point_choice(point_type):
+                    if int(num_dt) == int(await cacheojb.get_point_choice(point_type)):
                         # 增加积分
                         query_sql = (User_Point.use(transaction).update({User_Point.point: User_Point.point + grade_no})
                                  .where(User_Point.id == user_point_obj.id))
