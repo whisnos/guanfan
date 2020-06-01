@@ -13,7 +13,7 @@
                         <label class="layui-form-label">分类ID</label>
                         <div class="layui-input-inline">
                         <script type="text/html" template>
-                            <label class="layui-form-label" style="text-align:left;">{{ d.params.nodeId || '' }}</label>
+                            <label class="layui-form-label" id="nodeId" name="nodeId" value="{{ d.params.nodeId || '' }}" style="text-align:left;">{{ d.params.nodeId || '' }}</label>
                         </script>
                         </div>
                     </div>
@@ -45,11 +45,11 @@
                       <div class="layui-form-item">
                         <label class="layui-form-label">频道图</label>
                         <div class="layui-input-inline">
-                            {{# if(d.params.propertyIsEnumerable('id')){ }}
+<!--                            {{# if(d.params.propertyIsEnumerable('id')){ }}-->
                             <img id="iconImg" src="{{ layui.setter.basehost + d.params.iconImg }}" class="cms-list-img" style="width:200px;height:auto;">
-                            {{# }else{ }}
-                            <img id="iconImg" src="" class="cms-list-img" style="width:200px;height:auto;">
-                            {{#  } }}
+<!--                            {{# }else{ }}-->
+<!--                            <img id="iconImg" src="" class="cms-list-img" style="width:200px;height:auto;">-->
+<!--                            {{#  } }}-->
                         </div>
                       </div>
                     </script>
@@ -94,7 +94,6 @@
                         </div>
                     </div>
                     <script type="text/html" template>
-                        <input type="hidden" name="pid_id" value="{{ d.params.parentId || '1' }}">
                         <input type="hidden" name="id" value="{{ d.params.nodeId || '0' }}">
                         <input type="hidden" name="level" value="{{ d.params.level || '0' }}">
                     </script>
@@ -114,7 +113,7 @@
                         <label class="layui-form-label">父类ID</label>
                         <div class="layui-input-inline">
                             <script type="text/html" template>
-                                <label class="layui-form-label" style="text-align:left;">{{ d.params.nodeId || '' }}</label>
+                                <label class="layui-form-label" id="nodeIdSon" name="nodeId" value="{{ d.params.nodeId || '' }}"  style="text-align:left;">{{ d.params.nodeId || '' }}</label>
                             </script>
                         </div>
                     </div>
@@ -151,25 +150,26 @@
                         </div>
                     </div>
                     <script type="text/html" template>
-                      <div class="layui-form-item">
-                        <label class="layui-form-label">子频道图</label>
-                        <div class="layui-input-inline">
-                            {{# if(d.params.propertyIsEnumerable('id')){ }}
-                            <img id="iconImg" src="{{ layui.setter.basehost + d.params.iconImg }}" class="cms-list-img" style="width:200px;height:auto;">
-                            {{# }else{ }}
-                            <img id="iconImg" src="" class="cms-list-img" style="width:200px;height:auto;">
-                            {{#  } }}
-                        </div>
-                      </div>
+<!--                      <div class="layui-form-item">-->
+<!--                        <label class="layui-form-label">子频道图</label>-->
+<!--                        <div class="layui-input-inline">-->
+<!--                            {{# if(d.params.propertyIsEnumerable('id')){ }}-->
+<!--                            <img id="iconImgSon" src="{{ layui.setter.basehost + d.params.iconImg }}" class="cms-list-img" style="width:200px;height:auto;">-->
+<!--                            {{# }else{ }}-->
+<!--                            <img id="iconImgSon" src="" class="cms-list-img" style="width:200px;height:auto;">-->
+<!--                            {{#  } }}-->
+<!--                        </div>-->
+<!--                      </div>-->
                     </script>
                     <div class="layui-form-item">
                         <label class="layui-form-label">子图标地址</label>
                         <div class="layui-input-inline">
                             <script type="text/html" template>
-                                <input type="text" name="iconImg" value="{{ d.params.iconImg || '' }}" placeholder="图标地址" autocomplete="off" class="layui-input">
+                                <input type="text" id="iconSonImg" name="iconImg" value="{{ d.params.iconImg || '' }}" placeholder="图标(非必填)" autocomplete="off" class="layui-input">
                             </script>
                         </div>
                     </div>
+
                     <div class="layui-form-item">
                       <label class="layui-form-label"></label>
                       <div class="layui-input-inline">

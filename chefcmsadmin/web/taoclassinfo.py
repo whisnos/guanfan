@@ -92,7 +92,6 @@ async def taoclassinfo_edit(arg_dict):
     is_banner = ?,
     recommendId = ?,
     is_top = ?,
-    pid_id = ?,
     updatetime = ?
     where id = ?
     '''
@@ -104,7 +103,7 @@ async def taoclassinfo_edit(arg_dict):
         arg_dict.get('is_banner'),
         arg_dict.get('recommendId'),
         arg_dict.get('is_top'),
-        arg_dict.get('pid_id'),
+        # arg_dict.get('pid_id'),
         curDatetime(),
         arg_dict.get('id'),
         ))
