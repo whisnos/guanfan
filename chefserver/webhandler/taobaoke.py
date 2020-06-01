@@ -270,9 +270,10 @@ class TaoFootPrintAllHandler(BaseHandler):
             pass
         # 转链处理
         tbk_req = TbkSpreadGetRequest(KEY=TAO_APP_KEY, SECRET=TAO_APP_SECRET)
-        url = "http:"+coupon_share_url
+        # 处理格式
+        url_list = coupon_share_url.split('//',1)
+        url = "http://"+url_list[1]
         s = urllib.parse.unquote(url)
-        print('s',s)
         tbk_req.requests = [{"url": s}]
         res = await tbk_req.getResponse()
         if 'domain is not support' in str(res):
