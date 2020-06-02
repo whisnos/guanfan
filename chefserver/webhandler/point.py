@@ -194,13 +194,14 @@ class MyPointPorderHandler(BaseHandler):
                     query = (Product_Point.use(transaction).update({Product_Point.sku_no: Product_Point.sku_no - num})
                              .where(Product_Point.id == product_id, Product_Point.sku_no >= num))
                     product_unum=await query.execute()
+                    if product_unum == 0:
+                        return self.send_message(False, 404, '商品不存在或库存不足', result)
                     # # 处理用户积分 User_Point 扣积分
                     query1 = (User_Point.use(transaction).update({User_Point.point: User_Point.point - total})
                              .where(User_Point.user_id == userid, User_Point.point >= total))
                     userpoint_unum=await query1.execute()
-
-                    if product_unum == 0 or userpoint_unum == 0:
-                        return self.send_message(False, 404, '参数错误', result)
+                    if userpoint_unum == 0:
+                        return self.send_message(False, 404, '用户不存在或积分不足', result)
                     # 生成订单 My_Exchange_Info
                     exchange_order_data = {
                         "product_point_id":product_id,
