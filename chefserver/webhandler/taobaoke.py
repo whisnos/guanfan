@@ -252,7 +252,7 @@ class TaoFootPrintAllHandler(BaseHandler):
     async def post(self):
         result = []
         userid = self.get_session().get('id', 0)
-        itemid = self.verify_arg_legal(self.get_body_argument('itemid'), '商品id', False, )
+        itemid = self.verify_arg_legal(self.get_body_argument('itemid'), '商品id', False, is_num=True)
         coupon_share_url = self.verify_arg_legal(self.get_body_argument('coupon_share_url'), '商品二合一链接', False, )
         type = self.verify_arg_num(self.get_body_argument('type'), '足迹 or 收藏', is_num=True, ucklist=True,
                                    user_check_list=['0', '1'])
