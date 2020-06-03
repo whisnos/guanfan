@@ -237,7 +237,7 @@ class MyPointPorderHandler(BaseHandler):
                     }
                     await User_PointBill.use(transaction).create(**user_bill_data)
             except Exception as e:
-                product_id('下单异常',e)
+                log.error('用户id{}-下单异常-{}'.format(userid,e))
                 return self.send_message(False, 400, '下单异常', result)
             # 再处理 我的兑换 和 历史地址 关联
             await My_History_Address.update({My_History_Address.exchangeorder_id: t.id}).where(My_History_Address.id == history_address_obj.id)
