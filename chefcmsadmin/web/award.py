@@ -232,7 +232,7 @@ async def award_list(arg_dict):
     FROM
     product_point
     {}
-    ORDER BY id 
+    ORDER BY sort desc, id desc
     LIMIT ?,?
     '''.format(where_str)
     wvalue_list.append(page)
