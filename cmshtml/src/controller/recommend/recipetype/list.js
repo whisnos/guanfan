@@ -17,11 +17,11 @@ layui.define(['table', 'form', 'layer'], function (exports) {
         // {type: 'checkbox', fixed: 'left'}
         { field: 'id', title: 'ID', minWidth: 80 }
         , { field: 'title', title: '标题', minWidth: 200 }
-        , { field: 'sort', title: '排序', minWidth: 100, sort: true }
+        , { field: 'sort', title: '排序', width: 100, sort: true }
         , { field: 'status', title: '状态', templet: '#recipetype_status_Tpl', minWidth: 100, align: 'center' }
         , { field: 'updateTime', title: '更新时间', sort: true, minWidth: 180 }
         , { field: 'createTime', title: '上传时间', sort: true, minWidth: 180 }
-        , { title: '操作', minWidth: 100, align: 'center', fixed: 'right', toolbar: '#toolbar-recipe-type-content-list' }
+        , { title: '操作', width: 300, align: 'center', fixed: 'right', toolbar: '#toolbar-recipe-type-content-list' }
       ]]
       , page: true
       , limit: 10
