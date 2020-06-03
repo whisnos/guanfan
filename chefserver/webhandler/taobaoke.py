@@ -202,15 +202,15 @@ class TaoFootPrintAllHandler(BaseHandler):
                                    user_check_list=['0', '1'])
         client = self.verify_arg_num(self.get_argument('client'), '客户端类型', is_num=True, ucklist=True,
                                      user_check_list=['0', '1'])
-        collect_query = Tao_Collect_Info.select().where(Tao_Collect_Info.user_id==userid, Tao_Collect_Info.type==type,Tao_Collect_Info.status==0).paginate(int(page), PAGE_SIZE)
+        collect_query = Tao_Collect_Info.select().order_by(Tao_Collect_Info.id.desc()).where(Tao_Collect_Info.user_id==userid, Tao_Collect_Info.type==type,Tao_Collect_Info.status==0).paginate(int(page), PAGE_SIZE)
         collects_wrappers = await self.application.objects.execute(collect_query)
         if not collects_wrappers:
             return self.send_msg(True, 400, '没有产品.', [])
         item_list = []
         item_dict ={}
         for wrap in collects_wrappers:
-            # item_list.append(wrap.itemId)
-            item_list.insert(0, wrap.itemId)
+            item_list.append(wrap.itemId)
+            # item_list.insert(0, wrap.itemId)
             # item_dict[wrap.itemId]=wrap.createTime.strftime('%Y-%m-%d %H:%M:%S')
             # item_dict[str(wrap.itemId)+"Id"] = wrap.id
             # item_dict[str(wrap.itemId) + "Content"] = wrap.content
