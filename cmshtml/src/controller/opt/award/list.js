@@ -6,7 +6,7 @@ layui.define(['table', 'form', 'layer'], function (exports) {
       , layer = layui.layer
       , form = layui.form;
 
-    layui.use('opt/award/award_detail_list', function () {
+    layui.use('opt/award/award_detail_list', function (params) {
       // 预加载 积分奖品详情 弹窗脚本
       });
     //积分奖品列表
@@ -20,7 +20,7 @@ layui.define(['table', 'form', 'layer'], function (exports) {
           , { field: 'grade_no', title: '奖品价值【积分】', width: 150, align: 'center' }
           , { field: 'sku_no', title: '奖品库存(剩余)', width: 150, align: 'center' }
           , { field: 'status', title: '启用', templet: '#award_status_Tpl', width: 80, align: 'center' }
-          , { title: '奖品详情', width: 150, templet:'#award_img_ViewTpl', align: 'center' }
+          , { title: '奖品详情', width: 150, templet:'#award_img_Detail_ViewTpl', align: 'center' }
           , { field: 'sort', title: '排序', width: 80, sort: true, align: 'center'}
           , { title: '操作', minWidth: 200, align: 'center', fixed: 'right', toolbar: '#toolbar-award-list' }
         ]]
@@ -58,7 +58,7 @@ layui.define(['table', 'form', 'layer'], function (exports) {
             });
         } else if (obj.event === 'award_detail_edit'){
             admin.popup({
-                title: '编辑积分奖品详情' + data.title
+                title: '编辑积分奖品详情: ' + data.title
                 , area: ['1150px', '750px']
                 , id: 'LAY-popup-opt-award-detail-status-edit'
                 , success: function (layero, index) {
@@ -82,9 +82,31 @@ layui.define(['table', 'form', 'layer'], function (exports) {
             //,skin: 'layui-layer-rim'
             ,shadeClose: true
             ,area: ['auto', 'auto']
-            ,opt: '<div style="text-align: center; padding: 5px; width: 400px; height:400px"><img src="{imgresource}" style="max-width:100%;max-height:100%"></div>'.replace('{imgresource}', imgurl)
+            ,content: '<div style="text-align: center; padding: 5px; width: 400px; height:400px"><img src="{imgresource}" style="max-width:100%;max-height:100%"></div>'.replace('{imgresource}', imgurl)
             });
-        } else if(obj.event === 'award_del'){
+        } else if(obj.event === 'checkbigdetail'){
+          console.log(obj, 444444444444);
+          var imgurl = '';
+          var origin_front_image = obj.data.front_image;
+          // origin_front_image = origin_front_image.toLocaleLowerCase();
+          if(origin_front_image.startsWith('http')){
+            imgurl = origin_front_image;
+              console.log(obj, 55555555555555555);
+          }else{
+            imgurl = layui.setter.basehost + obj.data.front_image;
+            console.log(obj, 666666666666666666666);
+          }
+          // 查看大图
+            layer.open({
+            title:'查看大图'
+            ,type: 1
+            //,skin: 'layui-layer-rim'
+            ,shadeClose: true
+            ,area: ['auto', 'auto']
+            ,content: '<div style="text-align: center; padding: 5px; width: 400px; height:400px"><img src="{imgresource}" style="max-width:100%;max-height:100%"></div>'.replace('{imgresource}', imgurl)
+            });
+        }
+        else if(obj.event === 'award_del'){
             // 删除
             layer.confirm('确定删除吗？', function (index) {
                 award_del({'id':data.id});
@@ -174,7 +196,7 @@ layui.define(['table', 'form', 'layer'], function (exports) {
               }
           },
           complete:function (result) {
-              table.reload('LAY-cms-award-list');
+              table.reload('LAY-cms-opt-award-list');
           },
           error: function (error) {
           }

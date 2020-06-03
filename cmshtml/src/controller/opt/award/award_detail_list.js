@@ -68,7 +68,7 @@ layui.define(['table', 'layer', 'form'], function(exports){
                     if(origin_img.startsWith('http')){
                         imgurl = origin_img;
                     }else{
-                        imgurl = layui.setter.basehost + obj.data.image;
+                        imgurl = layui.setter.basehost + origin_img;
                     }
                     // 查看大图
                     layer.open({
@@ -76,7 +76,7 @@ layui.define(['table', 'layer', 'form'], function(exports){
                     ,type: 1
                     ,shadeClose: true
                     ,area: ['auto', 'auto']
-                    ,opt: '<div style="text-align: center; padding: 5px; width: 400px; height:400px"><img src="{imgresource}" style="max-width:100%;max-height:100%"></div>'.replace('{imgresource}', imgurl)
+                    ,content: '<div style="text-align: center; padding: 5px; width: 400px; height:400px"><img src="{imgresource}" style="max-width:100%;max-height:100%"></div>'.replace('{imgresource}', imgurl)
                     });
                 }
             });
@@ -203,28 +203,6 @@ layui.define(['table', 'layer', 'form'], function(exports){
         active[type] ? active[type].call(this) : '';
       });
 
-    // $(document).on('click', '#uploadfileawarddetail', function(){
-    //     admin.popup({
-    //         title: '上传图片'
-    //         ,area: ['550px', '450px']
-    //         ,id: 'LAY-popup-opt-oss-fileupload'
-    //         ,success: function(layero, index){
-    //             data = {'operate':2}; //上传图片类型,1 动态 2 食谱 3 主题 4 海报 5 用户头像 6 高级认证 7 其它
-    //             view(this.id).render('app/common/ossupload', {'operate':2}).done(function(){
-    //                 form.render(null, 'layuiadmin-app-oss-fileupload');
-    //                 //文件上传,监听关闭
-    //                 form.on('submit(layuiadmin-app-oss-fileupload)', function(data){
-    //                     var field = data.field; //获取提交的字段
-    //                     console.log(field)
-    //                     if(field.cmsupfiles != ''){
-    //                         document.getElementById('image').value = field.cmsupfiles.slice(0,-1); // 更新食谱图片文件地址
-    //                     }
-    //                     layer.close(index); //执行关闭 
-    //                 });
-    //             });
-    //         }
-    //     });
-    // });
     $(document).on('click', '#uploadfileawarddetail', function(){
         admin.popup({
             title: '上传奖品详情图片'

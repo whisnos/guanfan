@@ -17,8 +17,9 @@
             <table id="LAY-cms-opt-award-list" lay-filter="LAY-cms-opt-award-list"></table>
             <script type="text/html" id="award_img_ViewTpl">
               <button class="layui-btn layui-btn-xs" style="background-color:#1e9fff" lay-event="checkbig">查看图片</button>
-              <!-- <img src="{{ layui.setter.basehost + d.faceimg }}" class="cms-list-img" lay-event="checkbig"> -->
-              <!-- <button class="layui-btn layui-btn-primary" data-type="test5">hello</button> -->
+            </script>
+            <script type="text/html" id="award_img_Detail_ViewTpl">
+              <button class="layui-btn layui-btn-xs" style="background-color:#1e9fff" lay-event="checkbigdetail">查看图片</button>
             </script>
             <script type="text/html" id="award_status_Tpl">
                 {{#  if(d.status===1){ }}
