@@ -598,7 +598,7 @@ class MyAddressHandler(BaseHandler):
 
 
 class MyAddressDetailSinHandler(BaseHandler):
-    ''' 获取某 地址 '''
+    ''' 获取/编辑某 地址 '''
 
     @check_login
     async def get(self):
