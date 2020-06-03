@@ -28,3 +28,5 @@ cmshtml/start/layui/layui.all.js
 cmshtml/start/layui/layui.js
 chefcmsadmin/web/backup_osscallbackserver.py
 chefcmsadmin/web/backup_osscallbackserver_newfail.py
+/notebook/
+/cmshtml/src/config.js
