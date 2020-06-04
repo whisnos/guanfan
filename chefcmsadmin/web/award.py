@@ -61,15 +61,18 @@ async def award_add(arg_dict):
     insert_sql = '''
     INSERT INTO product_point
     (
-    title
+    title,
+    sort
     )
     VALUES
     (
+    ?,
     ?
     )
     '''
     insert_result = await dbins.execute(insert_sql, (
         arg_dict.get('title'),
+        arg_dict.get('sort'),
     ))
     if insert_result is None:
         return 3001, "添加失败"

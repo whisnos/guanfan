@@ -8,6 +8,14 @@
         </div>
     </div>
     <div class="layui-form-item">
+        <label class="layui-form-label">奖品排序</label>
+        <div class="layui-input-inline">
+            <script type="text/html" template>
+                <input type="text" name="sort" value="{{ d.params.sort || '999' }}" lay-verify="required|number|sortnum" placeholder="请输入序号" autocomplete="off" class="layui-input">
+            </script>
+        </div>
+    </div>
+    <div class="layui-form-item">
         <label class="layui-form-label"></label>
         <div class="layui-input-inline">
             <input type="button" lay-submit lay-filter="cms-opt-award-add-form-submit" value="确认"
