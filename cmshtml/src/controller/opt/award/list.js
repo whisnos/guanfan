@@ -165,7 +165,7 @@ layui.define(['table', 'form', 'layer'], function (exports) {
             // 添加积分奖品
             admin.popup({
                 title: '创建积分奖品'
-                , area: ['450px', '230px']
+                , area: ['450px', '450px']
                 , id: 'LAY-popup-opt-award-form-add'
                 , success: function (layero, index) {
                     view(this.id).render('app/opt/award/add').done(function(){
