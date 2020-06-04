@@ -16,9 +16,9 @@ layui.define(['laytpl', 'layer', 'element', 'util'], function(exports){
     ,engine: '.html' //视图文件后缀名
     ,pageTabs: false //是否开启页面选项卡功能。单页版不推荐开启
     ,name: '管饭APP内容管理'
-    // ,basehost: "https://chihuo-app-test-bucket.oss-cn-shenzhen.aliyuncs.com/" // 测试
+    ,basehost: "https://chihuo-app-test-bucket.oss-cn-shenzhen.aliyuncs.com/" // 测试
     // ,debug: true //是否开启调试模式。如开启，接口异常时会抛出异常 URL 等信息
-    ,basehost: "https://guanfan.oss-cn-hangzhou.aliyuncs.com/" // 现网
+    // ,basehost: "https://guanfan.oss-cn-hangzhou.aliyuncs.com/" // 现网
     ,debug: false //是否开启调试模式。如开启，接口异常时会抛出异常 URL 等信息
 
     ,tableName: 'layuiAdmin' //本地存储表名
