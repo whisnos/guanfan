@@ -14,8 +14,8 @@ from chefserver.tool.async_redis_pool import RedisOperate
 from chefserver.webhandler.cacheoperate import CacheUserinfo
 from chefserver.config import APPLE_PUBLIC_KEY_PEM, APPLE_GUANFAN_CLIEND_ID
 import random
-import jwt
-
+# import jwt
+import python_jwt as jwt
 log = applog.get_log('webhandler.authverify')
 dbins = DbOperate.instance()
 
