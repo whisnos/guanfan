@@ -14,8 +14,8 @@ from chefserver.tool.async_redis_pool import RedisOperate
 from chefserver.webhandler.cacheoperate import CacheUserinfo
 from chefserver.config import APPLE_PUBLIC_KEY_PEM, APPLE_GUANFAN_CLIEND_ID
 import random
-import jwt
-
+# import jwt
+import python_jwt as jwt
 log = applog.get_log('webhandler.authverify')
 dbins = DbOperate.instance()
 
@@ -296,10 +296,11 @@ def auth_verify_apple(openid, access_token):
     ''' 验证苹果第三方登录(APP端) '''
     global apple_public_key_pem
     try:
-        token_info = jwt.decode(access_token.encode('utf-8'), APPLE_PUBLIC_KEY_PEM, 
-            algorithms=['RS256'], 
-            verify=True, 
-            options={"verify_aud": True}, audience=APPLE_GUANFAN_CLIEND_ID)
+        header, token_info = jwt.process_jwt(access_token)
+        # token_info = jwt.decode(access_token.encode('utf-8'), APPLE_PUBLIC_KEY_PEM,
+        #     algorithms=['RS256'],
+        #     verify=True,
+        #     options={"verify_aud": True}, audience=APPLE_GUANFAN_CLIEND_ID)
         # print(token_info, type(token_info))
         t_sub = token_info.get('sub',False)
         if t_sub:
@@ -330,15 +331,17 @@ def auth_verify_apple(openid, access_token):
                 return False, "已过期"
         else:
             return False, "错误的时间格式！"
-
         return True, 'ok'
     except jwt.exceptions.InvalidTokenError as e:
-        log.warning("苹果:{},{},验证失败,错误类型:{}".format(openid, access_token[:100], e.args[0]))
+        log.warning("苹果:{},{},验证失败1,错误类型:{}".format(openid, access_token[:100], e.args[0]))
         # print(e)
         return False, e.args[0]
     except ValueError as ve:
-        log.warning("苹果:{},{},验证失败,错误类型:{}".format(openid, access_token[:100], ve.args[0]))
+        log.warning("苹果:{},{},验证失败2,错误类型:{}".format(openid, access_token[:100], ve.args[0]))
         return False, ve.args[0]
+    except Exception as e:
+        log.warning("苹果:{},{},验证失败3,错误类型:{}".format(openid, access_token[:100], e))
+        return False, e.args[0]
 
 if __name__ == '__main__':
     import asyncio
