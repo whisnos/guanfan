@@ -182,7 +182,6 @@ async def auth_verify_login(openid, access_token, platform):
     # success = True
     if success:
         # 认证通过
-        log.error("apple验证通过开始进行数据库查询,openid:{}".format(openid))
         db_res = await check_openid_exists(openid, platform) # 查询openid是否已存在
         if db_res is False:
             # 未添加过的openid,直接插入
@@ -297,7 +296,7 @@ def auth_verify_apple(openid, access_token):
     ''' 验证苹果第三方登录(APP端) '''
     global apple_public_key_pem
     try:
-        header, token_info = jwt.process_jwt(access_token.encode('utf-8'))
+        header, token_info = jwt.process_jwt(access_token)
         # token_info = jwt.decode(access_token.encode('utf-8'), APPLE_PUBLIC_KEY_PEM,
         #     algorithms=['RS256'],
         #     verify=True,
@@ -332,7 +331,6 @@ def auth_verify_apple(openid, access_token):
                 return False, "已过期"
         else:
             return False, "错误的时间格式！"
-        log.warning("苹果:{},{},验证通过".format(openid, access_token[:100]))
         return True, 'ok'
     except jwt.exceptions.InvalidTokenError as e:
         log.warning("苹果:{},{},验证失败1,错误类型:{}".format(openid, access_token[:100], e.args[0]))
