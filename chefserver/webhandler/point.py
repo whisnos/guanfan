@@ -75,8 +75,8 @@ class MyPointProductHandler(BaseHandler):
         result = []
         page = self.verify_arg_legal(self.get_body_argument('page'), '页数', False, is_num=True)
         products_query = Product_Point.select(Product_Point.id, Product_Point.title, Product_Point.grade_no,
-                                              Product_Point.front_image, Product_Point.sku_no, Product_Point.createTime).where(Product_Point.status==1).order_by(
-            Product_Point.id.desc()).paginate(int(page), PAGE_SIZE)
+                                              Product_Point.front_image, Product_Point.sku_no, Product_Point.createTime, Product_Point.sort).where(Product_Point.status==1).order_by(
+            Product_Point.sort.desc()).paginate(int(page), PAGE_SIZE)
         products = await self.application.objects.execute(products_query)
         for p in products:
             p_dict = model_to_dict(p)
