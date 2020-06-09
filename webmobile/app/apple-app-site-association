@@ -1,0 +1,16 @@
+
+{
+    "applinks": {
+        "apps": [],
+        "details": [
+            {
+                "appID": "NY74N95LG3.com.hy.guanfan",
+                "paths": [ "/app/*" ]
+            },
+			{
+			    "appID": "NY74N95LG3.chitest",
+			    "paths": [ "/app/*" ]
+			}
+        ]
+    }
+}
