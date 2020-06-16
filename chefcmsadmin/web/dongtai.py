@@ -79,6 +79,12 @@ def dongtai_search_string(arg_dict):
 
     sql_where = []
     wvalue = []
+    if arg_dict.get('keyword'):
+        # like 模糊搜索字段
+        t = arg_dict.get('keyword')
+        wvalue.append('%' + t + '%')
+        sql_where.append("momentsDescription like ?")
+        arg_dict.pop('keyword')
 
     for k,v in arg_dict.items():
         if v!='':
