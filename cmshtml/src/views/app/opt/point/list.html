@@ -30,6 +30,10 @@
                     <button class="layui-btn layui-btn-primary layui-btn-xs" style="color:#cebdbd">打赏</button>
                 {{#  }else if(d.point_type===4){ }}
                     <button class="layui-btn layui-btn-primary layui-btn-xs" style="color:#cebdbd">分享</button>
+                {{#  }else if(d.point_type===5){ }}
+                    <button class="layui-btn layui-btn-primary layui-btn-xs" style="color:#cebdbd">新用户注册</button>
+                {{#  }else if(d.point_type===6){ }}
+                    <button class="layui-btn layui-btn-primary layui-btn-xs" style="color:#cebdbd">邀请注册</button>
                 {{#  }else{ }}
                     <div class="layui-table-cell">未知类型:{{d.point_type}}</div>
                 {{#  } }}

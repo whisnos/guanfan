@@ -346,7 +346,7 @@ class UserHandler(object):
                 if rd_del == 1:
                     # 删除验证码成功
                     await CacheUserinfo(res[0].get('id')).createCache(force_update=True)
-                    return True, 0, '登录成功', {'token':uid}
+                    return True, 0, '登录成功', {'token':uid, 'id':res[0].get('id')}
                 else:
                     return False, 3002, '清空缓存出错,请重试', None
 
@@ -372,7 +372,7 @@ class UserHandler(object):
             if rdsup != 1:
                 return False, 3008, '更新缓存出错,请重试', None
             await CacheUserinfo(res[0].get('id')).createCache(force_update=True)
-            return True, 0, '登录成功', {'token':uid}
+            return True, 0, '登录成功', {'token':uid, 'id':res[0].get('id')}
         else:
             return False, 2001, '用户名或密码错误', None
 
