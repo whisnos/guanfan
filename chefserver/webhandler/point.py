@@ -70,7 +70,7 @@ class MyPointBillHandler(BaseHandler):
 class MyPointProductHandler(BaseHandler):
     ''' 积分 - 商品列表 '''
 
-    @check_login
+    # @check_login
     async def post(self, *args, **kwargs):
         result = []
         page = self.verify_arg_legal(self.get_body_argument('page'), '页数', False, is_num=True)

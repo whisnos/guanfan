@@ -6,7 +6,7 @@ from chefserver.webhandler.point import MyPointHandler, MyPointBillHandler, MyPo
 from chefserver.webhandler.taobaoke import TaoIndexSearchHandler, TaoIndexChannelInfoAllHandler, \
     TaoIndexMaterialSearchAllHandler, TaoIndexItemInfoAllHandler, TaoFootPrintAllHandler, TaoBannerAllHandler, \
     TaoFootPDeleteAllHandler
-from chefserver.webhandler.user import LoginHandler,SendSmsHandler,RestPasswordHandler
+from chefserver.webhandler.user import LoginHandler, SendSmsHandler, RestPasswordHandler
 from chefserver.webhandler.user import ModifyPhonedHandler,LogoutHandler,PersonInfoHandler
 from chefserver.webhandler.user import ModifyInfoHandler, SubmitAdvancedHandler,RegisterHandler
 from chefserver.webhandler.upload import UploadPhotoHandler

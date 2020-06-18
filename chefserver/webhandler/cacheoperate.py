@@ -362,6 +362,10 @@ class CacheUserPointinfo(CacheBase):
             return await self.get_pinglun()
         elif type == 4:
             return await self.get_share()
+        elif type == 5:
+            return 1
+        elif type == 6:
+            return 1
 
     async def set_point_choice(self, type):
         ''' 设置用户积分动态 发布次数值没有就更新到缓存 '''

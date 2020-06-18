@@ -8,6 +8,8 @@ from chefserver.config import TOKEN_TIME, SMS_VERIFY_TIME, SMS_TEMPLATE_DICT
 from chefserver.webhandler.cacheoperate import CacheUserinfo
 import time
 
+from chefserver.webhandler.publish import update_all_point
+
 log = applog.get_log('webhandler.user')
 # 用户密码及验证码登录
 
@@ -49,6 +51,7 @@ class RegisterHandler(BaseHandler):
         phone = self.get_body_argument('phone')
         # tag = self.get_body_argument('tag')
         verify = self.get_body_argument('verify')
+        inviteid = self.get_body_argument('inviteId', -1)
         if len(password) > 20:
             return self.send_message(False, 1006, '密码过长')
         if len(phone) > 20:
@@ -59,7 +62,19 @@ class RegisterHandler(BaseHandler):
             return self.send_message(False, 1009, '验证码错误')
 
         sucess, code, message, result = await user_handler_obj.register(phone, password, verify, tag='')
+        if code == 0:
+            # 处理注册者 新用户注册 送积分 8
+            await update_all_point(self, result['id'], point_type=5, bill_type=8, des='新用户注册')
+            # 查邀请者是否存在
+            res = await DbOperate().instance().select('select id from user where id=? limit 1', (inviteid))
+            if len(res) > 0:
+                # 进行积分赠送
+                # 处理注册者 邀请好友 送积分 7
+                await update_all_point(self, inviteid, point_type=6, bill_type=7, des='邀请好友')
+            else:
+                pass
         return self.send_message(sucess, code, message, result)
+
 
 
 class SendSmsHandler(BaseHandler):
@@ -138,7 +153,7 @@ class ModifyInfoHandler(BaseHandler):
         sex = self.get_body_argument('sex')
         if sex !='男' and sex !='女':
             return self.send_message(False,1001,'性别格式错误')
-            
+
         birthday = self.get_body_argument('birthday')
         if len(birthday)>20:
             return self.send_message(False,1001,'生日格式错误')
@@ -153,7 +168,7 @@ class ModifyInfoHandler(BaseHandler):
             return self.send_message(False,1001,'口味格式错误')
         if taste not in ('酸','甜','苦','辣','咸','麻辣','酸甜','咸苦','酸苦','微辣','变态辣','超级咸','腻人甜','无敌酸','清淡','通吃','重口味'):
             return self.send_message(False,1001,'口味内容错误')
-            
+
         tag = self.get_body_argument('tag')
         if len(tag)>100:
             return self.send_message(False,1001,'标签内容过长')
@@ -238,7 +253,7 @@ class UserHandler(object):
             if rdsup != 1:
                 return False, 3008, '更新缓存出错,请重试', None
             else:
-                return True, 0, '注册成功',{'token':uid}
+                return True, 0, '注册成功',{'token':uid, 'id':userid[0].get('id')}
         else:
             return False, 2001, '验证码错误',None
 
@@ -248,7 +263,7 @@ class UserHandler(object):
         res = await DbOperate().instance().select('select id from user where mobile=? limit 1', (phone))
         if res is None:
             return False, 3001, '访问异常'
-            
+
         temple_code = ''
         if t == '1':
             # 登录
@@ -412,7 +427,7 @@ class UserHandler(object):
             # 验证码或密码错误
 
     async def person_detail(self, userid):
-        '''获取个人信息''' 
+        '''获取个人信息'''
         sql = "SELECT `userName` as 'name', `mobile` as `phone`, `headImg` as 'img',`sex`,`birthday`,`address`, `personalProfile` as 'personinfo',`tag`, `taste`,`certificationStatus` as 'verify_status' FROM user where id = ?  and status=0"
         db_read = await DbOperate().instance().select(sql, (userid))
         # print(db_read)
@@ -485,7 +500,7 @@ if __name__ == '__main__':
     # import asyncio
     # loop = asyncio.get_event_loop()
     # loop.run_until_complete(test_user_sendsms())
-    
+
 
 
 
