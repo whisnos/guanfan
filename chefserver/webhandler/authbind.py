@@ -124,7 +124,7 @@ async def auth_bind_user(openid, access_token, platform,
         # 绑定成功后直接去登录
         success, token = await login_create_token(userid)
         if success:
-            return True, 0, '登录成功', {'token': token.replace('token:', '')}
+            return True, 0, '登录成功', {'token': token.replace('token:', ''), 'id': userid}
         else:
             return False, 3099, token, None
 
@@ -208,7 +208,7 @@ async def auth_verify_login(openid, access_token, platform):
 
                 success, token = await login_create_token(userid)
                 if success:
-                    return True, 1, '登录成功', {'token': token.replace('token:', '')}
+                    return True, 1, '登录成功', {'token': token.replace('token:', ''), 'id': userid}
                 else:
                     return False, 3099, token, None
     else:
